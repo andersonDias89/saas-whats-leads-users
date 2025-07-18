@@ -1,15 +1,13 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import {
-  DollarSign,
-  TrendingUp,
   FileText,
   CheckCircle,
-  Clock,
   Users,
   MessageCircle
 } from 'lucide-react'
 import { getDashboardData } from '@/lib/dashboard-data'
+import { LeadsChart, ConversationsChart } from '@/components/dashboard/charts'
 
 export default async function DashboardPage() {
   const data = await getDashboardData()
@@ -110,36 +108,17 @@ export default async function DashboardPage() {
                   {data.kpis.totalLeads.change} este mês
                 </CardDescription>
               </div>
-              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center">
                 <Users className="h-6 w-6 text-white" />
               </div>
             </div>
           </CardHeader>
           <CardContent>
-            <div className="h-[200px] flex items-end justify-between space-x-2">
-              {/* Gráfico de barras para leads */}
-              <div className="flex-1 flex items-end space-x-1">
-                {data.charts.revenue.monthlyData.map((item, index) => {
-                  const colors = ['from-blue-500 to-blue-600', 'from-purple-500 to-purple-600', 'from-indigo-500 to-indigo-600', 'from-cyan-500 to-cyan-600', 'from-sky-500 to-sky-600', 'from-violet-500 to-violet-600']
-                  const height = Math.max((item.value / Math.max(...data.charts.revenue.monthlyData.map(d => d.value), 1)) * 100, 10)
-                  return (
-                    <div 
-                      key={item.month} 
-                      className={`flex-1 bg-gradient-to-t ${colors[index % colors.length]} rounded-t transition-all duration-300 hover:scale-105 cursor-pointer`}
-                      style={{ height: `${height}%` }}
-                      title={`${item.value} leads em ${new Date(item.month).toLocaleDateString('pt-BR', { month: 'long' })}`}
-                    ></div>
-                  )
-                })}
-              </div>
-            </div>
-            <div className="flex justify-between text-xs text-foreground-muted mt-2">
-              {data.charts.revenue.monthlyData.map((item) => (
-                <span key={item.month} className="font-medium">
-                  {new Date(item.month).toLocaleDateString('pt-BR', { month: 'short' }).toUpperCase()}
-                </span>
-              ))}
-            </div>
+            <LeadsChart 
+              monthlyData={data.charts.revenue.monthlyData}
+              totalLeads={data.kpis.totalLeads.value}
+              leadsChange={data.kpis.totalLeads.change}
+            />
           </CardContent>
         </Card>
 
@@ -161,35 +140,11 @@ export default async function DashboardPage() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="h-[200px] flex items-center justify-center">
-              {/* Gráfico de pizza/donut para conversas */}
-              <div className="relative w-32 h-32">
-                <svg className="w-32 h-32 transform -rotate-90" viewBox="0 0 36 36">
-                  <path
-                    className="text-background-secondary"
-                    stroke="currentColor"
-                    strokeWidth="3"
-                    fill="transparent"
-                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                  />
-                  <path
-                    className="text-green-500"
-                    stroke="currentColor"
-                    strokeWidth="3"
-                    strokeDasharray={`${(data.kpis.totalConversations.value / Math.max(data.kpis.totalLeads.value, 1)) * 100}, 100`}
-                    strokeLinecap="round"
-                    fill="transparent"
-                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                  />
-                </svg>
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-foreground">{data.kpis.totalConversations.value}</div>
-                    <div className="text-xs text-foreground-muted">Conversas</div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <ConversationsChart 
+              totalConversations={data.kpis.totalConversations.value}
+              activeConversations={data.conversations.active}
+              conversationsChange={data.kpis.totalConversations.change}
+            />
             <div className="mt-4 space-y-2">
               <div className="flex items-center justify-between text-sm">
                 <div className="flex items-center space-x-2">
@@ -200,7 +155,7 @@ export default async function DashboardPage() {
               </div>
               <div className="flex items-center justify-between text-sm">
                 <div className="flex items-center space-x-2">
-                  <div className="w-3 h-3 rounded-full bg-blue-500"></div>
+                  <div className="w-3 h-3 rounded-full bg-gray-600"></div>
                   <span className="text-foreground-secondary">Total de Conversas</span>
                 </div>
                 <span className="text-foreground font-medium">{data.conversations.total}</span>
