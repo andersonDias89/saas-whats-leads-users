@@ -179,9 +179,9 @@ export default async function DashboardPage() {
         {/* Team Members */}
         <Card className="bg-card border-card-border">
           <CardHeader>
-            <CardTitle className="text-foreground">Recent Leads</CardTitle>
+            <CardTitle className="text-foreground">Leads Recentes</CardTitle>
             <CardDescription className="text-muted-foreground">
-              Latest leads captured
+              Últimos leads capturados
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -218,9 +218,9 @@ export default async function DashboardPage() {
         {/* Tasks */}
         <Card className="bg-card border-card-border">
           <CardHeader>
-            <CardTitle className="text-foreground">Recent Conversations</CardTitle>
+            <CardTitle className="text-foreground">Conversas Recentes</CardTitle>
             <CardDescription className="text-muted-foreground">
-              Latest conversations
+              Últimas conversas
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -257,24 +257,41 @@ export default async function DashboardPage() {
         {/* Outreach Success */}
         <Card className="bg-card border-card-border">
           <CardHeader>
-            <CardTitle className="text-foreground">Lead Status</CardTitle>
+            <CardTitle className="text-foreground">Status dos Leads</CardTitle>
             <CardDescription className="text-muted-foreground">
-              Distribution by status
+              Distribuição por status
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {Object.entries(data.leads.byStatus).map(([status, count]) => (
-                <div key={status} className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <div className="w-3 h-3 rounded-full bg-primary"></div>
-                    <span className="text-sm text-foreground-secondary capitalize">
-                      {status.replace('_', ' ')}
-                    </span>
+              {Object.entries(data.leads.byStatus).map(([status, count]) => {
+                const getStatusColor = (status: string) => {
+                  switch (status) {
+                    case 'novo':
+                      return 'bg-blue-500'
+                    case 'qualificado':
+                      return 'bg-green-500'
+                    case 'nao_interessado':
+                      return 'bg-red-500'
+                    case 'fechado':
+                      return 'bg-purple-500'
+                    default:
+                      return 'bg-gray-500'
+                  }
+                }
+                
+                return (
+                  <div key={status} className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <div className={`w-3 h-3 rounded-full ${getStatusColor(status)}`}></div>
+                      <span className="text-sm text-foreground-secondary capitalize">
+                        {status.replace('_', ' ')}
+                      </span>
+                    </div>
+                    <span className="text-sm font-medium text-foreground">{count}</span>
                   </div>
-                  <span className="text-sm font-medium text-foreground">{count}</span>
-                </div>
-              ))}
+                )
+              })}
             </div>
           </CardContent>
         </Card>
@@ -282,23 +299,23 @@ export default async function DashboardPage() {
         {/* Server Storage */}
         <Card className="bg-card border-card-border">
           <CardHeader>
-            <CardTitle className="text-foreground">System Overview</CardTitle>
+            <CardTitle className="text-foreground">Visão Geral do Sistema</CardTitle>
             <CardDescription className="text-muted-foreground">
-              Current system status
+              Status atual do sistema
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <span className="text-sm text-foreground-secondary">Total Leads</span>
+                <span className="text-sm text-foreground-secondary">Total de Leads</span>
                 <span className="text-sm font-medium text-foreground">{data.leads.total}</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm text-foreground-secondary">Active Conversations</span>
+                <span className="text-sm text-foreground-secondary">Conversas Ativas</span>
                 <span className="text-sm font-medium text-foreground">{data.conversations.active}</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm text-foreground-secondary">Total Messages</span>
+                <span className="text-sm text-foreground-secondary">Total de Mensagens</span>
                 <span className="text-sm font-medium text-foreground">{data.kpis.totalMessages.value}</span>
               </div>
               <div className="flex items-center justify-between">
@@ -313,9 +330,9 @@ export default async function DashboardPage() {
       {/* Weekly Reports Table */}
       <Card className="bg-card border-card-border">
         <CardHeader>
-          <CardTitle className="text-foreground">Recent Activity</CardTitle>
+          <CardTitle className="text-foreground">Atividade Recente</CardTitle>
           <CardDescription className="text-muted-foreground">
-            Latest activities and updates
+            Últimas atividades e atualizações
           </CardDescription>
         </CardHeader>
         <CardContent>
