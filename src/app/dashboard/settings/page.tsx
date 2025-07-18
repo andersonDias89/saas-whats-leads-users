@@ -6,9 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
+import { FormField } from '@/components/ui/form-field'
 import { Switch } from '@/components/ui/switch'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Separator } from '@/components/ui/separator'
@@ -169,17 +167,13 @@ export default function SettingsPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div>
-                  <Label htmlFor="companyName" className="text-foreground">Nome da Empresa</Label>
-                  <Input
-                    id="companyName"
-                    {...register('companyName')}
-                    className={errors.companyName ? 'border-destructive' : ''}
-                  />
-                  {errors.companyName && (
-                    <p className="text-sm text-destructive mt-1">{errors.companyName.message}</p>
-                  )}
-                </div>
+                <FormField
+                  label="Nome da Empresa"
+                  placeholder="Nome da sua empresa"
+                  required
+                  error={errors.companyName?.message}
+                  {...register('companyName')}
+                />
               </CardContent>
             </Card>
           </TabsContent>
@@ -197,56 +191,38 @@ export default function SettingsPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div>
-                  <Label htmlFor="twilioAccountSid" className="text-foreground">Account SID</Label>
-                  <Input
-                    id="twilioAccountSid"
-                    {...register('twilioAccountSid')}
-                    className={errors.twilioAccountSid ? 'border-destructive' : ''}
-                  />
-                  {errors.twilioAccountSid && (
-                    <p className="text-sm text-destructive mt-1">{errors.twilioAccountSid.message}</p>
-                  )}
-                </div>
+                <FormField
+                  label="Account SID"
+                  placeholder="AC..."
+                  required
+                  error={errors.twilioAccountSid?.message}
+                  {...register('twilioAccountSid')}
+                />
 
-                <div>
-                  <Label htmlFor="twilioAuthToken" className="text-foreground">Auth Token</Label>
-                  <Input
-                    id="twilioAuthToken"
-                    type="password"
-                    {...register('twilioAuthToken')}
-                    className={errors.twilioAuthToken ? 'border-destructive' : ''}
-                  />
-                  {errors.twilioAuthToken && (
-                    <p className="text-sm text-destructive mt-1">{errors.twilioAuthToken.message}</p>
-                  )}
-                </div>
+                <FormField
+                  label="Auth Token"
+                  type="password"
+                  placeholder="Digite seu Auth Token"
+                  required
+                  error={errors.twilioAuthToken?.message}
+                  {...register('twilioAuthToken')}
+                />
 
-                <div>
-                  <Label htmlFor="twilioWhatsappNumber" className="text-foreground">Número do WhatsApp</Label>
-                  <Input
-                    id="twilioWhatsappNumber"
-                    placeholder="+5511999999999"
-                    {...register('twilioWhatsappNumber')}
-                    className={errors.twilioWhatsappNumber ? 'border-destructive' : ''}
-                  />
-                  {errors.twilioWhatsappNumber && (
-                    <p className="text-sm text-destructive mt-1">{errors.twilioWhatsappNumber.message}</p>
-                  )}
-                </div>
+                <FormField
+                  label="Número do WhatsApp"
+                  placeholder="+5511999999999"
+                  required
+                  error={errors.twilioWhatsappNumber?.message}
+                  {...register('twilioWhatsappNumber')}
+                />
 
-                <div>
-                  <Label htmlFor="twilioSandboxKeyword" className="text-foreground">Palavra-chave do Sandbox</Label>
-                  <Input
-                    id="twilioSandboxKeyword"
-                    placeholder="join"
-                    {...register('twilioSandboxKeyword')}
-                    className={errors.twilioSandboxKeyword ? 'border-destructive' : ''}
-                  />
-                  {errors.twilioSandboxKeyword && (
-                    <p className="text-sm text-destructive mt-1">{errors.twilioSandboxKeyword.message}</p>
-                  )}
-                </div>
+                <FormField
+                  label="Palavra-chave do Sandbox"
+                  placeholder="join"
+                  required
+                  error={errors.twilioSandboxKeyword?.message}
+                  {...register('twilioSandboxKeyword')}
+                />
               </CardContent>
             </Card>
           </TabsContent>
@@ -264,32 +240,24 @@ export default function SettingsPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div>
-                  <Label htmlFor="openaiApiKey" className="text-foreground">API Key da OpenAI</Label>
-                  <Input
-                    id="openaiApiKey"
-                    type="password"
-                    {...register('openaiApiKey')}
-                    className={errors.openaiApiKey ? 'border-destructive' : ''}
-                  />
-                  {errors.openaiApiKey && (
-                    <p className="text-sm text-destructive mt-1">{errors.openaiApiKey.message}</p>
-                  )}
-                </div>
+                <FormField
+                  label="API Key da OpenAI"
+                  type="password"
+                  placeholder="sk-..."
+                  required
+                  error={errors.openaiApiKey?.message}
+                  {...register('openaiApiKey')}
+                />
 
-                <div>
-                  <Label htmlFor="aiPrompt" className="text-foreground">Prompt da IA</Label>
-                  <Textarea
-                    id="aiPrompt"
-                    rows={4}
-                    placeholder="Configure como a IA deve responder às mensagens..."
-                    {...register('aiPrompt')}
-                    className={errors.aiPrompt ? 'border-destructive' : ''}
-                  />
-                  {errors.aiPrompt && (
-                    <p className="text-sm text-destructive mt-1">{errors.aiPrompt.message}</p>
-                  )}
-                </div>
+                <FormField
+                  label="Prompt da IA"
+                  as="textarea"
+                  rows={4}
+                  placeholder="Configure como a IA deve responder às mensagens..."
+                  required
+                  error={errors.aiPrompt?.message}
+                  {...register('aiPrompt')}
+                />
               </CardContent>
             </Card>
           </TabsContent>
@@ -309,7 +277,7 @@ export default function SettingsPage() {
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
-                    <Label className="text-foreground">Resposta Automática</Label>
+                    <span className="text-sm font-medium text-foreground-secondary">Resposta Automática</span>
                     <p className="text-sm text-muted-foreground">
                       Ativar respostas automáticas da IA
                     </p>
@@ -324,7 +292,7 @@ export default function SettingsPage() {
 
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
-                    <Label className="text-foreground">Captura de Leads</Label>
+                    <span className="text-sm font-medium text-foreground-secondary">Captura de Leads</span>
                     <p className="text-sm text-muted-foreground">
                       Capturar automaticamente novos leads
                     </p>

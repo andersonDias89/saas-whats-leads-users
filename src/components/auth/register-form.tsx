@@ -7,8 +7,7 @@ import { signIn } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+import { FormField } from '@/components/ui/form-field'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { RegisterFormData, registerSchema } from '@/schemas'
 import { toast } from 'sonner'
@@ -72,55 +71,41 @@ export function RegisterForm() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <div>
-              <Label htmlFor="name" className="text-foreground">Nome Completo</Label>
-              <Input
-                id="name"
-                {...register('name')}
-                className={errors.name ? 'border-destructive' : ''}
-              />
-              {errors.name && (
-                <p className="text-sm text-destructive mt-1">{errors.name.message}</p>
-              )}
-            </div>
+            <FormField
+              label="Nome Completo"
+              type="text"
+              placeholder="Digite seu nome completo"
+              required
+              error={errors.name?.message}
+              {...register('name')}
+            />
 
-            <div>
-              <Label htmlFor="email" className="text-foreground">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                {...register('email')}
-                className={errors.email ? 'border-destructive' : ''}
-              />
-              {errors.email && (
-                <p className="text-sm text-destructive mt-1">{errors.email.message}</p>
-              )}
-            </div>
+            <FormField
+              label="Email"
+              type="email"
+              placeholder="seu@email.com"
+              required
+              error={errors.email?.message}
+              {...register('email')}
+            />
 
-            <div>
-              <Label htmlFor="password" className="text-foreground">Senha</Label>
-              <Input
-                id="password"
-                type="password"
-                {...register('password')}
-                className={errors.password ? 'border-destructive' : ''}
-              />
-              {errors.password && (
-                <p className="text-sm text-destructive mt-1">{errors.password.message}</p>
-              )}
-            </div>
+            <FormField
+              label="Senha"
+              type="password"
+              placeholder="Mínimo 6 caracteres"
+              required
+              error={errors.password?.message}
+              {...register('password')}
+            />
 
-            <div>
-              <Label htmlFor="companyName" className="text-foreground">Nome da Empresa</Label>
-              <Input
-                id="companyName"
-                {...register('companyName')}
-                className={errors.companyName ? 'border-destructive' : ''}
-              />
-              {errors.companyName && (
-                <p className="text-sm text-destructive mt-1">{errors.companyName.message}</p>
-              )}
-            </div>
+            <FormField
+              label="Nome da Empresa"
+              type="text"
+              placeholder="Nome da sua empresa"
+              required
+              error={errors.companyName?.message}
+              {...register('companyName')}
+            />
 
             <Button
               type="submit"

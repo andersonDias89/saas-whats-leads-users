@@ -7,8 +7,7 @@ import { signIn } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+import { FormField } from '@/components/ui/form-field'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { LoginFormData, loginSchema } from '@/schemas'
 import { toast } from 'sonner'
@@ -59,31 +58,23 @@ export function LoginForm() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <div>
-              <Label htmlFor="email" className="text-foreground">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                {...register('email')}
-                className={errors.email ? 'border-destructive' : ''}
-              />
-              {errors.email && (
-                <p className="text-sm text-destructive mt-1">{errors.email.message}</p>
-              )}
-            </div>
+            <FormField
+              label="Email"
+              type="email"
+              placeholder="seu@email.com"
+              required
+              error={errors.email?.message}
+              {...register('email')}
+            />
 
-            <div>
-              <Label htmlFor="password" className="text-foreground">Senha</Label>
-              <Input
-                id="password"
-                type="password"
-                {...register('password')}
-                className={errors.password ? 'border-destructive' : ''}
-              />
-              {errors.password && (
-                <p className="text-sm text-destructive mt-1">{errors.password.message}</p>
-              )}
-            </div>
+            <FormField
+              label="Senha"
+              type="password"
+              placeholder="Digite sua senha"
+              required
+              error={errors.password?.message}
+              {...register('password')}
+            />
 
             <Button
               type="submit"
