@@ -53,18 +53,23 @@ export async function PUT(req: NextRequest) {
     const session = await getServerSession(authOptions)
     
     if (!session?.user?.id) {
+      console.log('❌ Usuário não autorizado')
       return NextResponse.json(
         { message: 'Não autorizado' },
         { status: 401 }
       )
     }
 
+    console.log('✅ Usuário autorizado:', session.user.id)
     const body = await req.json()
+    console.log('📝 Dados recebidos:', JSON.stringify(body, null, 2))
     
     // Validar dados
     const validatedData = userSettingsSchema.parse(body)
+    console.log('✅ Dados validados:', JSON.stringify(validatedData, null, 2))
     
     // Atualizar usuário
+    console.log('💾 Salvando no banco de dados...')
     const updatedUser = await prisma.user.update({
       where: {
         id: session.user.id
@@ -88,6 +93,7 @@ export async function PUT(req: NextRequest) {
       }
     })
     
+    console.log('✅ Usuário atualizado:', updatedUser)
     return NextResponse.json({
       message: 'Configurações salvas com sucesso',
       user: updatedUser

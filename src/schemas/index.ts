@@ -16,13 +16,13 @@ export const loginSchema = z.object({
 
 // Schema para configurações do usuário
 export const userSettingsSchema = z.object({
-  companyName: z.string().optional(),
-  twilioAccountSid: z.string().optional(),
-  twilioAuthToken: z.string().optional(),
-  twilioWhatsappNumber: z.string().optional(),
-  twilioSandboxKeyword: z.string().optional(),
-  openaiApiKey: z.string().optional(),
-  aiPrompt: z.string().optional()
+  companyName: z.string().optional().or(z.literal('')),
+  twilioAccountSid: z.string().optional().or(z.literal('')),
+  twilioAuthToken: z.string().optional().or(z.literal('')),
+  twilioWhatsappNumber: z.string().optional().or(z.literal('')),
+  twilioSandboxKeyword: z.string().optional().or(z.literal('')),
+  openaiApiKey: z.string().optional().or(z.literal('')),
+  aiPrompt: z.string().optional().or(z.literal(''))
 })
 
 // Schema para criar/editar lead
