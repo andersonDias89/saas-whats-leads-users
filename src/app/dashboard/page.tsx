@@ -145,22 +145,6 @@ export default async function DashboardPage() {
               activeConversations={data.conversations.active}
               conversationsChange={data.kpis.totalConversations.change}
             />
-            <div className="mt-4 space-y-2">
-              <div className="flex items-center justify-between text-sm">
-                <div className="flex items-center space-x-2">
-                  <div className="w-3 h-3 rounded-full bg-green-500"></div>
-                  <span className="text-foreground-secondary">Conversas Ativas</span>
-                </div>
-                <span className="text-foreground font-medium">{data.conversations.active}</span>
-              </div>
-              <div className="flex items-center justify-between text-sm">
-                <div className="flex items-center space-x-2">
-                  <div className="w-3 h-3 rounded-full bg-gray-600"></div>
-                  <span className="text-foreground-secondary">Total de Conversas</span>
-                </div>
-                <span className="text-foreground font-medium">{data.conversations.total}</span>
-              </div>
-            </div>
           </CardContent>
         </Card>
       </div>
