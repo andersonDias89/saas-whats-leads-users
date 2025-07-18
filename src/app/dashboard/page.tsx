@@ -7,7 +7,7 @@ import {
   MessageCircle
 } from 'lucide-react'
 import { getDashboardData } from '@/lib/dashboard-data'
-import { LeadsChart, ConversationsChart } from '@/components/dashboard/charts'
+import { LeadsChart, ConversationsChart, MessagesChart } from '@/components/dashboard/charts'
 
 export default async function DashboardPage() {
   const data = await getDashboardData()
@@ -95,7 +95,7 @@ export default async function DashboardPage() {
       </div>
 
       {/* Charts Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Gráfico de Leads Novos */}
         <Card className="bg-card border-card-border">
           <CardHeader>
@@ -144,6 +144,31 @@ export default async function DashboardPage() {
               totalConversations={data.kpis.totalConversations.value}
               activeConversations={data.conversations.active}
               conversationsChange={data.kpis.totalConversations.change}
+            />
+          </CardContent>
+        </Card>
+
+        {/* Gráfico de Mensagens */}
+        <Card className="bg-card border-card-border">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="text-foreground">
+                  {data.kpis.totalMessages.value} Mensagens
+                </CardTitle>
+                <CardDescription className="text-success">
+                  {data.kpis.totalMessages.change} este mês
+                </CardDescription>
+              </div>
+              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
+                <FileText className="h-6 w-6 text-white" />
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <MessagesChart 
+              totalMessages={data.kpis.totalMessages.value}
+              messagesChange={data.kpis.totalMessages.change}
             />
           </CardContent>
         </Card>
