@@ -98,70 +98,113 @@ export default async function DashboardPage() {
 
       {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Mensagens por Mês */}
+        {/* Gráfico de Leads Novos */}
         <Card className="bg-card border-card-border">
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
                 <CardTitle className="text-foreground">
-                  {data.kpis.totalMessages.value} Mensagens {data.charts.revenue.change}%
+                  {data.kpis.totalLeads.value} Leads Novos
                 </CardTitle>
-                <CardDescription className={data.charts.revenue.status === 'success' ? 'text-success' : 'text-warning'}>
-                  {data.charts.revenue.status === 'success' ? 'No caminho certo' : 'Precisa de atenção'}
+                <CardDescription className="text-success">
+                  {data.kpis.totalLeads.change} este mês
                 </CardDescription>
+              </div>
+              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                <Users className="h-6 w-6 text-white" />
               </div>
             </div>
           </CardHeader>
           <CardContent>
             <div className="h-[200px] flex items-end justify-between space-x-2">
-              {/* Simplified chart representation */}
+              {/* Gráfico de barras para leads */}
               <div className="flex-1 flex items-end space-x-1">
-                {data.charts.revenue.monthlyData.map((item) => (
-                  <div 
-                    key={item.month} 
-                    className="flex-1 bg-primary rounded-t transition-all duration-300" 
-                    style={{ 
-                      height: `${Math.max((item.value / Math.max(...data.charts.revenue.monthlyData.map(d => d.value), 1)) * 100, 10)}%` 
-                    }}
-                  ></div>
-                ))}
+                {data.charts.revenue.monthlyData.map((item, index) => {
+                  const colors = ['from-blue-500 to-blue-600', 'from-purple-500 to-purple-600', 'from-indigo-500 to-indigo-600', 'from-cyan-500 to-cyan-600', 'from-sky-500 to-sky-600', 'from-violet-500 to-violet-600']
+                  const height = Math.max((item.value / Math.max(...data.charts.revenue.monthlyData.map(d => d.value), 1)) * 100, 10)
+                  return (
+                    <div 
+                      key={item.month} 
+                      className={`flex-1 bg-gradient-to-t ${colors[index % colors.length]} rounded-t transition-all duration-300 hover:scale-105 cursor-pointer`}
+                      style={{ height: `${height}%` }}
+                      title={`${item.value} leads em ${new Date(item.month).toLocaleDateString('pt-BR', { month: 'long' })}`}
+                    ></div>
+                  )
+                })}
               </div>
             </div>
             <div className="flex justify-between text-xs text-foreground-muted mt-2">
               {data.charts.revenue.monthlyData.map((item) => (
-                <span key={item.month}>{new Date(item.month).toLocaleDateString('pt-BR', { month: 'short' }).toUpperCase()}</span>
+                <span key={item.month} className="font-medium">
+                  {new Date(item.month).toLocaleDateString('pt-BR', { month: 'short' }).toUpperCase()}
+                </span>
               ))}
             </div>
           </CardContent>
         </Card>
 
-        {/* Project Completion Chart */}
+        {/* Gráfico de Conversas */}
         <Card className="bg-card border-card-border">
           <CardHeader>
-            <CardTitle className="text-foreground">Project Completion</CardTitle>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="text-foreground">
+                  {data.kpis.totalConversations.value} Conversas
+                </CardTitle>
+                <CardDescription className="text-success">
+                  {data.kpis.totalConversations.change} este mês
+                </CardDescription>
+              </div>
+              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center">
+                <MessageCircle className="h-6 w-6 text-white" />
+              </div>
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {[
-                { name: 'Create', progress: data.charts.projectCompletion.create },
-                { name: 'Update', progress: data.charts.projectCompletion.update },
-                { name: 'Send', progress: data.charts.projectCompletion.send },
-                { name: 'Deliver', progress: data.charts.projectCompletion.deliver },
-                { name: 'Change', progress: data.charts.projectCompletion.change }
-              ].map((item) => (
-                <div key={item.name} className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-foreground-secondary">{item.name}</span>
-                    <span className="text-foreground-muted">{item.progress}%</span>
-                  </div>
-                  <div className="w-full bg-background-secondary rounded-full h-2">
-                    <div
-                      className="bg-primary h-2 rounded-full transition-all duration-300"
-                      style={{ width: `${item.progress}%` }}
-                    ></div>
+            <div className="h-[200px] flex items-center justify-center">
+              {/* Gráfico de pizza/donut para conversas */}
+              <div className="relative w-32 h-32">
+                <svg className="w-32 h-32 transform -rotate-90" viewBox="0 0 36 36">
+                  <path
+                    className="text-background-secondary"
+                    stroke="currentColor"
+                    strokeWidth="3"
+                    fill="transparent"
+                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                  />
+                  <path
+                    className="text-green-500"
+                    stroke="currentColor"
+                    strokeWidth="3"
+                    strokeDasharray={`${(data.kpis.totalConversations.value / Math.max(data.kpis.totalLeads.value, 1)) * 100}, 100`}
+                    strokeLinecap="round"
+                    fill="transparent"
+                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                  />
+                </svg>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-foreground">{data.kpis.totalConversations.value}</div>
+                    <div className="text-xs text-foreground-muted">Conversas</div>
                   </div>
                 </div>
-              ))}
+              </div>
+            </div>
+            <div className="mt-4 space-y-2">
+              <div className="flex items-center justify-between text-sm">
+                <div className="flex items-center space-x-2">
+                  <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                  <span className="text-foreground-secondary">Conversas Ativas</span>
+                </div>
+                <span className="text-foreground font-medium">{data.conversations.active}</span>
+              </div>
+              <div className="flex items-center justify-between text-sm">
+                <div className="flex items-center space-x-2">
+                  <div className="w-3 h-3 rounded-full bg-blue-500"></div>
+                  <span className="text-foreground-secondary">Total de Conversas</span>
+                </div>
+                <span className="text-foreground font-medium">{data.conversations.total}</span>
+              </div>
             </div>
           </CardContent>
         </Card>
