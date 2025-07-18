@@ -22,19 +22,19 @@
     --color-foreground-subtle: 0 0% 40%; /* Cinza escuro para texto sutil */
     
     /* ===== CARD COLORS ===== */
-    --color-card: 0 0% 16%; /* #2a2a2a - Background dos cards */
+    --color-card: 0 0% 14%; /* #242424 - Background dos cards (mais escuro) */
     --color-card-foreground: 0 0% 100%;
-    --color-card-border: 0 0% 20%; /* #333333 - Borda dos cards */
+    --color-card-border: 0 0% 22%; /* #383838 - Borda dos cards (mais clara) */
     
     /* ===== BORDER COLORS ===== */
-    --color-border: 0 0% 20%; /* #333333 - Bordas principais */
-    --color-border-secondary: 0 0% 15%; /* #262626 - Bordas secundárias */
-    --color-border-subtle: 0 0% 12%; /* #1f1f1f - Bordas sutis */
+    --color-border: 0 0% 22%; /* #383838 - Bordas principais (mais claras) */
+    --color-border-secondary: 0 0% 18%; /* #2e2e2e - Bordas secundárias */
+    --color-border-subtle: 0 0% 15%; /* #262626 - Bordas sutis */
     
     /* ===== INPUT COLORS ===== */
-    --color-input: 0 0% 16%; /* #2a2a2a - Background dos inputs */
+    --color-input: 0 0% 20%; /* #333333 - Background dos inputs (mais claro que cards) */
     --color-input-foreground: 0 0% 100%;
-    --color-input-border: 0 0% 20%; /* #333333 - Borda dos inputs */
+    --color-input-border: 0 0% 25%; /* #404040 - Borda dos inputs (mais clara) */
     --color-input-focus: 160 84% 39%; /* Verde para foco */
     
     /* ===== ACCENT COLORS ===== */
@@ -193,6 +193,25 @@
 *:focus-visible {
   outline: 2px solid hsl(var(--color-ring));
   outline-offset: 2px;
+}
+
+/* ===== INPUT ENHANCEMENTS ===== */
+input, textarea, select {
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+}
+
+input:focus, textarea:focus, select:focus {
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+}
+
+/* ===== CARD ENHANCEMENTS ===== */
+.card {
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  border: 1px solid hsl(var(--color-card-border));
+}
+
+.card:hover {
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
 }
 
 /* ===== SELECTION STYLES ===== */

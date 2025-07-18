@@ -37,7 +37,7 @@ function SelectTrigger({
       data-slot="select-trigger"
       data-size={size}
       className={cn(
-        "flex h-10 w-full items-center justify-between rounded-lg border border-input bg-background-secondary px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background focus:border-primary hover:border-border-secondary disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1",
+        "flex h-10 w-full items-center justify-between rounded-lg border border-input bg-input px-3 py-2 text-sm text-input-foreground placeholder:text-muted-foreground transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background focus:border-primary hover:border-border-secondary disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1 shadow-sm",
         size === "sm" && "h-8 px-2 text-xs",
         className
       )}
