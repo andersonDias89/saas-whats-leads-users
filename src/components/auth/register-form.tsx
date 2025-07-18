@@ -62,63 +62,63 @@ export function RegisterForm() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <Card className="w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center bg-background py-12 px-4 sm:px-6 lg:px-8">
+      <Card className="w-full max-w-md bg-card border-card-border">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold">Criar Conta</CardTitle>
-          <CardDescription>
+          <CardTitle className="text-2xl font-bold text-card-foreground">Criar Conta</CardTitle>
+          <CardDescription className="text-muted-foreground">
             Crie sua conta e comece a automatizar suas vendas
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div>
-              <Label htmlFor="name">Nome Completo</Label>
+              <Label htmlFor="name" className="text-foreground">Nome Completo</Label>
               <Input
                 id="name"
                 {...register('name')}
-                className={errors.name ? 'border-red-500' : ''}
+                className={errors.name ? 'border-destructive' : ''}
               />
               {errors.name && (
-                <p className="text-sm text-red-500 mt-1">{errors.name.message}</p>
+                <p className="text-sm text-destructive mt-1">{errors.name.message}</p>
               )}
             </div>
 
             <div>
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email" className="text-foreground">Email</Label>
               <Input
                 id="email"
                 type="email"
                 {...register('email')}
-                className={errors.email ? 'border-red-500' : ''}
+                className={errors.email ? 'border-destructive' : ''}
               />
               {errors.email && (
-                <p className="text-sm text-red-500 mt-1">{errors.email.message}</p>
+                <p className="text-sm text-destructive mt-1">{errors.email.message}</p>
               )}
             </div>
 
             <div>
-              <Label htmlFor="password">Senha</Label>
+              <Label htmlFor="password" className="text-foreground">Senha</Label>
               <Input
                 id="password"
                 type="password"
                 {...register('password')}
-                className={errors.password ? 'border-red-500' : ''}
+                className={errors.password ? 'border-destructive' : ''}
               />
               {errors.password && (
-                <p className="text-sm text-red-500 mt-1">{errors.password.message}</p>
+                <p className="text-sm text-destructive mt-1">{errors.password.message}</p>
               )}
             </div>
 
             <div>
-              <Label htmlFor="companyName">Nome da Empresa</Label>
+              <Label htmlFor="companyName" className="text-foreground">Nome da Empresa</Label>
               <Input
                 id="companyName"
                 {...register('companyName')}
-                className={errors.companyName ? 'border-red-500' : ''}
+                className={errors.companyName ? 'border-destructive' : ''}
               />
               {errors.companyName && (
-                <p className="text-sm text-red-500 mt-1">{errors.companyName.message}</p>
+                <p className="text-sm text-destructive mt-1">{errors.companyName.message}</p>
               )}
             </div>
 
@@ -132,9 +132,9 @@ export function RegisterForm() {
           </form>
 
           <div className="mt-6 text-center">
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-muted-foreground">
               Já tem uma conta?{' '}
-              <Link href="/login" className="text-blue-600 hover:underline">
+              <Link href="/login" className="text-primary hover:underline">
                 Entrar
               </Link>
             </p>

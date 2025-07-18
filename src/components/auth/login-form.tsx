@@ -49,39 +49,39 @@ export function LoginForm() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <Card className="w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center bg-background py-12 px-4 sm:px-6 lg:px-8">
+      <Card className="w-full max-w-md bg-card border-card-border">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold">Entrar</CardTitle>
-          <CardDescription>
+          <CardTitle className="text-2xl font-bold text-card-foreground">Entrar</CardTitle>
+          <CardDescription className="text-muted-foreground">
             Entre na sua conta para acessar o WhatsLeads
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div>
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email" className="text-foreground">Email</Label>
               <Input
                 id="email"
                 type="email"
                 {...register('email')}
-                className={errors.email ? 'border-red-500' : ''}
+                className={errors.email ? 'border-destructive' : ''}
               />
               {errors.email && (
-                <p className="text-sm text-red-500 mt-1">{errors.email.message}</p>
+                <p className="text-sm text-destructive mt-1">{errors.email.message}</p>
               )}
             </div>
 
             <div>
-              <Label htmlFor="password">Senha</Label>
+              <Label htmlFor="password" className="text-foreground">Senha</Label>
               <Input
                 id="password"
                 type="password"
                 {...register('password')}
-                className={errors.password ? 'border-red-500' : ''}
+                className={errors.password ? 'border-destructive' : ''}
               />
               {errors.password && (
-                <p className="text-sm text-red-500 mt-1">{errors.password.message}</p>
+                <p className="text-sm text-destructive mt-1">{errors.password.message}</p>
               )}
             </div>
 
@@ -95,9 +95,9 @@ export function LoginForm() {
           </form>
 
           <div className="mt-6 text-center">
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-muted-foreground">
               Não tem uma conta?{' '}
-              <Link href="/register" className="text-blue-600 hover:underline">
+              <Link href="/register" className="text-primary hover:underline">
                 Registre-se
               </Link>
             </p>
