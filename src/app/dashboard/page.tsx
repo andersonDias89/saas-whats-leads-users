@@ -356,6 +356,9 @@ export default async function DashboardPage() {
                   <Badge variant={lead.status === 'fechado' ? 'success' : 'secondary'}>
                     {lead.status}
                   </Badge>
+                  <Badge className="bg-green-500/20 text-green-400 border-green-500/30 hover:bg-green-500/30 transition-colors">
+                    novo
+                  </Badge>
                   {lead.value && (
                     <span className="text-sm font-medium text-foreground">
                       {formatCurrency(lead.value)}
