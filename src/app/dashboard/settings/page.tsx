@@ -205,6 +205,7 @@ export default function SettingsPage() {
                   placeholder="Digite seu Auth Token"
                   required
                   error={errors.twilioAuthToken?.message}
+                  showToggle
                   {...register('twilioAuthToken')}
                 />
 
@@ -246,6 +247,7 @@ export default function SettingsPage() {
                   placeholder="sk-..."
                   required
                   error={errors.openaiApiKey?.message}
+                  showToggle
                   {...register('openaiApiKey')}
                 />
 

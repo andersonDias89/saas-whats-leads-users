@@ -20,6 +20,14 @@ interface FormFieldProps {
   helperText?: string
   as?: "input" | "textarea"
   rows?: number
+  // Novas props para o Input
+  showToggle?: boolean
+  onToggleVisibility?: (visible: boolean) => void
+  isVisible?: boolean
+  leftIcon?: React.ReactNode
+  rightIcon?: React.ReactNode
+  success?: boolean
+  size?: "sm" | "default" | "lg"
 }
 
 const FormField = React.forwardRef<HTMLInputElement | HTMLTextAreaElement, FormFieldProps>(
@@ -37,6 +45,13 @@ const FormField = React.forwardRef<HTMLInputElement | HTMLTextAreaElement, FormF
     helperText,
     as = "input",
     rows = 3,
+    showToggle,
+    onToggleVisibility,
+    isVisible,
+    leftIcon,
+    rightIcon,
+    success,
+    size = "default",
     ...props 
   }, ref) => {
     const inputId = React.useId()
@@ -61,6 +76,14 @@ const FormField = React.forwardRef<HTMLInputElement | HTMLTextAreaElement, FormF
             placeholder={placeholder}
             required={required}
             disabled={disabled}
+            showToggle={showToggle}
+            onToggleVisibility={onToggleVisibility}
+            isVisible={isVisible}
+            leftIcon={leftIcon}
+            rightIcon={rightIcon}
+            success={success}
+            size={size}
+            error={!!error}
             className={cn(
               error && "border-destructive focus-visible:ring-destructive"
             )}
