@@ -19,9 +19,9 @@ interface DashboardChartsProps {
 
 export function LeadsChart({ monthlyData, totalLeads, leadsChange }: { monthlyData: ChartData[], totalLeads: number, leadsChange: string }) {
   return (
-    <div className="h-[200px]">
+    <div className="h-[180px]">
       <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={monthlyData} margin={{ top: 10, right: 10, left: 10, bottom: 10 }}>
+        <BarChart data={monthlyData} margin={{ top: 10, right: 5, left: 5, bottom: 10 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="rgba(156, 163, 175, 0.1)" />
           <XAxis 
             dataKey="month" 
@@ -91,9 +91,9 @@ export function ConversationsChart({ totalConversations, activeConversations, co
   ]
 
   return (
-    <div className="h-[200px]">
+    <div className="h-[180px]">
       <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={conversationData} margin={{ top: 10, right: 10, left: 10, bottom: 10 }}>
+        <BarChart data={conversationData} margin={{ top: 10, right: 5, left: 5, bottom: 10 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="rgba(156, 163, 175, 0.1)" />
           <XAxis 
             dataKey="month" 
@@ -184,9 +184,9 @@ export function MessagesChart({ totalMessages, messagesChange }: { totalMessages
   ]
 
   return (
-    <div className="h-[200px]">
+    <div className="h-[180px]">
       <ResponsiveContainer width="100%" height="100%">
-        <AreaChart data={messagesData} margin={{ top: 10, right: 10, left: 10, bottom: 10 }}>
+        <AreaChart data={messagesData} margin={{ top: 10, right: 5, left: 5, bottom: 10 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="rgba(156, 163, 175, 0.1)" />
           <XAxis 
             dataKey="month" 
@@ -212,13 +212,13 @@ export function MessagesChart({ totalMessages, messagesChange }: { totalMessages
               fontWeight: '500'
             }}
             labelStyle={{
-              color: '#3B82F6',
+              color: '#00D4AA',
               fontWeight: '600',
               fontSize: '13px'
             }}
             labelFormatter={(value) => new Date(value).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}
             formatter={(value) => [`${value} mensagens`, 'Mensagens']}
-            cursor={{ fill: 'rgba(59, 130, 246, 0.1)' }}
+            cursor={{ fill: 'rgba(0, 212, 170, 0.1)' }}
           />
           <Area 
             type="monotone"
@@ -230,13 +230,13 @@ export function MessagesChart({ totalMessages, messagesChange }: { totalMessages
           />
           <defs>
             <linearGradient id="messagesGradient" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#3B82F6" stopOpacity={0.8} />
-              <stop offset="50%" stopColor="#60A5FA" stopOpacity={0.4} />
-              <stop offset="100%" stopColor="#93C5FD" stopOpacity={0.1} />
+              <stop offset="0%" stopColor="#00D4AA" stopOpacity={0.8} />
+              <stop offset="50%" stopColor="#10B981" stopOpacity={0.4} />
+              <stop offset="100%" stopColor="#059669" stopOpacity={0.1} />
             </linearGradient>
             <linearGradient id="messagesStroke" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#3B82F6" />
-              <stop offset="100%" stopColor="#60A5FA" />
+              <stop offset="0%" stopColor="#00D4AA" />
+              <stop offset="100%" stopColor="#10B981" />
             </linearGradient>
           </defs>
         </AreaChart>

@@ -160,7 +160,7 @@ export default async function DashboardPage() {
                   {data.kpis.totalMessages.change} este mês
                 </CardDescription>
               </div>
-              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
+              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center">
                 <FileText className="h-6 w-6 text-white" />
               </div>
             </div>
