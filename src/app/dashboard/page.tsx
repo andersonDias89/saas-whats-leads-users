@@ -201,7 +201,7 @@ export default async function DashboardPage() {
                       </p>
                     </div>
                     <Badge variant={lead.status === 'fechado' ? 'success' : 'secondary'}>
-                      {lead.status}
+                      {lead.status === 'novo' ? 'Novo' : lead.status}
                     </Badge>
                   </div>
                 ))
@@ -352,13 +352,17 @@ export default async function DashboardPage() {
                     </p>
                   </div>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <Badge variant={lead.status === 'fechado' ? 'success' : 'secondary'}>
-                    {lead.status}
-                  </Badge>
-                  <Badge className="bg-green-500/20 text-green-400 border-green-500/30 hover:bg-green-500/30 transition-colors">
-                    novo
-                  </Badge>
+                                <div className="flex items-center space-x-2">
+                  {lead.status !== 'novo' && (
+                    <Badge variant={lead.status === 'fechado' ? 'success' : 'secondary'}>
+                      {lead.status}
+                    </Badge>
+                  )}
+                  {lead.status === 'novo' && (
+                    <Badge className="bg-green-500/20 text-green-400 border-green-500/30 hover:bg-green-500/30 transition-colors">
+                      novo
+                    </Badge>
+                  )}
                   {lead.value && (
                     <span className="text-sm font-medium text-foreground">
                       {formatCurrency(lead.value)}
