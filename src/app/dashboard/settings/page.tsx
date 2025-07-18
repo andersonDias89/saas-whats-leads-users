@@ -30,25 +30,42 @@ export default function SettingsPage() {
   // Carregar dados do usuário
   useEffect(() => {
     const loadUserSettings = async () => {
+      console.log('🔄 Carregando configurações do usuário...')
+      console.log('👤 Sessão:', session)
+      
       try {
         const response = await fetch('/api/user/settings')
+        console.log('📡 Resposta da API:', response.status, response.statusText)
+        
         if (response.ok) {
           const data = await response.json()
+          console.log('📝 Dados carregados:', data)
           reset(data)
+        } else {
+          const error = await response.json()
+          console.error('❌ Erro ao carregar configurações:', error)
         }
-             } catch (err) {
-         console.error('Erro ao carregar configurações:', err)
+      } catch (err) {
+        console.error('❌ Erro ao carregar configurações:', err)
       } finally {
         setIsLoadingData(false)
       }
     }
 
     if (session?.user?.id) {
+      console.log('✅ Usuário autenticado, carregando configurações...')
       loadUserSettings()
+    } else {
+      console.log('❌ Usuário não autenticado')
+      setIsLoadingData(false)
     }
   }, [session, reset])
 
   const onSubmit = async (data: UserSettingsFormData) => {
+    console.log('🚀 Iniciando salvamento de configurações...')
+    console.log('📝 Dados a serem salvos:', data)
+    console.log('👤 Sessão atual:', session)
+    
     setIsLoading(true)
     
     try {
@@ -60,14 +77,20 @@ export default function SettingsPage() {
         body: JSON.stringify(data),
       })
 
+      console.log('📡 Resposta da API:', response.status, response.statusText)
+
       if (response.ok) {
+        const result = await response.json()
+        console.log('✅ Configurações salvas com sucesso:', result)
         toast.success('Configurações salvas com sucesso!')
       } else {
         const error = await response.json()
+        console.error('❌ Erro ao salvar configurações:', error)
         toast.error(error.message || 'Erro ao salvar configurações')
       }
-         } catch (err) {
-       toast.error('Erro ao salvar configurações')
+    } catch (err) {
+      console.error('❌ Erro ao salvar configurações:', err)
+      toast.error('Erro ao salvar configurações')
     } finally {
       setIsLoading(false)
     }
