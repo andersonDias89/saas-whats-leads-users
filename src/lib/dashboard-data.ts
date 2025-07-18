@@ -120,16 +120,6 @@ export async function getDashboardData() {
         change: lastMonthMessages > 0 ? `+${totalMessages - lastMonthMessages}` : '0',
         changeType: 'increase' as const,
       },
-      activeConversations: {
-        value: activeConversations,
-        change: activeConversations > 0 ? '+0' : '0',
-        changeType: 'increase' as const,
-      },
-      totalValue: {
-        value: totalValue,
-        change: lastMonthValue > 0 ? ((totalValue - lastMonthValue) / lastMonthValue * 100).toFixed(1) : '0',
-        changeType: totalValue >= lastMonthValue ? 'increase' : 'decrease',
-      },
       leadsQualificados: {
         value: leadsByStatus.qualificado,
         change: leadsByStatus.qualificado > 0 ? '+0' : '0',

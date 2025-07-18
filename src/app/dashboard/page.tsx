@@ -42,7 +42,7 @@ export default async function DashboardPage() {
       </div>
 
       {/* KPI Cards - Dados Reais */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         <Card className="bg-card border-card-border">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-foreground-secondary">Total de Leads</CardTitle>
@@ -78,32 +78,6 @@ export default async function DashboardPage() {
             <div className="text-2xl font-bold text-foreground">{data.kpis.totalMessages.value}</div>
             <p className="text-xs text-foreground-muted">
               {data.kpis.totalMessages.change} este mês
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-card border-card-border">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-foreground-secondary">Conversas Ativas</CardTitle>
-            <Clock className="h-4 w-4 text-foreground-muted" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-foreground">{data.kpis.activeConversations.value}</div>
-            <p className="text-xs text-foreground-muted">
-              {data.kpis.activeConversations.change} este mês
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-card border-card-border">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-foreground-secondary">Valor Total</CardTitle>
-            <DollarSign className="h-4 w-4 text-foreground-muted" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-foreground">{formatCurrency(data.kpis.totalValue.value)}</div>
-            <p className="text-xs text-foreground-muted">
-              {data.kpis.totalValue.changeType === 'increase' ? '+' : ''}{data.kpis.totalValue.change}% este mês
             </p>
           </CardContent>
         </Card>
@@ -321,8 +295,8 @@ export default async function DashboardPage() {
                 <span className="text-sm font-medium text-foreground">{data.kpis.totalMessages.value}</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm text-foreground-secondary">Total Value</span>
-                <span className="text-sm font-medium text-foreground">{formatCurrency(data.kpis.totalValue.value)}</span>
+                <span className="text-sm text-foreground-secondary">Leads Qualificados</span>
+                <span className="text-sm font-medium text-foreground">{data.kpis.leadsQualificados.value}</span>
               </div>
             </div>
           </CardContent>
