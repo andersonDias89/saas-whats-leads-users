@@ -257,13 +257,13 @@ export default function ConversationDetailPage() {
                     <div
                       className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
                         message.direction === 'outbound'
-                          ? 'bg-primary text-primary-foreground'
+                          ? 'bg-muted text-foreground'
                           : 'bg-card border border-border'
                       }`}
                     >
                       <p className="text-sm">{message.content}</p>
                       <div className={`flex items-center justify-between text-xs mt-1 ${
-                        message.direction === 'outbound' ? 'text-primary-foreground/70' : 'text-muted-foreground'
+                        message.direction === 'outbound' ? 'text-muted-foreground' : 'text-muted-foreground'
                       }`}>
                         <span>{formatMessageTime(message.timestamp)}</span>
                         {message.direction === 'outbound' && (
