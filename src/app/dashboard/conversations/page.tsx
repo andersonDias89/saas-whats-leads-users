@@ -9,6 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { MessageCircle, Search, Filter, Phone, Calendar, MessageSquare } from 'lucide-react'
 import { toast } from 'sonner'
+import Link from 'next/link'
 
 interface Message {
   id: string
@@ -184,48 +185,50 @@ export default function ConversationsPage() {
           ) : (
             <div className="space-y-4">
               {filteredConversations.map((conversation) => (
-                <div key={conversation.id} className="border border-border rounded-lg p-4 hover:bg-accent transition-colors">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-4">
-                      <Avatar>
-                        <AvatarImage src="" />
-                        <AvatarFallback className="bg-primary text-primary-foreground">
-                          <MessageCircle className="h-4 w-4" />
-                        </AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <h3 className="font-medium text-foreground">{conversation.leadName || 'Lead sem nome'}</h3>
-                        <div className="flex items-center space-x-4 text-sm text-muted-foreground">
-                          <div className="flex items-center">
-                            <Phone className="mr-1 h-3 w-3" />
-                            {conversation.phoneNumber}
+                <Link key={conversation.id} href={`/dashboard/conversations/${conversation.id}`}>
+                  <div className="border border-border rounded-lg p-4 hover:bg-accent transition-colors">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-4">
+                        <Avatar>
+                          <AvatarImage src="" />
+                          <AvatarFallback className="bg-primary text-primary-foreground">
+                            <MessageCircle className="h-4 w-4" />
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <h3 className="font-medium text-foreground">{conversation.leadName || 'Lead sem nome'}</h3>
+                          <div className="flex items-center space-x-4 text-sm text-muted-foreground">
+                            <div className="flex items-center">
+                              <Phone className="mr-1 h-3 w-3" />
+                              {conversation.phoneNumber}
+                            </div>
+                            <div className="flex items-center">
+                              <MessageSquare className="mr-1 h-3 w-3" />
+                              {conversation.messages.length} mensagens
+                            </div>
+                            <div className="flex items-center">
+                              <Calendar className="mr-1 h-3 w-3" />
+                              {formatDate(conversation.lastMessageTime)}
+                            </div>
                           </div>
-                          <div className="flex items-center">
-                            <MessageSquare className="mr-1 h-3 w-3" />
-                            {conversation.messages.length} mensagens
-                          </div>
-                          <div className="flex items-center">
-                            <Calendar className="mr-1 h-3 w-3" />
-                            {formatDate(conversation.lastMessageTime)}
-                          </div>
+                          {conversation.lastMessage && (
+                            <p className="text-sm text-muted-foreground mt-1 truncate max-w-md">
+                              {conversation.lastMessage}
+                            </p>
+                          )}
                         </div>
-                        {conversation.lastMessage && (
-                          <p className="text-sm text-muted-foreground mt-1 truncate max-w-md">
-                            {conversation.lastMessage}
-                          </p>
+                      </div>
+                      <div className="flex items-center space-x-3">
+                        {getStatusBadge(conversation.status || 'active')}
+                        {conversation.unreadCount > 0 && (
+                          <Badge className="bg-primary text-primary-foreground">
+                            {conversation.unreadCount}
+                          </Badge>
                         )}
                       </div>
                     </div>
-                    <div className="flex items-center space-x-3">
-                      {getStatusBadge(conversation.status || 'active')}
-                      {conversation.unreadCount > 0 && (
-                        <Badge className="bg-primary text-primary-foreground">
-                          {conversation.unreadCount}
-                        </Badge>
-                      )}
-                    </div>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           )}
