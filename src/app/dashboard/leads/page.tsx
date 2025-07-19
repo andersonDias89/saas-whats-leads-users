@@ -140,26 +140,6 @@ export default function LeadsPage() {
         </Button>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        {statusOptions.map((status) => {
-          const count = leads.filter(lead => lead.status === status.value).length
-          return (
-            <Card key={status.value} className="bg-card border-card-border">
-              <CardContent className="p-6">
-                <div className="flex items-center">
-                  <div className={`w-3 h-3 rounded-full ${status.color} mr-3`}></div>
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">{status.label}</p>
-                    <p className="text-2xl font-bold text-foreground">{count}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          )
-        })}
-      </div>
-
       {/* Filters */}
       <Card className="bg-card border-card-border">
         <CardContent className="p-6">
