@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
-import { MessageCircle, Search, Send, Phone, Calendar } from 'lucide-react'
+import { MessageCircle, Search, Phone, Calendar } from 'lucide-react'
 import { toast } from 'sonner'
 
 interface Message {
@@ -31,7 +31,6 @@ export default function ConversationsPage() {
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
-  const [newMessage, setNewMessage] = useState('')
 
   useEffect(() => {
     loadConversations()
@@ -54,40 +53,6 @@ export default function ConversationsPage() {
       toast.error('Erro ao carregar conversas')
     } finally {
       setIsLoading(false)
-    }
-  }
-
-  const sendMessage = async () => {
-    if (!newMessage.trim() || !selectedConversation) return
-
-    try {
-      const response = await fetch('/api/conversations/messages', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          conversationId: selectedConversation.id,
-          content: newMessage,
-        }),
-      })
-
-      if (response.ok) {
-        const message = await response.json()
-        setSelectedConversation(prev => prev ? {
-          ...prev,
-          messages: [...prev.messages, message],
-          lastMessage: message.content,
-          lastMessageTime: message.timestamp,
-        } : null)
-        setNewMessage('')
-        toast.success('Mensagem enviada')
-      } else {
-        toast.error('Erro ao enviar mensagem')
-      }
-    } catch (error) {
-      console.error('Erro ao enviar mensagem:', error)
-      toast.error('Erro ao enviar mensagem')
     }
   }
 
@@ -215,7 +180,7 @@ export default function ConversationsPage() {
                 <div className="text-center py-12 text-muted-foreground">
                   <MessageCircle className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
                   <p>Nenhuma mensagem ainda</p>
-                  <p className="text-sm">Inicie uma conversa enviando uma mensagem</p>
+                  <p className="text-sm">As mensagens aparecerão aqui quando chegarem via WhatsApp</p>
                 </div>
               ) : (
                 selectedConversation.messages.map((message) => (
@@ -241,28 +206,12 @@ export default function ConversationsPage() {
                 ))
               )}
             </div>
-
-            {/* Message Input */}
-            <div className="bg-card border-t border-border p-4">
-              <div className="flex space-x-2">
-                <Input
-                  placeholder="Digite sua mensagem..."
-                  value={newMessage}
-                  onChange={(e) => setNewMessage(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
-                  className="flex-1"
-                />
-                <Button onClick={sendMessage} disabled={!newMessage.trim()}>
-                  <Send className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
           </>
         ) : (
           <div className="flex-1 flex items-center justify-center text-muted-foreground">
             <div className="text-center">
               <MessageCircle className="mx-auto h-16 w-16 text-muted-foreground mb-4" />
-              <p>Selecione uma conversa para começar</p>
+              <p>Selecione uma conversa para visualizar as mensagens</p>
             </div>
           </div>
         )}
