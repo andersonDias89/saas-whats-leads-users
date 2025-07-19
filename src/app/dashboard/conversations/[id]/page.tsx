@@ -44,7 +44,6 @@ interface Conversation {
     id: string
     name: string
     status: string
-    value?: number
   }
 }
 
@@ -336,14 +335,6 @@ export default function ConversationDetailPage() {
                     </p>
                   </div>
                 </div>
-                {conversation.lead.value && (
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">Valor estimado</span>
-                    <span className="text-sm font-medium text-foreground">
-                      R$ {conversation.lead.value.toFixed(2)}
-                    </span>
-                  </div>
-                )}
                 <Link href={`/dashboard/leads/${conversation.lead.id}`}>
                   <Button variant="outline" size="sm" className="w-full">
                     Ver Lead

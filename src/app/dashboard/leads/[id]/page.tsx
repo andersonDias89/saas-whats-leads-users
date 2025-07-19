@@ -31,7 +31,6 @@ interface Lead {
   phone: string
   email?: string
   status: string
-  value?: number
   notes?: string
   createdAt: string
   updatedAt: string
@@ -289,23 +288,6 @@ export default function LeadDetailPage() {
                   ) : (
                     <div className="mt-1">
                       {getStatusBadge(lead.status)}
-                    </div>
-                  )}
-                </div>
-
-                <div>
-                  <label className="text-sm font-medium text-muted-foreground">Valor Estimado</label>
-                  {isEditing ? (
-                    <Input
-                      type="number"
-                      value={editData.value || ''}
-                      onChange={(e) => setEditData({ ...editData, value: parseFloat(e.target.value) || 0 })}
-                      placeholder="R$ 0,00"
-                      className="mt-1"
-                    />
-                  ) : (
-                    <div className="mt-1 text-foreground">
-                      {lead.value ? `R$ ${lead.value.toFixed(2)}` : 'Não informado'}
                     </div>
                   )}
                 </div>

@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Plus, Search, Filter, Users, Phone, Mail, Calendar, DollarSign } from 'lucide-react'
+import { Plus, Search, Filter, Users, Phone, Mail, Calendar } from 'lucide-react'
 import { toast } from 'sonner'
 import Link from 'next/link'
 
@@ -17,9 +17,10 @@ interface Lead {
   phone: string
   email?: string
   status: string
-  value?: number
   notes?: string
   createdAt: string
+  updatedAt: string
+  source: string
 }
 
 const statusOptions = [
@@ -226,12 +227,6 @@ export default function LeadsPage() {
                               <Calendar className="mr-1 h-3 w-3" />
                               {formatDate(lead.createdAt)}
                             </div>
-                            {lead.value && (
-                              <div className="flex items-center">
-                                <DollarSign className="mr-1 h-3 w-3" />
-                                R$ {lead.value.toFixed(2)}
-                              </div>
-                            )}
                           </div>
                         </div>
                       </div>

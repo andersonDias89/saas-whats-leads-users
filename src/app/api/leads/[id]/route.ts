@@ -107,7 +107,6 @@ export async function PATCH(
         name: body.name,
         email: body.email,
         status: body.status,
-        value: body.value,
         notes: body.notes
       },
       include: {
