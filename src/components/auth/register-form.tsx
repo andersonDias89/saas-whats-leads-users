@@ -7,8 +7,7 @@ import { signIn } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+import { FormField } from '@/components/ui/form-field'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { RegisterFormData, registerSchema } from '@/schemas'
 import { toast } from 'sonner'
@@ -62,65 +61,51 @@ export function RegisterForm() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <Card className="w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center bg-background py-12 px-4 sm:px-6 lg:px-8">
+      <Card className="w-full max-w-md bg-card border-card-border">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold">Criar Conta</CardTitle>
-          <CardDescription>
+          <CardTitle className="text-2xl font-bold text-card-foreground">Criar Conta</CardTitle>
+          <CardDescription className="text-muted-foreground">
             Crie sua conta e comece a automatizar suas vendas
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <div>
-              <Label htmlFor="name">Nome Completo</Label>
-              <Input
-                id="name"
-                {...register('name')}
-                className={errors.name ? 'border-red-500' : ''}
-              />
-              {errors.name && (
-                <p className="text-sm text-red-500 mt-1">{errors.name.message}</p>
-              )}
-            </div>
+            <FormField
+              label="Nome Completo"
+              type="text"
+              placeholder="Digite seu nome completo"
+              required
+              error={errors.name?.message}
+              {...register('name')}
+            />
 
-            <div>
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                {...register('email')}
-                className={errors.email ? 'border-red-500' : ''}
-              />
-              {errors.email && (
-                <p className="text-sm text-red-500 mt-1">{errors.email.message}</p>
-              )}
-            </div>
+            <FormField
+              label="Email"
+              type="email"
+              placeholder="seu@email.com"
+              required
+              error={errors.email?.message}
+              {...register('email')}
+            />
 
-            <div>
-              <Label htmlFor="password">Senha</Label>
-              <Input
-                id="password"
-                type="password"
-                {...register('password')}
-                className={errors.password ? 'border-red-500' : ''}
-              />
-              {errors.password && (
-                <p className="text-sm text-red-500 mt-1">{errors.password.message}</p>
-              )}
-            </div>
+            <FormField
+              label="Senha"
+              type="password"
+              placeholder="Mínimo 6 caracteres"
+              required
+              error={errors.password?.message}
+              {...register('password')}
+            />
 
-            <div>
-              <Label htmlFor="companyName">Nome da Empresa</Label>
-              <Input
-                id="companyName"
-                {...register('companyName')}
-                className={errors.companyName ? 'border-red-500' : ''}
-              />
-              {errors.companyName && (
-                <p className="text-sm text-red-500 mt-1">{errors.companyName.message}</p>
-              )}
-            </div>
+            <FormField
+              label="Nome da Empresa"
+              type="text"
+              placeholder="Nome da sua empresa"
+              required
+              error={errors.companyName?.message}
+              {...register('companyName')}
+            />
 
             <Button
               type="submit"
@@ -132,9 +117,9 @@ export function RegisterForm() {
           </form>
 
           <div className="mt-6 text-center">
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-muted-foreground">
               Já tem uma conta?{' '}
-              <Link href="/login" className="text-blue-600 hover:underline">
+              <Link href="/login" className="text-primary hover:underline">
                 Entrar
               </Link>
             </p>
