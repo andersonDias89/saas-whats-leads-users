@@ -57,6 +57,7 @@ export async function GET() {
         lastMessage: conversation.lastMessage || '',
         lastMessageTime: conversation.lastMessageAt || conversation.createdAt,
         unreadCount: 0, // Por enquanto, não implementado
+        status: conversation.status || 'active',
         messages: conversation.messages.map(message => ({
           id: message.id,
           content: message.content,
