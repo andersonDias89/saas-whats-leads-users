@@ -56,13 +56,22 @@ export default function ConversationsPage() {
     }
   }
 
-  const formatDate = (date: string) => {
-    return new Date(date).toLocaleDateString('pt-BR', {
-      day: '2-digit',
-      month: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit'
-    })
+  const formatDate = (date: string | Date) => {
+    try {
+      const dateObj = new Date(date)
+      if (isNaN(dateObj.getTime())) {
+        return 'Data inválida'
+      }
+      return dateObj.toLocaleDateString('pt-BR', {
+        day: '2-digit',
+        month: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+      })
+    } catch (error) {
+      console.error('Erro ao formatar data:', date, error)
+      return 'Data inválida'
+    }
   }
 
   if (isLoading) {

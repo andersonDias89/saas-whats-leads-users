@@ -24,7 +24,14 @@ export async function GET() {
             createdAt: 'asc'
           }
         },
-        leads: true,
+        leads: {
+          select: {
+            id: true,
+            name: true,
+            phone: true,
+            status: true
+          }
+        },
         user: {
           select: {
             id: true,
@@ -38,7 +45,28 @@ export async function GET() {
       }
     })
 
-    return NextResponse.json(conversations)
+    // Mapear os dados para o formato esperado pelo frontend
+    const mappedConversations = conversations.map(conversation => {
+      // Pegar o nome do lead ou contactName da conversa
+      const leadName = conversation.leads[0]?.name || conversation.contactName || 'Lead sem nome'
+      
+      return {
+        id: conversation.id,
+        phoneNumber: conversation.phoneNumber,
+        leadName: leadName,
+        lastMessage: conversation.lastMessage || '',
+        lastMessageTime: conversation.lastMessageAt || conversation.createdAt,
+        unreadCount: 0, // Por enquanto, não implementado
+        messages: conversation.messages.map(message => ({
+          id: message.id,
+          content: message.content,
+          direction: message.direction as 'inbound' | 'outbound',
+          timestamp: message.createdAt
+        }))
+      }
+    })
+
+    return NextResponse.json(mappedConversations)
 
   } catch (error) {
     console.error('Erro ao buscar conversas:', error)
