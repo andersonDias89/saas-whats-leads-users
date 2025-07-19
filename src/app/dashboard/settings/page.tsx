@@ -10,19 +10,17 @@ import { FormField } from '@/components/ui/form-field'
 import { Switch } from '@/components/ui/switch'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Separator } from '@/components/ui/separator'
-import { Settings, Save, MessageCircle, Bot, Building, Shield } from 'lucide-react'
+import { Settings, Save, MessageCircle, Bot, Building, Shield, AlertCircle } from 'lucide-react'
 import { toast } from 'sonner'
 
 const settingsSchema = z.object({
-  companyName: z.string().min(1, 'Nome da empresa é obrigatório'),
-  twilioAccountSid: z.string().min(1, 'Account SID é obrigatório'),
-  twilioAuthToken: z.string().min(1, 'Auth Token é obrigatório'),
-  twilioWhatsappNumber: z.string().min(1, 'Número do WhatsApp é obrigatório'),
-  twilioSandboxKeyword: z.string().min(1, 'Palavra-chave do Sandbox é obrigatória'),
-  openaiApiKey: z.string().min(1, 'API Key da OpenAI é obrigatória'),
-  aiPrompt: z.string().min(1, 'Prompt da IA é obrigatório'),
-  autoReply: z.boolean(),
-  leadCapture: z.boolean(),
+  companyName: z.string().optional().or(z.literal('')),
+  twilioAccountSid: z.string().optional().or(z.literal('')),
+  twilioAuthToken: z.string().optional().or(z.literal('')),
+  twilioWhatsappNumber: z.string().optional().or(z.literal('')),
+  twilioSandboxKeyword: z.string().optional().or(z.literal('')),
+  openaiApiKey: z.string().optional().or(z.literal('')),
+  aiPrompt: z.string().optional().or(z.literal('')),
 })
 
 type SettingsFormData = z.infer<typeof settingsSchema>
@@ -30,6 +28,7 @@ type SettingsFormData = z.infer<typeof settingsSchema>
 export default function SettingsPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
+  const [error, setError] = useState('')
   const [activeTab, setActiveTab] = useState('empresa')
 
   const {
@@ -42,8 +41,7 @@ export default function SettingsPage() {
     resolver: zodResolver(settingsSchema),
   })
 
-  const autoReply = watch('autoReply')
-  const leadCapture = watch('leadCapture')
+
 
   useEffect(() => {
     loadSettings()
@@ -70,6 +68,8 @@ export default function SettingsPage() {
 
   const onSubmit = async (data: SettingsFormData) => {
     setIsSaving(true)
+    setError('')
+    
     try {
       const response = await fetch('/api/settings', {
         method: 'PUT',
@@ -79,14 +79,31 @@ export default function SettingsPage() {
         body: JSON.stringify(data),
       })
 
-      if (response.ok) {
-        toast.success('Configurações salvas com sucesso!')
-      } else {
-        toast.error('Erro ao salvar configurações')
+      const result = await response.json()
+
+      if (!response.ok) {
+        // Tratamento específico de erros
+        let errorMessage = 'Erro ao salvar configurações'
+        
+        if (response.status === 400) {
+          errorMessage = result.details || result.message || 'Dados inválidos. Verifique os campos obrigatórios.'
+        } else if (response.status === 401) {
+          errorMessage = 'Sessão expirada. Faça login novamente.'
+        } else if (response.status === 409) {
+          errorMessage = result.message || 'Conflito de dados. Verifique as informações.'
+        } else if (response.status === 500) {
+          errorMessage = result.message || 'Erro interno do servidor. Tente novamente.'
+        }
+        
+        throw new Error(errorMessage)
       }
+
+      toast.success('Configurações salvas com sucesso!')
     } catch (error) {
       console.error('Erro ao salvar configurações:', error)
-      toast.error('Erro ao salvar configurações')
+      const errorMessage = error instanceof Error ? error.message : 'Erro ao salvar configurações'
+      setError(errorMessage)
+      toast.error(errorMessage)
     } finally {
       setIsSaving(false)
     }
@@ -120,6 +137,15 @@ export default function SettingsPage() {
           {isSaving ? 'Salvando...' : 'Salvar Configurações'}
         </Button>
       </div>
+
+      {error && (
+        <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4">
+          <div className="flex items-center space-x-2">
+            <AlertCircle className="h-4 w-4 text-destructive" />
+            <span className="text-sm text-destructive font-medium">{error}</span>
+          </div>
+        </div>
+      )}
 
       <form onSubmit={handleSubmit(onSubmit)}>
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
@@ -285,8 +311,9 @@ export default function SettingsPage() {
                     </p>
                   </div>
                   <Switch
-                    checked={autoReply}
-                    onCheckedChange={(checked) => setValue('autoReply', checked)}
+                    checked={true}
+                    onCheckedChange={() => {}}
+                    disabled
                   />
                 </div>
 
@@ -300,8 +327,9 @@ export default function SettingsPage() {
                     </p>
                   </div>
                   <Switch
-                    checked={leadCapture}
-                    onCheckedChange={(checked) => setValue('leadCapture', checked)}
+                    checked={true}
+                    onCheckedChange={() => {}}
+                    disabled
                   />
                 </div>
               </CardContent>
