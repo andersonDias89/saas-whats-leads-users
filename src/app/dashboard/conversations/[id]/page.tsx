@@ -16,7 +16,9 @@ import {
   User,
   Clock,
   Send,
-  Download
+  Download,
+  Bot,
+  User as UserIcon
 } from 'lucide-react'
 import { toast } from 'sonner'
 
@@ -254,21 +256,40 @@ export default function ConversationDetailPage() {
                     key={message.id}
                     className={`flex ${message.direction === 'outbound' ? 'justify-end' : 'justify-start'}`}
                   >
-                    <div
-                      className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
-                        message.direction === 'outbound'
-                          ? 'bg-muted text-foreground'
-                          : 'bg-card border border-border'
-                      }`}
-                    >
-                      <p className="text-sm">{message.content}</p>
-                      <div className={`flex items-center justify-between text-xs mt-1 ${
-                        message.direction === 'outbound' ? 'text-muted-foreground' : 'text-muted-foreground'
+                    <div className="flex flex-col max-w-xs lg:max-w-md">
+                      {/* Header da mensagem */}
+                      <div className={`flex items-center space-x-2 mb-1 ${
+                        message.direction === 'outbound' ? 'justify-end' : 'justify-start'
                       }`}>
-                        <span>{formatMessageTime(message.timestamp)}</span>
-                        {message.direction === 'outbound' && (
-                          <span className="capitalize">{message.status}</span>
-                        )}
+                        <div className="flex items-center space-x-1">
+                          {message.direction === 'outbound' ? (
+                            <Bot className="h-3 w-3 text-muted-foreground" />
+                          ) : (
+                            <UserIcon className="h-3 w-3 text-muted-foreground" />
+                          )}
+                          <span className="text-xs text-muted-foreground font-medium">
+                            {message.direction === 'outbound' ? 'Agent' : conversation.leadName || 'Lead sem nome'}
+                          </span>
+                        </div>
+                      </div>
+                      
+                      {/* Conteúdo da mensagem */}
+                      <div
+                        className={`px-4 py-2 rounded-lg ${
+                          message.direction === 'outbound'
+                            ? 'bg-muted text-foreground'
+                            : 'bg-card border border-border'
+                        }`}
+                      >
+                        <p className="text-sm">{message.content}</p>
+                        <div className={`flex items-center justify-between text-xs mt-1 ${
+                          message.direction === 'outbound' ? 'text-muted-foreground' : 'text-muted-foreground'
+                        }`}>
+                          <span>{formatMessageTime(message.timestamp)}</span>
+                          {message.direction === 'outbound' && (
+                            <span className="capitalize">{message.status}</span>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>
