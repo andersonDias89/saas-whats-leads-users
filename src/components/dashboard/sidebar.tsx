@@ -133,17 +133,7 @@ export function Sidebar() {
           </div>
         </div>
         
-        {/* Quick Stats */}
-        <div className="space-y-2 mb-3">
-          <div className="flex items-center justify-between text-xs">
-            <span className="text-foreground-muted">Leads</span>
-            <span className="text-foreground font-medium">{stats.totalLeads}</span>
-          </div>
-          <div className="flex items-center justify-between text-xs">
-            <span className="text-foreground-muted">Conversas</span>
-            <span className="text-foreground font-medium">{stats.activeConversations}</span>
-          </div>
-        </div>
+
 
         <Button
           variant="ghost"
