@@ -7,8 +7,9 @@ import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Plus, Search, Filter, Users, Phone, Mail, Calendar, DollarSign } from 'lucide-react'
+import { Plus, Search, Filter, Users, Phone, Mail, Calendar } from 'lucide-react'
 import { toast } from 'sonner'
+import Link from 'next/link'
 
 interface Lead {
   id: string
@@ -16,9 +17,10 @@ interface Lead {
   phone: string
   email?: string
   status: string
-  value?: number
   notes?: string
   createdAt: string
+  updatedAt: string
+  source: string
 }
 
 const statusOptions = [
@@ -140,26 +142,6 @@ export default function LeadsPage() {
         </Button>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        {statusOptions.map((status) => {
-          const count = leads.filter(lead => lead.status === status.value).length
-          return (
-            <Card key={status.value} className="bg-card border-card-border">
-              <CardContent className="p-6">
-                <div className="flex items-center">
-                  <div className={`w-3 h-3 rounded-full ${status.color} mr-3`}></div>
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">{status.label}</p>
-                    <p className="text-2xl font-bold text-foreground">{count}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          )
-        })}
-      </div>
-
       {/* Filters */}
       <Card className="bg-card border-card-border">
         <CardContent className="p-6">
@@ -218,63 +200,65 @@ export default function LeadsPage() {
           ) : (
             <div className="space-y-4">
               {filteredLeads.map((lead) => (
-                <div key={lead.id} className="border border-border rounded-lg p-4 hover:bg-accent transition-colors">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-4">
-                      <Avatar>
-                        <AvatarImage src="" />
-                        <AvatarFallback className="bg-primary text-primary-foreground">
-                          {lead.name?.charAt(0) || lead.phone.charAt(-2)}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <h3 className="font-medium text-foreground">{lead.name || 'Nome não informado'}</h3>
-                        <div className="flex items-center space-x-4 text-sm text-muted-foreground">
-                          <div className="flex items-center">
-                            <Phone className="mr-1 h-3 w-3" />
-                            {lead.phone}
-                          </div>
-                          {lead.email && (
+                <Link key={lead.id} href={`/dashboard/leads/${lead.id}`}>
+                  <div className="border border-border rounded-lg p-4 hover:bg-accent transition-colors cursor-pointer">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-4">
+                        <Avatar>
+                          <AvatarImage src="" />
+                          <AvatarFallback className="bg-primary text-primary-foreground">
+                            {lead.name?.charAt(0) || lead.phone.charAt(-2)}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <h3 className="font-medium text-foreground">{lead.name || 'Nome não informado'}</h3>
+                          <div className="flex items-center space-x-4 text-sm text-muted-foreground">
                             <div className="flex items-center">
-                              <Mail className="mr-1 h-3 w-3" />
-                              {lead.email}
+                              <Phone className="mr-1 h-3 w-3" />
+                              {lead.phone}
                             </div>
-                          )}
-                          <div className="flex items-center">
-                            <Calendar className="mr-1 h-3 w-3" />
-                            {formatDate(lead.createdAt)}
-                          </div>
-                          {lead.value && (
+                            {lead.email && (
+                              <div className="flex items-center">
+                                <Mail className="mr-1 h-3 w-3" />
+                                {lead.email}
+                              </div>
+                            )}
                             <div className="flex items-center">
-                              <DollarSign className="mr-1 h-3 w-3" />
-                              R$ {lead.value.toFixed(2)}
+                              <Calendar className="mr-1 h-3 w-3" />
+                              {formatDate(lead.createdAt)}
                             </div>
-                          )}
+                          </div>
                         </div>
                       </div>
+                      <div className="flex items-center space-x-3">
+                        {getStatusBadge(lead.status)}
+                        <Select 
+                          value={lead.status} 
+                          onValueChange={(value: string) => updateLeadStatus(lead.id, value)}
+                        >
+                          <SelectTrigger 
+                            className="w-40"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {statusOptions.map((status) => (
+                              <SelectItem key={status.value} value={status.value}>
+                                {status.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
                     </div>
-                    <div className="flex items-center space-x-3">
-                      {getStatusBadge(lead.status)}
-                      <Select value={lead.status} onValueChange={(value: string) => updateLeadStatus(lead.id, value)}>
-                        <SelectTrigger className="w-40">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {statusOptions.map((status) => (
-                            <SelectItem key={status.value} value={status.value}>
-                              {status.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
+                    {lead.notes && (
+                      <div className="mt-3 text-sm text-muted-foreground bg-muted p-2 rounded">
+                        {lead.notes}
+                      </div>
+                    )}
                   </div>
-                  {lead.notes && (
-                    <div className="mt-3 text-sm text-muted-foreground bg-muted p-2 rounded">
-                      {lead.notes}
-                    </div>
-                  )}
-                </div>
+                </Link>
               ))}
             </div>
           )}

@@ -135,19 +135,42 @@ export async function POST(req: NextRequest) {
     
     if (!lead) {
       console.log('🆕 Criando novo lead para:', from)
+      console.log('📝 ProfileName:', profileName)
+      console.log('📝 WaId:', waId)
+      console.log('📝 From:', from)
+      
+      const leadName = profileName || waId || from
+      console.log('📝 Nome do lead que será salvo:', leadName)
+      
       lead = await prisma.lead.create({
         data: {
           userId: user.id,
           conversationId: conversation.id,
-          name: profileName || waId || from,
+          name: leadName,
           phone: from,
           status: 'novo',
           source: 'whatsapp'
         }
       })
+      
+      console.log('✅ Lead criado com nome:', lead.name)
+    } else {
+      // Atualizar o nome do lead se não tiver ou se o profileName for diferente
+      if (!lead.name || (profileName && lead.name !== profileName)) {
+        console.log('🔄 Atualizando nome do lead existente')
+        console.log('📝 Nome atual:', lead.name)
+        console.log('📝 Novo nome:', profileName || waId || from)
+        
+        lead = await prisma.lead.update({
+          where: { id: lead.id },
+          data: {
+            name: profileName || waId || from
+          }
+        })
+        
+        console.log('✅ Lead atualizado com nome:', lead.name)
+      }
     }
-    
-    console.log('✅ Lead atualizado:', lead.id)
     
     // Gerar resposta automática com OpenAI se configurado
     if (user.openaiApiKey && user.aiPrompt) {
