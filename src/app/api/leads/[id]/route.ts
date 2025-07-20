@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
-import { prisma } from '@/lib/prisma'
+import { LeadsService } from '@/services/leads'
 
 export async function GET(
   request: NextRequest,
@@ -18,26 +18,7 @@ export async function GET(
       )
     }
 
-    const lead = await prisma.lead.findFirst({
-      where: {
-        id: id,
-        userId: session.user.id
-      },
-      include: {
-        conversation: {
-          select: {
-            id: true,
-            lastMessage: true,
-            lastMessageAt: true,
-            messages: {
-              select: {
-                id: true
-              }
-            }
-          }
-        }
-      }
-    })
+    const lead = await LeadsService.getLeadById(id, session.user.id)
 
     if (!lead) {
       return NextResponse.json(
@@ -85,46 +66,11 @@ export async function PATCH(
 
     const body = await request.json()
 
-    // Verificar se o lead pertence ao usuário
-    const existingLead = await prisma.lead.findFirst({
-      where: {
-        id: id,
-        userId: session.user.id
-      }
-    })
-
-    if (!existingLead) {
-      return NextResponse.json(
-        { message: 'Lead não encontrado' },
-        { status: 404 }
-      )
-    }
-
-    // Atualizar lead
-    const updatedLead = await prisma.lead.update({
-      where: {
-        id: id
-      },
-      data: {
-        name: body.name,
-        email: body.email,
-        status: body.status,
-        notes: body.notes
-      },
-      include: {
-        conversation: {
-          select: {
-            id: true,
-            lastMessage: true,
-            lastMessageAt: true,
-            messages: {
-              select: {
-                id: true
-              }
-            }
-          }
-        }
-      }
+    const updatedLead = await LeadsService.updateLead(id, session.user.id, {
+      name: body.name,
+      email: body.email,
+      status: body.status,
+      notes: body.notes
     })
 
     // Mapear dados para o formato esperado
@@ -164,59 +110,9 @@ export async function DELETE(
       )
     }
 
-    // Verificar se o lead pertence ao usuário
-    const existingLead = await prisma.lead.findFirst({
-      where: {
-        id: id,
-        userId: session.user.id
-      },
-      include: {
-        conversation: {
-          include: {
-            messages: true
-          }
-        }
-      }
-    })
+    const result = await LeadsService.deleteLead(id, session.user.id)
 
-    if (!existingLead) {
-      return NextResponse.json(
-        { message: 'Lead não encontrado' },
-        { status: 404 }
-      )
-    }
-
-    // Exclusão em cascata usando transação
-    await prisma.$transaction(async (tx) => {
-      // Se o lead tem uma conversa vinculada, deletar mensagens primeiro
-      if (existingLead.conversation) {
-        // Deletar mensagens da conversa
-        await tx.message.deleteMany({
-          where: {
-            conversationId: existingLead.conversation.id
-          }
-        })
-        
-        // Deletar a conversa
-        await tx.conversation.delete({
-          where: {
-            id: existingLead.conversation.id
-          }
-        })
-      }
-      
-      // Deletar o lead
-      await tx.lead.delete({
-        where: {
-          id: id
-        }
-      })
-    })
-
-    return NextResponse.json(
-      { message: 'Lead e conversas vinculadas deletados com sucesso' },
-      { status: 200 }
-    )
+    return NextResponse.json(result, { status: 200 })
 
   } catch (error) {
     console.error('Erro ao deletar lead:', error)

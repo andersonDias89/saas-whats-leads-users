@@ -1,67 +1,11 @@
-import { z } from 'zod'
+// Auth schemas
+export * from './auth'
 
-// Schema para registrar novo usuário
-export const registerSchema = z.object({
-  name: z.string().min(2, 'Nome deve ter pelo menos 2 caracteres'),
-  email: z.string().email('Email inválido'),
-  password: z.string().min(6, 'Senha deve ter pelo menos 6 caracteres'),
-  companyName: z.string().min(2, 'Nome da empresa deve ter pelo menos 2 caracteres')
-})
+// Lead schemas
+export * from './leads'
 
-// Schema para login
-export const loginSchema = z.object({
-  email: z.string().email('Email inválido'),
-  password: z.string().min(1, 'Senha é obrigatória')
-})
+// Conversation schemas
+export * from './conversations'
 
-// Schema para configurações do usuário
-export const userSettingsSchema = z.object({
-  companyName: z.string().optional().or(z.literal('')),
-  twilioAccountSid: z.string().optional().or(z.literal('')),
-  twilioAuthToken: z.string().optional().or(z.literal('')),
-  twilioWhatsappNumber: z.string().optional().or(z.literal('')),
-  twilioSandboxKeyword: z.string().optional().or(z.literal('')),
-  openaiApiKey: z.string().optional().or(z.literal('')),
-  aiPrompt: z.string().optional().or(z.literal(''))
-})
-
-// Schema para criar/editar lead
-export const leadSchema = z.object({
-  name: z.string().optional(),
-  phone: z.string().min(10, 'Telefone deve ter pelo menos 10 dígitos'),
-  email: z.string().email().optional(),
-  status: z.enum(['novo', 'qualificado', 'nao_interessado', 'fechado']),
-  notes: z.string().optional(),
-  value: z.number().optional()
-})
-
-// Schema para enviar mensagem
-export const sendMessageSchema = z.object({
-  conversationId: z.string(),
-  content: z.string().min(1, 'Mensagem não pode estar vazia')
-})
-
-// Schema para webhook do Twilio
-export const twilioWebhookSchema = z.object({
-  From: z.string(),
-  To: z.string(),
-  Body: z.string(),
-  MessageSid: z.string(),
-  AccountSid: z.string(),
-  ProfileName: z.string().optional(),
-  WaId: z.string().optional()
-})
-
-// Schema para atualizar perfil do usuário
-export const updateProfileSchema = z.object({
-  name: z.string().min(2, 'Nome deve ter pelo menos 2 caracteres').optional(),
-  companyName: z.string().min(2, 'Nome da empresa deve ter pelo menos 2 caracteres').optional()
-})
-
-export type RegisterFormData = z.infer<typeof registerSchema>
-export type LoginFormData = z.infer<typeof loginSchema>
-export type UserSettingsFormData = z.infer<typeof userSettingsSchema>
-export type LeadFormData = z.infer<typeof leadSchema>
-export type SendMessageFormData = z.infer<typeof sendMessageSchema>
-export type TwilioWebhookData = z.infer<typeof twilioWebhookSchema>
-export type UpdateProfileFormData = z.infer<typeof updateProfileSchema> 
+// Settings schemas
+export * from './settings' 

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import * as React from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -9,114 +9,36 @@ import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Plus, Search, Filter, Users, Phone, Mail, Calendar, Trash2 } from 'lucide-react'
-import { toast } from 'sonner'
 import Link from 'next/link'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { Pagination } from '@/components/ui/pagination'
+import { useLeads } from '@/hooks/leads'
+import { LEAD_STATUS_OPTIONS, PAGINATION_DEFAULTS } from '@/lib/utils/constants'
 import { formatDate } from '@/lib/utils/date'
-
-interface Lead {
-  id: string
-  name: string
-  phone: string
-  email?: string
-  status: string
-  notes?: string
-  createdAt: string
-  updatedAt: string
-  source: string
-}
-
-const statusOptions = [
-  { value: 'novo', label: 'Novo', color: 'bg-blue-500' },
-  { value: 'qualificado', label: 'Qualificado', color: 'bg-green-500' },
-  { value: 'nao_interessado', label: 'Não Interessado', color: 'bg-red-500' },
-  { value: 'fechado', label: 'Fechado', color: 'bg-purple-500' },
-]
+import { getStatusBadge } from '@/lib/utils/formatting'
+import { LeadStatus } from '@/schemas/leads'
 
 export default function LeadsPage() {
-  const [leads, setLeads] = useState<Lead[]>([])
-  const [isLoading, setIsLoading] = useState(true)
+  const { leads, isLoading, updateLeadStatus, deleteLead } = useLeads()
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
   const [currentPage, setCurrentPage] = useState(1)
-  const [itemsPerPage, setItemsPerPage] = useState(10)
+  const [itemsPerPage, setItemsPerPage] = useState(PAGINATION_DEFAULTS.ITEMS_PER_PAGE)
   const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; leadId: string | null; leadName: string }>({
     open: false,
     leadId: null,
     leadName: ''
   })
 
-  // Todos os hooks devem vir ANTES de qualquer lógica condicional
-  useEffect(() => {
-    loadLeads()
-  }, [])
-
   // Resetar página quando filtros mudarem
   React.useEffect(() => {
     setCurrentPage(1)
   }, [searchTerm, statusFilter, itemsPerPage])
 
-  const loadLeads = async () => {
-    try {
-      const response = await fetch('/api/leads')
-      if (response.ok) {
-        const data = await response.json()
-        setLeads(data)
-      } else {
-        toast.error('Erro ao carregar leads')
-      }
-    } catch (error) {
-      console.error('Erro ao carregar leads:', error)
-      toast.error('Erro ao carregar leads')
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  const updateLeadStatus = async (leadId: string, newStatus: string) => {
-    try {
-      const response = await fetch(`/api/leads/${leadId}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ status: newStatus }),
-      })
-
-      if (response.ok) {
-        setLeads(leads.map(lead => 
-          lead.id === leadId ? { ...lead, status: newStatus } : lead
-        ))
-        toast.success('Status atualizado com sucesso')
-      } else {
-        toast.error('Erro ao atualizar status')
-      }
-    } catch (error) {
-      console.error('Erro ao atualizar status:', error)
-      toast.error('Erro ao atualizar status')
-    }
-  }
-
-  const deleteLead = async () => {
+  const handleDeleteLead = async () => {
     if (!deleteDialog.leadId) return
-
-    try {
-      const response = await fetch(`/api/leads/${deleteDialog.leadId}`, {
-        method: 'DELETE',
-      })
-
-      if (response.ok) {
-        setLeads(leads.filter(lead => lead.id !== deleteDialog.leadId))
-        toast.success('Lead deletado com sucesso')
-      } else {
-        const error = await response.json()
-        toast.error(error.message || 'Erro ao deletar lead')
-      }
-    } catch (error) {
-      console.error('Erro ao deletar lead:', error)
-      toast.error('Erro ao deletar lead')
-    }
+    await deleteLead(deleteDialog.leadId)
+    setDeleteDialog({ open: false, leadId: null, leadName: '' })
   }
 
   const openDeleteDialog = (leadId: string, leadName: string) => {
@@ -135,11 +57,11 @@ export default function LeadsPage() {
     })
   }
 
-  const getStatusBadge = (status: string) => {
-    const statusConfig = statusOptions.find(s => s.value === status)
+  const getStatusBadgeComponent = (status: string) => {
+    const statusConfig = getStatusBadge(status, LEAD_STATUS_OPTIONS)
     return (
-      <Badge className={`${statusConfig?.color} text-primary-foreground`}>
-        {statusConfig?.label}
+      <Badge className={`${statusConfig.color} text-primary-foreground`}>
+        {statusConfig.label}
       </Badge>
     )
   }
@@ -164,7 +86,7 @@ export default function LeadsPage() {
 
   const filteredLeads = leads.filter(lead => {
     const matchesSearch = 
-      lead.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (lead.name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
       lead.phone.includes(searchTerm) ||
       (lead.email && lead.email.toLowerCase().includes(searchTerm.toLowerCase()))
     
@@ -216,7 +138,7 @@ export default function LeadsPage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Todos os Status</SelectItem>
-                  {statusOptions.map((status) => (
+                  {LEAD_STATUS_OPTIONS.map((status) => (
                     <SelectItem key={status.value} value={status.value}>
                       {status.label}
                     </SelectItem>
@@ -286,16 +208,16 @@ export default function LeadsPage() {
                           </div>
                         </Link>
                         <div className="flex items-center space-x-3 ml-4">
-                          {getStatusBadge(lead.status)}
+                          {getStatusBadgeComponent(lead.status)}
                           <Select 
                             value={lead.status} 
-                            onValueChange={(value: string) => updateLeadStatus(lead.id, value)}
+                            onValueChange={(value: string) => updateLeadStatus(lead.id, value as LeadStatus)}
                           >
                             <SelectTrigger className="w-40">
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                              {statusOptions.map((status) => (
+                              {LEAD_STATUS_OPTIONS.map((status) => (
                                 <SelectItem key={status.value} value={status.value}>
                                   {status.label}
                                 </SelectItem>
@@ -348,7 +270,7 @@ export default function LeadsPage() {
         description={`Tem certeza que deseja deletar o lead "${deleteDialog.leadName}"? Esta ação também removerá todas as conversas vinculadas e não pode ser desfeita.`}
         confirmText="Deletar"
         cancelText="Cancelar"
-        onConfirm={deleteLead}
+        onConfirm={handleDeleteLead}
         variant="destructive"
       />
     </div>
