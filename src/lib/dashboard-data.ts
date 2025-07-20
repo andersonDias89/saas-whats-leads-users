@@ -129,7 +129,7 @@ export async function getDashboardData() {
   const now = new Date()
   const currentMonth = new Date(now.getFullYear(), now.getMonth(), 1)
   const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1)
-  const twoMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 2, 1)
+
   
   // Leads do mês atual
   const currentMonthLeads = user.leads.filter(lead => 

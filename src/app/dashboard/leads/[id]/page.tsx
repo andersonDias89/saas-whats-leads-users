@@ -1,9 +1,9 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -15,9 +15,6 @@ import {
   Users, 
   Phone, 
   Mail, 
-  Calendar, 
-  DollarSign, 
-  MapPin, 
   MessageCircle,
   Edit,
   Save,
@@ -65,9 +62,10 @@ export default function LeadDetailPage() {
     if (params.id) {
       loadLead(params.id as string)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params.id])
 
-  const loadLead = async (leadId: string) => {
+  const loadLead = useCallback(async (leadId: string) => {
     try {
       const response = await fetch(`/api/leads/${leadId}`)
       if (response.ok) {
@@ -84,7 +82,7 @@ export default function LeadDetailPage() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [router])
 
   const updateLead = async () => {
     if (!lead) return
@@ -155,7 +153,7 @@ export default function LeadDetailPage() {
         hour: '2-digit',
         minute: '2-digit'
       })
-    } catch (error) {
+    } catch {
       return 'Data inválida'
     }
   }

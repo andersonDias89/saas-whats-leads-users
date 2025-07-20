@@ -5,17 +5,9 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { 
-  MessageCircle, 
-  Zap, 
-  Users, 
-  BarChart3, 
-  Shield, 
-  Smartphone,
   ArrowRight,
   Play,
   Check,
-  Globe,
-  TrendingUp,
   DollarSign
 } from 'lucide-react'
 

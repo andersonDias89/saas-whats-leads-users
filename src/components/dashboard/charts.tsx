@@ -1,23 +1,13 @@
 'use client'
 
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, AreaChart, Area } from 'recharts'
-import { Users, MessageCircle } from 'lucide-react'
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts'
 
 interface ChartData {
   month: string
   value: number
 }
 
-interface DashboardChartsProps {
-  monthlyData: ChartData[]
-  totalLeads: number
-  totalConversations: number
-  activeConversations: number
-  leadsChange: string
-  conversationsChange: string
-}
-
-export function LeadsChart({ monthlyData, totalLeads, leadsChange }: { monthlyData: ChartData[], totalLeads: number, leadsChange: string }) {
+export function LeadsChart({ monthlyData }: { monthlyData: ChartData[], totalLeads: number, leadsChange: string }) {
   return (
     <div className="h-[180px]">
       <ResponsiveContainer width="100%" height="100%">
@@ -79,7 +69,7 @@ export function LeadsChart({ monthlyData, totalLeads, leadsChange }: { monthlyDa
   )
 }
 
-export function ConversationsChart({ monthlyData, totalConversations, activeConversations, conversationsChange }: { monthlyData: ChartData[], totalConversations: number, activeConversations: number, conversationsChange: string }) {
+export function ConversationsChart({ monthlyData }: { monthlyData: ChartData[], totalConversations: number, activeConversations: number, conversationsChange: string }) {
   // Usar dados reais do banco
   const conversationData = monthlyData.map(item => ({
     month: item.month,
@@ -169,7 +159,7 @@ export function ConversationsChart({ monthlyData, totalConversations, activeConv
   )
 } 
 
-export function MessagesChart({ monthlyData, totalMessages, messagesChange }: { monthlyData: ChartData[], totalMessages: number, messagesChange: string }) {
+export function MessagesChart({ monthlyData }: { monthlyData: ChartData[], totalMessages: number, messagesChange: string }) {
   // Usar dados reais do banco
   const messagesData = monthlyData.map(item => ({
     month: item.month,

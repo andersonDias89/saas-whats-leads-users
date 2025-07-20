@@ -6,7 +6,7 @@ import OpenAI from 'openai'
 
 export async function POST(req: NextRequest) {
   try {
-    console.log('📱 Webhook do Twilio recebido')
+    console.log('📱 Webhook do Twilio recebido na rota alternativa')
     
     // Parse form data (Twilio envia como form-data)
     const contentType = req.headers.get('content-type')

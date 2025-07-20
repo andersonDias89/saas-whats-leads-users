@@ -27,7 +27,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
     size = "default",
     ...props 
   }, ref) => {
-    const [showPassword, setShowPassword] = React.useState(false)
+
     const [internalVisible, setInternalVisible] = React.useState(isVisible)
 
     const isPassword = type === "password"
