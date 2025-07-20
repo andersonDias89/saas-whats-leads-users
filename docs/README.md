@@ -7,6 +7,7 @@ Esta pasta contém toda a documentação técnica do projeto **Cursor SaaS Whats
 ```
 docs/
 ├── README.md                    # Este arquivo - Visão geral
+├── architecture.md              # Arquitetura refatorada do projeto
 ├── lint-build-errors-guide.md   # Guia de erros corrigidos
 └── best-practices.md           # Melhores práticas do projeto
 ```
@@ -22,7 +23,17 @@ docs/
   - Configurações recomendadas
 - **Útil para:** Desenvolvedores novos e revisão de código
 
-### 2. **best-practices.md**
+### 2. **architecture.md**
+- **Propósito:** Documentar a arquitetura refatorada do projeto
+- **Conteúdo:**
+  - Estrutura de pastas por domínio
+  - Padrões de implementação (Services, Hooks, Schemas)
+  - Fluxo de dados
+  - Checklist de implementação
+  - Benefícios da arquitetura
+- **Útil para:** Desenvolvedores novos e implementação de features
+
+### 3. **best-practices.md**
 - **Propósito:** Estabelecer padrões e melhores práticas
 - **Conteúdo:**
   - Estrutura do projeto
@@ -34,9 +45,10 @@ docs/
 ## 🎯 Como Usar Esta Documentação
 
 ### **Para Desenvolvedores Novos:**
-1. Leia `best-practices.md` primeiro
-2. Consulte `lint-build-errors-guide.md` quando encontrar erros
-3. Use os checklists antes de commitar
+1. Leia `architecture.md` primeiro (entenda a estrutura)
+2. Leia `best-practices.md` (padrões gerais)
+3. Consulte `lint-build-errors-guide.md` quando encontrar erros
+4. Use os checklists antes de commitar
 
 ### **Para Revisão de Código:**
 1. Use o checklist de qualidade em `best-practices.md`

@@ -9,25 +9,35 @@ Esta pasta contém as regras do Cursor que ajudam a manter a qualidade e consist
 - **Aplicação:** Sempre ativa em todo o projeto
 - **Conteúdo:** Estrutura de pastas, regras importantes, documentação
 
-### 2. **typescript-patterns.mdc** (Arquivos .ts/.tsx)
+### 2. **architecture-patterns.mdc** (Sempre Aplicada)
+- **Propósito:** Arquitetura refatorada e padrões de implementação
+- **Aplicação:** Sempre ativa em todo o projeto
+- **Conteúdo:** Organização por domínio, services, hooks, schemas, APIs
+
+### 3. **typescript-patterns.mdc** (Arquivos .ts/.tsx)
 - **Propósito:** Padrões TypeScript e React
 - **Aplicação:** Apenas em arquivos TypeScript/TSX
 - **Conteúdo:** Imports/exports, hooks React, tipagem
 
-### 3. **api-patterns.mdc** (APIs)
+### 4. **api-patterns.mdc** (APIs)
 - **Propósito:** Padrões de API e webhooks
 - **Aplicação:** Apenas em arquivos de API (`src/app/api/**/*.ts`)
 - **Conteúdo:** Rotas, validação Zod, tratamento de erros, webhook Twilio
 
-### 4. **database-patterns.mdc** (Banco de Dados)
+### 5. **database-patterns.mdc** (Banco de Dados)
 - **Propósito:** Padrões de banco de dados
 - **Aplicação:** Arquivos Prisma e APIs
 - **Conteúdo:** Status em português, relacionamentos, criação de leads
 
-### 5. **quality-checklist.mdc** (Sempre Aplicada)
+### 6. **quality-checklist.mdc** (Sempre Aplicada)
 - **Propósito:** Checklist de qualidade para commits
 - **Aplicação:** Sempre ativa em todo o projeto
 - **Conteúdo:** Checklist antes de commitar, erros comuns, comandos úteis
+
+### 7. **feature-implementation.mdc** (Manual)
+- **Propósito:** Diretrizes para implementação de novas features
+- **Aplicação:** Manual - aplicar quando implementar novas features
+- **Conteúdo:** Checklist obrigatório, implementação por camadas, fluxo de desenvolvimento
 
 ## 🎯 Como Funcionam
 
@@ -41,6 +51,7 @@ Esta pasta contém as regras do Cursor que ajudam a manter a qualidade e consist
 
 ## 📚 Referências
 
+- [docs/architecture.md](../docs/architecture.md) - Arquitetura refatorada do projeto
 - [docs/best-practices.md](../docs/best-practices.md) - Melhores práticas detalhadas
 - [docs/lint-build-errors-guide.md](../docs/lint-build-errors-guide.md) - Erros corrigidos
 
