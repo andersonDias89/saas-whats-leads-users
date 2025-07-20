@@ -1,0 +1,78 @@
+---
+globs: *.prisma,src/app/api/**/*.ts
+---
+# Padrões de Banco de Dados - Cursor SaaS WhatsApp Leads
+
+## 🗄️ Status em Português
+
+### ✅ Correto:
+```typescript
+// Frontend
+const statusOptions = [
+  { value: 'novo', label: 'Novo' },
+  { value: 'contactado', label: 'Contactado' },
+  { value: 'convertido', label: 'Convertido' }
+]
+
+// Backend (Prisma)
+model Lead {
+  status String @default("novo")
+}
+```
+
+### ❌ Evitar:
+```typescript
+// Misturar idiomas
+{ value: 'new', label: 'Novo' }
+{ value: 'contacted', label: 'Contactado' }
+```
+
+## 🔗 Relacionamentos
+
+### ✅ Correto:
+```typescript
+// Sempre incluir relacionamentos necessários
+const lead = await prisma.lead.findFirst({
+  where: { id },
+  include: {
+    conversation: true,
+    user: true
+  }
+})
+```
+
+## 📱 Webhook e Leads
+
+### ✅ Criação de Lead via Webhook:
+```typescript
+// Criar ou atualizar lead
+let lead = await prisma.lead.findFirst({
+  where: {
+    userId: user.id,
+    phone: from
+  }
+})
+
+if (!lead) {
+  lead = await prisma.lead.create({
+    data: {
+      userId: user.id,
+      conversationId: conversation.id,
+      name: profileName || waId || from,
+      phone: from,
+      status: 'novo', // SEMPRE em português
+      source: 'whatsapp'
+    }
+  })
+}
+```
+
+## 🚨 Regras Importantes
+- **Status sempre em português** (`'novo'`, `'contactado'`, `'convertido'`)
+- **Incluir relacionamentos** quando necessário
+- **Usar default values** do Prisma schema
+- **Validar dados** antes de salvar
+
+## 📚 Referências
+- [prisma/schema.prisma](mdc:prisma/schema.prisma) - Schema do banco
+- [docs/best-practices.md](mdc:docs/best-practices.md) - Padrões gerais
