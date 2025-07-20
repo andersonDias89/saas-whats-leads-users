@@ -37,11 +37,17 @@ export default function DashboardLayout({
   }
 
   return (
-    <div className="h-screen flex bg-background">
-      <Sidebar />
-      <main className="flex-1 overflow-y-auto bg-background">
+    <div className="min-h-screen bg-background">
+      {/* Sidebar Fixo - position: fixed, altura 100vh */}
+      <div className="fixed left-0 top-0 h-screen z-50">
+        <Sidebar />
+      </div>
+      
+      {/* Área de Conteúdo com margem esquerda = largura do sidebar */}
+      <div className="ml-64">
+        {/* Conteúdo com scroll natural da página */}
         {children}
-      </main>
+      </div>
     </div>
   )
 } 

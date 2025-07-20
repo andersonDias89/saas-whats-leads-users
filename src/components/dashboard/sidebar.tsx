@@ -66,9 +66,9 @@ export function Sidebar() {
   }
 
   return (
-    <div className="flex h-full w-64 flex-col bg-background-secondary border-r border-border">
+    <div className="w-64 h-full flex flex-col bg-background-secondary border-r border-border">
       {/* Logo */}
-      <div className="flex items-center px-6 py-4 border-b border-border">
+      <div className="flex-shrink-0 flex items-center px-6 py-4 border-b border-border">
         <div className="flex items-center space-x-2">
           <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
             <MessageCircle className="h-5 w-5 text-primary-foreground" />
@@ -117,7 +117,7 @@ export function Sidebar() {
       </nav>
 
       {/* User Profile */}
-      <div className="border-t border-border p-4">
+      <div className="flex-shrink-0 border-t border-border p-4">
         <div className="flex items-center space-x-3 mb-3">
           <Avatar className="h-8 w-8">
             <AvatarImage src={session?.user?.image || ''} />
@@ -135,8 +135,6 @@ export function Sidebar() {
           </div>
         </div>
         
-
-
         <Button
           variant="ghost"
           className="w-full justify-start h-9 px-3 text-sm text-foreground-secondary hover:bg-accent hover:text-accent-foreground"
