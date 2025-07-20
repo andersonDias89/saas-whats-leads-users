@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -10,7 +10,7 @@ import { FormField } from '@/components/ui/form-field'
 import { Switch } from '@/components/ui/switch'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Separator } from '@/components/ui/separator'
-import { Settings, Save, MessageCircle, Bot, Building, Shield, AlertCircle } from 'lucide-react'
+import { Save, MessageCircle, Bot, Building, Shield, AlertCircle } from 'lucide-react'
 import { toast } from 'sonner'
 
 const settingsSchema = z.object({
@@ -36,7 +36,6 @@ export default function SettingsPage() {
     handleSubmit,
     formState: { errors },
     setValue,
-    watch,
   } = useForm<SettingsFormData>({
     resolver: zodResolver(settingsSchema),
   })
@@ -45,9 +44,10 @@ export default function SettingsPage() {
 
   useEffect(() => {
     loadSettings()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const loadSettings = async () => {
+  const loadSettings = useCallback(async () => {
     try {
       const response = await fetch('/api/settings')
       if (response.ok) {
@@ -64,7 +64,7 @@ export default function SettingsPage() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [setValue])
 
   const onSubmit = async (data: SettingsFormData) => {
     setIsSaving(true)

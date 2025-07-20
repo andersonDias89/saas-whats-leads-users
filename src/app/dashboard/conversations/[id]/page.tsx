@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -11,16 +11,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { 
   ArrowLeft, 
   MessageCircle, 
-  Phone, 
-  Calendar, 
   User,
-  Clock,
-  Send,
   Download,
   Bot,
-  User as UserIcon
+  User as UserIcon,
+  Trash2
 } from 'lucide-react'
 import { toast } from 'sonner'
+import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 
 interface Message {
   id: string
@@ -60,14 +58,16 @@ export default function ConversationDetailPage() {
   const router = useRouter()
   const [conversation, setConversation] = useState<Conversation | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [deleteDialog, setDeleteDialog] = useState(false)
 
   useEffect(() => {
     if (params.id) {
       loadConversation(params.id as string)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params.id])
 
-  const loadConversation = async (conversationId: string) => {
+  const loadConversation = useCallback(async (conversationId: string) => {
     try {
       const response = await fetch(`/api/conversations/${conversationId}`)
       if (response.ok) {
@@ -83,7 +83,7 @@ export default function ConversationDetailPage() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [router])
 
   const updateConversationStatus = async (newStatus: string) => {
     if (!conversation) return
@@ -109,6 +109,27 @@ export default function ConversationDetailPage() {
     }
   }
 
+  const deleteConversation = async () => {
+    if (!conversation) return
+
+    try {
+      const response = await fetch(`/api/conversations/${conversation.id}`, {
+        method: 'DELETE',
+      })
+
+      if (response.ok) {
+        toast.success('Conversa deletada com sucesso')
+        router.push('/dashboard/conversations')
+      } else {
+        const error = await response.json()
+        toast.error(error.message || 'Erro ao deletar conversa')
+      }
+    } catch (error) {
+      console.error('Erro ao deletar conversa:', error)
+      toast.error('Erro ao deletar conversa')
+    }
+  }
+
   const getStatusBadge = (status: string) => {
     const statusConfig = statusOptions.find(s => s.value === status)
     return (
@@ -131,7 +152,7 @@ export default function ConversationDetailPage() {
         hour: '2-digit',
         minute: '2-digit'
       })
-    } catch (error) {
+    } catch {
       return 'Data inválida'
     }
   }
@@ -146,7 +167,7 @@ export default function ConversationDetailPage() {
         hour: '2-digit',
         minute: '2-digit'
       })
-    } catch (error) {
+    } catch {
       return 'Data inválida'
     }
   }
@@ -220,6 +241,15 @@ export default function ConversationDetailPage() {
               ))}
             </SelectContent>
           </Select>
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => setDeleteDialog(true)}
+            className="text-destructive hover:text-destructive hover:bg-destructive/10"
+          >
+            <Trash2 className="mr-2 h-4 w-4" />
+            Deletar
+          </Button>
         </div>
       </div>
 
@@ -381,6 +411,18 @@ export default function ConversationDetailPage() {
           </Card>
         </div>
       </div>
+
+      {/* Modal de Confirmação de Delete */}
+      <ConfirmDialog
+        open={deleteDialog}
+        onOpenChange={setDeleteDialog}
+        title="Deletar Conversa"
+        description={`Tem certeza que deseja deletar a conversa com "${conversation?.leadName || 'Lead sem nome'}"? Esta ação não pode ser desfeita.`}
+        confirmText="Deletar"
+        cancelText="Cancelar"
+        onConfirm={deleteConversation}
+        variant="destructive"
+      />
     </div>
   )
 } 

@@ -1,15 +1,18 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import * as React from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Plus, Search, Filter, Users, Phone, Mail, Calendar } from 'lucide-react'
+import { Plus, Search, Filter, Users, Phone, Mail, Calendar, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
 import Link from 'next/link'
+import { ConfirmDialog } from '@/components/ui/confirm-dialog'
+import { Pagination } from '@/components/ui/pagination'
 
 interface Lead {
   id: string
@@ -24,11 +27,10 @@ interface Lead {
 }
 
 const statusOptions = [
-  { value: 'new', label: 'Novo', color: 'bg-blue-500' },
-  { value: 'contacted', label: 'Contactado', color: 'bg-yellow-500' },
-  { value: 'qualified', label: 'Qualificado', color: 'bg-green-500' },
-  { value: 'converted', label: 'Convertido', color: 'bg-purple-500' },
-  { value: 'lost', label: 'Perdido', color: 'bg-red-500' },
+  { value: 'novo', label: 'Novo', color: 'bg-blue-500' },
+  { value: 'qualificado', label: 'Qualificado', color: 'bg-green-500' },
+  { value: 'nao_interessado', label: 'Não Interessado', color: 'bg-red-500' },
+  { value: 'fechado', label: 'Fechado', color: 'bg-purple-500' },
 ]
 
 export default function LeadsPage() {
@@ -36,10 +38,23 @@ export default function LeadsPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
+  const [currentPage, setCurrentPage] = useState(1)
+  const [itemsPerPage, setItemsPerPage] = useState(10)
+  const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; leadId: string | null; leadName: string }>({
+    open: false,
+    leadId: null,
+    leadName: ''
+  })
 
+  // Todos os hooks devem vir ANTES de qualquer lógica condicional
   useEffect(() => {
     loadLeads()
   }, [])
+
+  // Resetar página quando filtros mudarem
+  React.useEffect(() => {
+    setCurrentPage(1)
+  }, [searchTerm, statusFilter, itemsPerPage])
 
   const loadLeads = async () => {
     try {
@@ -80,6 +95,45 @@ export default function LeadsPage() {
       console.error('Erro ao atualizar status:', error)
       toast.error('Erro ao atualizar status')
     }
+  }
+
+  const deleteLead = async () => {
+    if (!deleteDialog.leadId) return
+
+    try {
+      const response = await fetch(`/api/leads/${deleteDialog.leadId}`, {
+        method: 'DELETE',
+      })
+
+      if (response.ok) {
+        setLeads(leads.filter(lead => lead.id !== deleteDialog.leadId))
+        toast.success('Lead deletado com sucesso')
+      } else {
+        const error = await response.json()
+        toast.error(error.message || 'Erro ao deletar lead')
+      }
+    } catch (error) {
+      console.error('Erro ao deletar lead:', error)
+      toast.error('Erro ao deletar lead')
+    }
+  }
+
+  const openDeleteDialog = (leadId: string, leadName: string) => {
+    console.log('Abrindo modal para deletar:', leadId, leadName)
+    setDeleteDialog({
+      open: true,
+      leadId,
+      leadName
+    })
+  }
+
+  const closeDeleteDialog = () => {
+    console.log('Fechando modal de delete')
+    setDeleteDialog({
+      open: false,
+      leadId: null,
+      leadName: ''
+    })
   }
 
   const getStatusBadge = (status: string) => {
@@ -127,6 +181,12 @@ export default function LeadsPage() {
     
     return matchesSearch && matchesStatus
   })
+
+  // Calcular paginação
+  const totalPages = Math.ceil(filteredLeads.length / itemsPerPage)
+  const startIndex = (currentPage - 1) * itemsPerPage
+  const endIndex = startIndex + itemsPerPage
+  const paginatedLeads = filteredLeads.slice(startIndex, endIndex)
 
   return (
     <div className="p-6 space-y-6 bg-background">
@@ -179,13 +239,13 @@ export default function LeadsPage() {
 
       {/* Leads List */}
       <Card className="bg-card border-card-border">
-        <CardHeader>
+        <CardHeader className="border-b border-border">
           <CardTitle className="text-foreground">Todos os Leads ({filteredLeads.length})</CardTitle>
           <CardDescription className="text-muted-foreground">
             Lista de todos os leads capturados através do WhatsApp
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-0">
           {filteredLeads.length === 0 ? (
             <div className="text-center py-12 text-muted-foreground">
               <Users className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
@@ -198,72 +258,108 @@ export default function LeadsPage() {
               </p>
             </div>
           ) : (
-            <div className="space-y-4">
-              {filteredLeads.map((lead) => (
-                <Link key={lead.id} href={`/dashboard/leads/${lead.id}`}>
-                  <div className="border border-border rounded-lg p-4 hover:bg-accent transition-colors cursor-pointer">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-4">
-                        <Avatar>
-                          <AvatarImage src="" />
-                          <AvatarFallback className="bg-primary text-primary-foreground">
-                            {lead.name?.charAt(0) || lead.phone.charAt(-2)}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <h3 className="font-medium text-foreground">{lead.name || 'Nome não informado'}</h3>
-                          <div className="flex items-center space-x-4 text-sm text-muted-foreground">
-                            <div className="flex items-center">
-                              <Phone className="mr-1 h-3 w-3" />
-                              {lead.phone}
-                            </div>
-                            {lead.email && (
-                              <div className="flex items-center">
-                                <Mail className="mr-1 h-3 w-3" />
-                                {lead.email}
+            <>
+              {/* Área de dados - expande conforme paginação */}
+              <div className="px-6 py-4">
+                <div className="space-y-4">
+                  {paginatedLeads.map((lead) => (
+                    <div key={lead.id} className="border border-border rounded-lg p-4 hover:bg-accent transition-colors">
+                      <div className="flex items-center justify-between">
+                        <Link href={`/dashboard/leads/${lead.id}`} className="flex-1">
+                          <div className="flex items-center space-x-4">
+                            <Avatar>
+                              <AvatarImage src="" />
+                              <AvatarFallback className="bg-primary text-primary-foreground">
+                                {lead.name?.charAt(0) || lead.phone.charAt(-2)}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div>
+                              <h3 className="font-medium text-foreground">{lead.name || 'Nome não informado'}</h3>
+                              <div className="flex items-center space-x-4 text-sm text-muted-foreground">
+                                <div className="flex items-center">
+                                  <Phone className="mr-1 h-3 w-3" />
+                                  {lead.phone}
+                                </div>
+                                {lead.email && (
+                                  <div className="flex items-center">
+                                    <Mail className="mr-1 h-3 w-3" />
+                                    {lead.email}
+                                  </div>
+                                )}
+                                <div className="flex items-center">
+                                  <Calendar className="mr-1 h-3 w-3" />
+                                  {formatDate(lead.createdAt)}
+                                </div>
                               </div>
-                            )}
-                            <div className="flex items-center">
-                              <Calendar className="mr-1 h-3 w-3" />
-                              {formatDate(lead.createdAt)}
                             </div>
                           </div>
+                        </Link>
+                        <div className="flex items-center space-x-3 ml-4">
+                          {getStatusBadge(lead.status)}
+                          <Select 
+                            value={lead.status} 
+                            onValueChange={(value: string) => updateLeadStatus(lead.id, value)}
+                          >
+                            <SelectTrigger className="w-40">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {statusOptions.map((status) => (
+                                <SelectItem key={status.value} value={status.value}>
+                                  {status.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => openDeleteDialog(lead.id, lead.name || 'Lead sem nome')}
+                            className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
                         </div>
                       </div>
-                      <div className="flex items-center space-x-3">
-                        {getStatusBadge(lead.status)}
-                        <Select 
-                          value={lead.status} 
-                          onValueChange={(value: string) => updateLeadStatus(lead.id, value)}
-                        >
-                          <SelectTrigger 
-                            className="w-40"
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {statusOptions.map((status) => (
-                              <SelectItem key={status.value} value={status.value}>
-                                {status.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
+                      {lead.notes && (
+                        <div className="mt-3 text-sm text-muted-foreground bg-muted p-2 rounded">
+                          {lead.notes}
+                        </div>
+                      )}
                     </div>
-                    {lead.notes && (
-                      <div className="mt-3 text-sm text-muted-foreground bg-muted p-2 rounded">
-                        {lead.notes}
-                      </div>
-                    )}
-                  </div>
-                </Link>
-              ))}
-            </div>
+                  ))}
+                </div>
+              </div>
+              
+              {/* Paginação */}
+              <div className="border-t border-border bg-card">
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  totalItems={filteredLeads.length}
+                  itemsPerPage={itemsPerPage}
+                  onPageChange={setCurrentPage}
+                  onItemsPerPageChange={setItemsPerPage}
+                />
+              </div>
+            </>
           )}
         </CardContent>
       </Card>
+
+      {/* Modal de Confirmação de Delete */}
+      <ConfirmDialog
+        open={deleteDialog.open}
+        onOpenChange={(open) => {
+          if (!open) closeDeleteDialog()
+        }}
+        title="Deletar Lead"
+        description={`Tem certeza que deseja deletar o lead "${deleteDialog.leadName}"? Esta ação também removerá todas as conversas vinculadas e não pode ser desfeita.`}
+        confirmText="Deletar"
+        cancelText="Cancelar"
+        onConfirm={deleteLead}
+        variant="destructive"
+      />
     </div>
   )
 } 

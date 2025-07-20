@@ -7,7 +7,23 @@ import { toast } from 'sonner'
 
 export default function TestDataPage() {
   const [isLoading, setIsLoading] = useState(false)
-  const [testData, setTestData] = useState<any>(null)
+  const [testData, setTestData] = useState<{
+    totalConversations: number;
+    totalLeads: number;
+    conversations: Array<{
+      id: string;
+      phoneNumber: string;
+      contactName?: string;
+      lastMessage?: string;
+      leads: Array<unknown>;
+    }>;
+    leads: Array<{
+      id: string;
+      name?: string;
+      phone: string;
+      status: string;
+    }>;
+  } | null>(null)
 
   const checkData = async () => {
     setIsLoading(true)
@@ -75,7 +91,7 @@ export default function TestDataPage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
-                {testData.conversations.map((conv: any) => (
+                {testData.conversations.map((conv) => (
                   <div key={conv.id} className="p-2 border rounded">
                     <p><strong>ID:</strong> {conv.id}</p>
                     <p><strong>Telefone:</strong> {conv.phoneNumber}</p>
@@ -95,7 +111,7 @@ export default function TestDataPage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
-                {testData.leads.map((lead: any) => (
+                {testData.leads.map((lead) => (
                   <div key={lead.id} className="p-2 border rounded">
                     <p><strong>ID:</strong> {lead.id}</p>
                     <p><strong>Nome:</strong> {lead.name || 'SEM NOME'}</p>

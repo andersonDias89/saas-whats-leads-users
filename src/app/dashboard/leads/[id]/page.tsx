@@ -1,9 +1,9 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -15,15 +15,14 @@ import {
   Users, 
   Phone, 
   Mail, 
-  Calendar, 
-  DollarSign, 
-  MapPin, 
   MessageCircle,
   Edit,
   Save,
-  X
+  X,
+  Trash2
 } from 'lucide-react'
 import { toast } from 'sonner'
+import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 
 interface Lead {
   id: string
@@ -57,14 +56,16 @@ export default function LeadDetailPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [isEditing, setIsEditing] = useState(false)
   const [editData, setEditData] = useState<Partial<Lead>>({})
+  const [deleteDialog, setDeleteDialog] = useState(false)
 
   useEffect(() => {
     if (params.id) {
       loadLead(params.id as string)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params.id])
 
-  const loadLead = async (leadId: string) => {
+  const loadLead = useCallback(async (leadId: string) => {
     try {
       const response = await fetch(`/api/leads/${leadId}`)
       if (response.ok) {
@@ -81,7 +82,7 @@ export default function LeadDetailPage() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [router])
 
   const updateLead = async () => {
     if (!lead) return
@@ -109,6 +110,27 @@ export default function LeadDetailPage() {
     }
   }
 
+  const deleteLead = async () => {
+    if (!lead) return
+
+    try {
+      const response = await fetch(`/api/leads/${lead.id}`, {
+        method: 'DELETE',
+      })
+
+      if (response.ok) {
+        toast.success('Lead deletado com sucesso')
+        router.push('/dashboard/leads')
+      } else {
+        const error = await response.json()
+        toast.error(error.message || 'Erro ao deletar lead')
+      }
+    } catch (error) {
+      console.error('Erro ao deletar lead:', error)
+      toast.error('Erro ao deletar lead')
+    }
+  }
+
   const getStatusBadge = (status: string) => {
     const statusConfig = statusOptions.find(s => s.value === status)
     return (
@@ -131,7 +153,7 @@ export default function LeadDetailPage() {
         hour: '2-digit',
         minute: '2-digit'
       })
-    } catch (error) {
+    } catch {
       return 'Data inválida'
     }
   }
@@ -212,10 +234,21 @@ export default function LeadDetailPage() {
               </Button>
             </>
           ) : (
-            <Button onClick={() => setIsEditing(true)} size="sm">
-              <Edit className="mr-2 h-4 w-4" />
-              Editar
-            </Button>
+            <>
+              <Button onClick={() => setIsEditing(true)} size="sm">
+                <Edit className="mr-2 h-4 w-4" />
+                Editar
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => setDeleteDialog(true)}
+                className="text-destructive hover:text-destructive hover:bg-destructive/10"
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                Deletar
+              </Button>
+            </>
           )}
         </div>
       </div>
@@ -373,6 +406,18 @@ export default function LeadDetailPage() {
           </Card>
         </div>
       </div>
+
+      {/* Modal de Confirmação de Delete */}
+      <ConfirmDialog
+        open={deleteDialog}
+        onOpenChange={setDeleteDialog}
+        title="Deletar Lead"
+        description={`Tem certeza que deseja deletar o lead "${lead?.name || 'Lead sem nome'}"? Esta ação também removerá todas as conversas vinculadas e não pode ser desfeita.`}
+        confirmText="Deletar"
+        cancelText="Cancelar"
+        onConfirm={deleteLead}
+        variant="destructive"
+      />
     </div>
   )
 } 

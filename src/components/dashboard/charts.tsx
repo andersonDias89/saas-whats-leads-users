@@ -1,23 +1,13 @@
 'use client'
 
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, AreaChart, Area } from 'recharts'
-import { Users, MessageCircle } from 'lucide-react'
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts'
 
 interface ChartData {
   month: string
   value: number
 }
 
-interface DashboardChartsProps {
-  monthlyData: ChartData[]
-  totalLeads: number
-  totalConversations: number
-  activeConversations: number
-  leadsChange: string
-  conversationsChange: string
-}
-
-export function LeadsChart({ monthlyData, totalLeads, leadsChange }: { monthlyData: ChartData[], totalLeads: number, leadsChange: string }) {
+export function LeadsChart({ monthlyData }: { monthlyData: ChartData[], totalLeads: number, leadsChange: string }) {
   return (
     <div className="h-[180px]">
       <ResponsiveContainer width="100%" height="100%">
@@ -79,16 +69,13 @@ export function LeadsChart({ monthlyData, totalLeads, leadsChange }: { monthlyDa
   )
 }
 
-export function ConversationsChart({ totalConversations, activeConversations, conversationsChange }: { totalConversations: number, activeConversations: number, conversationsChange: string }) {
-  // Criar dados para o gráfico de área baseado nas conversas
-  const conversationData = [
-    { month: '2025-01', conversas: Math.floor(totalConversations * 0.8), ativas: Math.floor(activeConversations * 0.8) },
-    { month: '2025-02', conversas: Math.floor(totalConversations * 0.9), ativas: Math.floor(activeConversations * 0.9) },
-    { month: '2025-03', conversas: Math.floor(totalConversations * 0.7), ativas: Math.floor(activeConversations * 0.7) },
-    { month: '2025-04', conversas: Math.floor(totalConversations * 0.6), ativas: Math.floor(activeConversations * 0.6) },
-    { month: '2025-05', conversas: Math.floor(totalConversations * 0.8), ativas: Math.floor(activeConversations * 0.8) },
-    { month: '2025-06', conversas: totalConversations, ativas: activeConversations }
-  ]
+export function ConversationsChart({ monthlyData }: { monthlyData: ChartData[], totalConversations: number, activeConversations: number, conversationsChange: string }) {
+  // Usar dados reais do banco
+  const conversationData = monthlyData.map(item => ({
+    month: item.month,
+    conversas: item.value,
+    ativas: Math.floor(item.value * 0.7) // Estimativa de conversas ativas
+  }))
 
   return (
     <div className="h-[180px]">
@@ -172,16 +159,12 @@ export function ConversationsChart({ totalConversations, activeConversations, co
   )
 } 
 
-export function MessagesChart({ totalMessages, messagesChange }: { totalMessages: number, messagesChange: string }) {
-  // Criar dados para o gráfico de linha baseado nas mensagens
-  const messagesData = [
-    { month: '2025-01', mensagens: Math.floor(totalMessages * 0.6) },
-    { month: '2025-02', mensagens: Math.floor(totalMessages * 0.7) },
-    { month: '2025-03', mensagens: Math.floor(totalMessages * 0.8) },
-    { month: '2025-04', mensagens: Math.floor(totalMessages * 0.9) },
-    { month: '2025-05', mensagens: Math.floor(totalMessages * 0.85) },
-    { month: '2025-06', mensagens: totalMessages }
-  ]
+export function MessagesChart({ monthlyData }: { monthlyData: ChartData[], totalMessages: number, messagesChange: string }) {
+  // Usar dados reais do banco
+  const messagesData = monthlyData.map(item => ({
+    month: item.month,
+    mensagens: item.value
+  }))
 
   return (
     <div className="h-[180px]">
