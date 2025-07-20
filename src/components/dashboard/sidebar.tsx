@@ -31,7 +31,7 @@ const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { name: 'Conversas', href: '/dashboard/conversations', icon: MessageCircle },
   { name: 'Leads', href: '/dashboard/leads', icon: Users },
-  { name: 'Settings', href: '/dashboard/settings', icon: Settings },
+  { name: 'Configurações', href: '/dashboard/settings', icon: Settings },
 ]
 
 export function Sidebar() {
@@ -151,7 +151,7 @@ export function Sidebar() {
           onClick={handleSignOut}
         >
           <LogOut className="mr-3 h-4 w-4" />
-          Log Out
+          Sair
         </Button>
       </div>
     </div>

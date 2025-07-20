@@ -35,7 +35,7 @@ export default async function DashboardPage() {
           <nav className="text-sm text-foreground-muted mb-2">
             Pages / Dashboard
           </nav>
-          <h1 className="text-3xl font-bold text-foreground">Main Dashboard</h1>
+          <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
         </div>
       </div>
 
