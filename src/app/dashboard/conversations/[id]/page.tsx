@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -11,11 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { 
   ArrowLeft, 
   MessageCircle, 
-  Phone, 
-  Calendar, 
   User,
-  Clock,
-  Send,
   Download,
   Bot,
   User as UserIcon,
@@ -68,9 +64,10 @@ export default function ConversationDetailPage() {
     if (params.id) {
       loadConversation(params.id as string)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params.id])
 
-  const loadConversation = async (conversationId: string) => {
+  const loadConversation = useCallback(async (conversationId: string) => {
     try {
       const response = await fetch(`/api/conversations/${conversationId}`)
       if (response.ok) {
@@ -86,7 +83,7 @@ export default function ConversationDetailPage() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [router])
 
   const updateConversationStatus = async (newStatus: string) => {
     if (!conversation) return
@@ -155,7 +152,7 @@ export default function ConversationDetailPage() {
         hour: '2-digit',
         minute: '2-digit'
       })
-    } catch (error) {
+    } catch {
       return 'Data inválida'
     }
   }
@@ -170,7 +167,7 @@ export default function ConversationDetailPage() {
         hour: '2-digit',
         minute: '2-digit'
       })
-    } catch (error) {
+    } catch {
       return 'Data inválida'
     }
   }

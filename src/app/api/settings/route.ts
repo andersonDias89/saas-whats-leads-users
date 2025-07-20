@@ -109,8 +109,8 @@ export async function PUT(req: NextRequest) {
     // Tratamento específico de erros
     if (error instanceof Error) {
       if (error.name === 'ZodError') {
-        const zodError = error as any
-        const fieldErrors = zodError.errors?.map((err: any) => err.message).join(', ')
+        const zodError = error as { errors?: Array<{ message: string }> }
+        const fieldErrors = zodError.errors?.map((err: { message: string }) => err.message).join(', ')
         console.log('🔍 Erro de validação:', fieldErrors)
         return NextResponse.json(
           { 

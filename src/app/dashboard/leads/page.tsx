@@ -27,11 +27,10 @@ interface Lead {
 }
 
 const statusOptions = [
-  { value: 'new', label: 'Novo', color: 'bg-blue-500' },
-  { value: 'contacted', label: 'Contactado', color: 'bg-yellow-500' },
-  { value: 'qualified', label: 'Qualificado', color: 'bg-green-500' },
-  { value: 'converted', label: 'Convertido', color: 'bg-purple-500' },
-  { value: 'lost', label: 'Perdido', color: 'bg-red-500' },
+  { value: 'novo', label: 'Novo', color: 'bg-blue-500' },
+  { value: 'qualificado', label: 'Qualificado', color: 'bg-green-500' },
+  { value: 'nao_interessado', label: 'Não Interessado', color: 'bg-red-500' },
+  { value: 'fechado', label: 'Fechado', color: 'bg-purple-500' },
 ]
 
 export default function LeadsPage() {

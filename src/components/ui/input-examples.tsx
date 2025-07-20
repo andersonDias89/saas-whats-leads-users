@@ -3,7 +3,7 @@
 import React from 'react'
 import { Input } from './input'
 import { FormField } from './form-field'
-import { Mail, Lock, User, Phone, Key, Search } from 'lucide-react'
+import { Mail, Lock, User, Phone, Key } from 'lucide-react'
 
 export function InputExamples() {
   const [passwordVisible, setPasswordVisible] = React.useState(false)

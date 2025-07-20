@@ -9,15 +9,10 @@ import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 import {
   LayoutDashboard,
-  BarChart3,
   MessageCircle,
   Users,
-  HelpCircle,
   Settings,
-  User,
-  LogOut,
-  Phone,
-  Mail
+  LogOut
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 

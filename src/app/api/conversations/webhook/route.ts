@@ -203,7 +203,7 @@ export async function POST(req: NextRequest) {
           console.log('🤖 Resposta da IA:', aiResponse)
           
           // Salvar resposta da IA
-          const aiMessage = await prisma.message.create({
+          await prisma.message.create({
             data: {
               conversationId: conversation.id,
               userId: user.id,
