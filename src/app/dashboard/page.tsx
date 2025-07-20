@@ -141,6 +141,7 @@ export default async function DashboardPage() {
           </CardHeader>
           <CardContent>
             <ConversationsChart 
+              monthlyData={data.charts.conversations.monthlyData}
               totalConversations={data.kpis.totalConversations.value}
               activeConversations={data.conversations.active}
               conversationsChange={data.kpis.totalConversations.change}
@@ -167,6 +168,7 @@ export default async function DashboardPage() {
           </CardHeader>
           <CardContent>
             <MessagesChart 
+              monthlyData={data.charts.messages.monthlyData}
               totalMessages={data.kpis.totalMessages.value}
               messagesChange={data.kpis.totalMessages.change}
             />
