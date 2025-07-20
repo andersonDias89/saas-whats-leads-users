@@ -1,0 +1,295 @@
+# 🚀 Diretrizes de Implementação de Features
+
+## 📋 Checklist Obrigatório para Novas Features
+
+### **1. Análise e Planejamento:**
+- [ ] Identificar o domínio da feature (leads, conversations, dashboard, etc.)
+- [ ] Definir schemas Zod necessários
+- [ ] Definir tipos TypeScript necessários
+- [ ] Planejar métodos do service
+- [ ] Planejar hooks customizados
+- [ ] Definir APIs necessárias
+
+### **2. Implementação por Camadas:**
+
+#### **Camada 1: Schemas e Tipos**
+```typescript
+// 1. Criar schema Zod
+// src/schemas/[domain]/entity.ts
+export const entitySchema = z.object({
+  id: z.string(),
+  name: z.string().min(1),
+  // ... outros campos
+})
+
+// 2. Criar tipos TypeScript
+// src/types/[domain]/entity.ts
+export interface Entity {
+  id: string
+  name: string
+  // ... outros campos
+}
+
+// 3. Adicionar exports
+// src/schemas/[domain]/index.ts
+export * from './entity'
+
+// src/types/[domain]/index.ts
+export * from './entity'
+```
+
+#### **Camada 2: Service (Lógica de Negócio)**
+```typescript
+// src/services/[domain]/entity-service.ts
+export class EntityService {
+  async getAll(): Promise<Entity[]> {
+    return await prisma.entity.findMany({
+      orderBy: { createdAt: 'desc' }
+    })
+  }
+
+  async getById(id: string): Promise<Entity | null> {
+    return await prisma.entity.findUnique({
+      where: { id }
+    })
+  }
+
+  async create(data: CreateEntityData): Promise<Entity> {
+    return await prisma.entity.create({ data })
+  }
+
+  async update(id: string, data: UpdateEntityData): Promise<Entity> {
+    return await prisma.entity.update({
+      where: { id },
+      data
+    })
+  }
+
+  async delete(id: string): Promise<void> {
+    await prisma.entity.delete({ where: { id } })
+  }
+}
+```
+
+#### **Camada 3: Hooks Customizados**
+```typescript
+// src/hooks/[domain]/use-entities.ts
+export function useEntities() {
+  const [entities, setEntities] = useState<Entity[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  const fetchEntities = useCallback(async () => {
+    try {
+      setLoading(true)
+      const service = new EntityService()
+      const data = await service.getAll()
+      setEntities(data)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erro ao carregar dados')
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  const createEntity = useCallback(async (data: CreateEntityData) => {
+    try {
+      const service = new EntityService()
+      await service.create(data)
+      await fetchEntities() // Recarregar dados
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erro ao criar')
+    }
+  }, [fetchEntities])
+
+  useEffect(() => {
+    fetchEntities()
+  }, [fetchEntities])
+
+  return {
+    entities,
+    loading,
+    error,
+    refetch: fetchEntities,
+    createEntity
+  }
+}
+```
+
+#### **Camada 4: APIs (Camada de Apresentação)**
+```typescript
+// src/app/api/[domain]/route.ts
+import { NextRequest, NextResponse } from 'next/server'
+import { EntityService } from '@/services/[domain]'
+import { createEntitySchema } from '@/schemas/[domain]'
+
+export async function GET() {
+  try {
+    const service = new EntityService()
+    const entities = await service.getAll()
+    return NextResponse.json(entities)
+  } catch (error) {
+    console.error('Erro ao buscar entidades:', error)
+    return NextResponse.json(
+      { message: 'Erro interno do servidor' },
+      { status: 500 }
+    )
+  }
+}
+
+export async function POST(req: NextRequest) {
+  try {
+    const data = await req.json()
+    const validatedData = createEntitySchema.parse(data)
+    
+    const service = new EntityService()
+    const entity = await service.create(validatedData)
+    
+    return NextResponse.json(entity, { status: 201 })
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        { message: 'Dados inválidos', errors: error.errors },
+        { status: 400 }
+      )
+    }
+    
+    console.error('Erro ao criar entidade:', error)
+    return NextResponse.json(
+      { message: 'Erro interno do servidor' },
+      { status: 500 }
+    )
+  }
+}
+```
+
+#### **Camada 5: Componentes (UI)**
+```typescript
+// src/app/dashboard/[domain]/page.tsx
+import { useEntities } from '@/hooks/[domain]'
+import { ENTITY_OPTIONS } from '@/lib/utils/constants'
+import { formatEntity } from '@/lib/utils/formatting'
+
+export default function EntityPage() {
+  const { entities, loading, error, createEntity } = useEntities()
+  
+  if (loading) return <div>Carregando...</div>
+  if (error) return <div>Erro: {error}</div>
+  
+  return (
+    <div>
+      {entities.map(entity => (
+        <div key={entity.id}>
+          {formatEntity(entity)}
+        </div>
+      ))}
+    </div>
+  )
+}
+```
+
+### **3. Utilitários (Se Necessário):**
+```typescript
+// src/lib/utils/constants.ts
+export const ENTITY_OPTIONS = [
+  { value: 'option1', label: 'Opção 1' },
+  { value: 'option2', label: 'Opção 2' }
+]
+
+// src/lib/utils/formatting.ts
+export const formatEntity = (entity: Entity) => {
+  return `${entity.name} - ${entity.id}`
+}
+```
+
+## 🚨 Regras Críticas de Implementação
+
+### **NUNCA FAZER:**
+- ❌ Implementar lógica de banco diretamente em componentes
+- ❌ Duplicar código existente
+- ❌ Criar APIs fora de `src/app/api/`
+- ❌ Usar `any` sem justificativa
+- ❌ Misturar responsabilidades entre camadas
+
+### **SEMPRE FAZER:**
+- ✅ Seguir a ordem de implementação (Schemas → Types → Service → Hooks → APIs → Components)
+- ✅ Usar service layer para todas as operações de banco
+- ✅ Implementar validação com Zod em todas as APIs
+- ✅ Tratar erros adequadamente em todas as camadas
+- ✅ Usar hooks customizados para estado e lógica
+- ✅ Centralizar constantes e utilitários
+- ✅ Testar cada camada antes de prosseguir
+
+## 🔄 Fluxo de Desenvolvimento
+
+### **1. Desenvolvimento Iterativo:**
+1. Implementar schemas e tipos
+2. Implementar service com métodos básicos
+3. Implementar hooks para operações básicas
+4. Implementar APIs básicas
+5. Implementar UI básica
+6. Adicionar funcionalidades avançadas
+7. Refatorar e otimizar
+
+### **2. Testes por Camada:**
+- **Schemas:** Validar com dados de teste
+- **Service:** Testar métodos individualmente
+- **Hooks:** Testar estados e operações
+- **APIs:** Testar endpoints com Postman/Thunder Client
+- **Components:** Testar renderização e interações
+
+### **3. Validação Final:**
+- [ ] `npm run lint` - Sem erros
+- [ ] `npm run build` - Build bem-sucedido
+- [ ] Testes funcionais básicos
+- [ ] Verificar se não quebrou funcionalidades existentes
+
+## 📚 Exemplos de Implementação
+
+### **Feature Simples (CRUD Básico):**
+- Schemas: 1 arquivo
+- Types: 1 arquivo
+- Service: 1 classe com 5 métodos
+- Hooks: 1 hook com operações básicas
+- APIs: 1 arquivo com GET/POST/PUT/DELETE
+- Components: 1 página com lista e formulário
+
+### **Feature Complexa (Com Relacionamentos):**
+- Schemas: 2-3 arquivos
+- Types: 2-3 arquivos
+- Service: 1 classe com métodos específicos
+- Hooks: 2-3 hooks especializados
+- APIs: 2-3 arquivos de API
+- Components: 2-3 páginas/componentes
+
+## 🎯 Benefícios da Abordagem
+
+### **1. Manutenibilidade:**
+- Código organizado por responsabilidade
+- Fácil localização de problemas
+- Mudanças isoladas por camada
+
+### **2. Reutilização:**
+- Services reutilizáveis entre APIs
+- Hooks compartilhados entre componentes
+- Utilitários centralizados
+
+### **3. Testabilidade:**
+- Cada camada testável independentemente
+- Mocks fáceis de implementar
+- Testes unitários e de integração
+
+### **4. Escalabilidade:**
+- Estrutura preparada para crescimento
+- Padrões consistentes
+- Fácil adição de novas funcionalidades
+
+## 📚 Documentação Relacionada
+
+- [Arquitetura](mdc:docs/architecture.md) - Documentação completa da arquitetura
+- [Melhores Práticas](mdc:docs/best-practices.md) - Padrões gerais do projeto
+- [Guia de Erros](mdc:docs/lint-build-errors-guide.md) - Erros comuns e soluções
+description:
+globs:
+alwaysApply: false
+---

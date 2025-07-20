@@ -1,0 +1,73 @@
+---
+globs: *.ts,*.tsx
+---
+# Padrões TypeScript - Cursor SaaS WhatsApp Leads
+
+## 🎯 Imports e Exports
+
+### ✅ Correto:
+```typescript
+// Imports organizados
+import { useState, useEffect, useCallback } from 'react'
+import { prisma } from '@/lib/prisma'
+import { twilioWebhookSchema } from '@/schemas'
+
+// Exports nomeados
+export { twilioWebhookSchema }
+export type { User, Lead, Conversation }
+```
+
+### ❌ Evitar:
+```typescript
+// Imports não utilizados
+import { useState, useEffect, useCallback, useMemo } from 'react'
+// useMemo não usado
+
+// Exports default desnecessários
+export default function Component() {}
+```
+
+## 🔧 Hooks React
+
+### ✅ Correto:
+```typescript
+const fetchData = useCallback(async () => {
+  // lógica
+}, [dependencies])
+
+useEffect(() => {
+  fetchData()
+}, [fetchData])
+```
+
+### ❌ Evitar:
+```typescript
+useEffect(() => {
+  fetchData() // fetchData não nas dependências
+}, [])
+```
+
+## 📝 Tipagem
+
+### ✅ Correto:
+```typescript
+interface Lead {
+  id: string
+  name: string
+  status: 'novo' | 'contactado' | 'convertido'
+}
+
+const handleStatusChange = (value: string): void => {
+  // lógica
+}
+```
+
+### ❌ Evitar:
+```typescript
+const handleStatusChange = (value) => {
+  // sem tipagem
+}
+```
+
+## 🚨 Erros Comuns
+Consulte [docs/lint-build-errors-guide.md](mdc:docs/lint-build-errors-guide.md) para lista completa de erros corrigidos.

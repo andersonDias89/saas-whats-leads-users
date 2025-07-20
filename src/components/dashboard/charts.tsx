@@ -1,6 +1,7 @@
 'use client'
 
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts'
+import { formatMonthShort, formatMonthLong } from '@/lib/utils/date'
 
 interface ChartData {
   month: string
@@ -16,7 +17,7 @@ export function LeadsChart({ monthlyData }: { monthlyData: ChartData[], totalLea
           <XAxis 
             dataKey="month" 
             tick={{ fill: '#9CA3AF', fontSize: 11, fontWeight: 500 }}
-            tickFormatter={(value) => new Date(value).toLocaleDateString('pt-BR', { month: 'short' }).toUpperCase()}
+            tickFormatter={(value) => formatMonthShort(value)}
             axisLine={{ stroke: '#374151', strokeWidth: 1 }}
             tickLine={false}
           />
@@ -41,7 +42,7 @@ export function LeadsChart({ monthlyData }: { monthlyData: ChartData[], totalLea
               fontWeight: '600',
               fontSize: '13px'
             }}
-            labelFormatter={(value) => new Date(value).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}
+            labelFormatter={(value) => formatMonthLong(value)}
             formatter={(value) => [`${value} leads`, 'Leads']}
             cursor={{ fill: 'rgba(16, 185, 129, 0.1)' }}
           />
@@ -85,7 +86,7 @@ export function ConversationsChart({ monthlyData }: { monthlyData: ChartData[], 
           <XAxis 
             dataKey="month" 
             tick={{ fill: '#9CA3AF', fontSize: 11, fontWeight: 500 }}
-            tickFormatter={(value) => new Date(value).toLocaleDateString('pt-BR', { month: 'short' }).toUpperCase()}
+            tickFormatter={(value) => formatMonthShort(value)}
             axisLine={{ stroke: '#374151', strokeWidth: 1 }}
             tickLine={false}
           />
@@ -110,7 +111,7 @@ export function ConversationsChart({ monthlyData }: { monthlyData: ChartData[], 
               fontWeight: '600',
               fontSize: '13px'
             }}
-            labelFormatter={(value) => new Date(value).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}
+            labelFormatter={(value) => formatMonthLong(value)}
             formatter={(value, name) => [
               `${value} ${name === 'conversas' ? 'conversas' : 'ativas'}`, 
               name === 'conversas' ? 'Total' : 'Ativas'
@@ -174,7 +175,7 @@ export function MessagesChart({ monthlyData }: { monthlyData: ChartData[], total
           <XAxis 
             dataKey="month" 
             tick={{ fill: '#9CA3AF', fontSize: 11, fontWeight: 500 }}
-            tickFormatter={(value) => new Date(value).toLocaleDateString('pt-BR', { month: 'short' }).toUpperCase()}
+            tickFormatter={(value) => formatMonthShort(value)}
             axisLine={{ stroke: '#374151', strokeWidth: 1 }}
             tickLine={false}
           />
@@ -199,7 +200,7 @@ export function MessagesChart({ monthlyData }: { monthlyData: ChartData[], total
               fontWeight: '600',
               fontSize: '13px'
             }}
-            labelFormatter={(value) => new Date(value).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}
+            labelFormatter={(value) => formatMonthLong(value)}
             formatter={(value) => [`${value} mensagens`, 'Mensagens']}
             cursor={{ fill: 'rgba(0, 212, 170, 0.1)' }}
           />

@@ -8,6 +8,7 @@ import {
 } from 'lucide-react'
 import { getDashboardData } from '@/lib/dashboard-data'
 import { LeadsChart, ConversationsChart, MessagesChart } from '@/components/dashboard/charts'
+import { formatDate } from '@/lib/utils/date'
 
 export default async function DashboardPage() {
   const data = await getDashboardData()
@@ -19,13 +20,7 @@ export default async function DashboardPage() {
     }).format(value)
   }
 
-  const formatDate = (date: string | Date) => {
-    return new Date(date).toLocaleDateString('pt-BR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-    })
-  }
+
 
   return (
     <div className="p-6 space-y-6 bg-background">
