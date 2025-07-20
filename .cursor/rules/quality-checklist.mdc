@@ -23,6 +23,13 @@ alwaysApply: true
 - [ ] Validação com Zod implementada
 - [ ] Tratamento de erros adequado
 
+### **Testes:**
+- [ ] `npm test` - Todos os testes passando
+- [ ] Testes para novos schemas Zod
+- [ ] Testes para novos hooks customizados
+- [ ] Testes para novos componentes UI
+- [ ] Mocks adequados para dependências externas
+
 ## 🚨 Erros Comuns a Evitar
 
 ### **Imports Não Utilizados:**
@@ -62,6 +69,7 @@ useEffect(() => {
 ```
 
 ## 📚 Documentação
+- [docs/testing-strategy.md](mdc:docs/testing-strategy.md) - Estratégia de testes
 - [docs/lint-build-errors-guide.md](mdc:docs/lint-build-errors-guide.md) - Erros corrigidos
 - [docs/best-practices.md](mdc:docs/best-practices.md) - Melhores práticas
 
@@ -71,4 +79,6 @@ npm run lint          # Verificar lint
 npm run lint:fix      # Corrigir lint automaticamente
 npm run build         # Verificar build
 npx tsc --noEmit      # Verificar tipos
+npm test              # Executar testes
+npm run test:watch    # Executar testes com watch
 ```

@@ -422,9 +422,12 @@ API Request → Zod Schema → Service → Database
 - Fácil adição de novas features
 
 ### **4. Testabilidade:**
-- Services isolados
-- Hooks testáveis
+- Services isolados e testáveis
+- Hooks customizados com testes completos
 - Lógica separada da UI
+- Schemas Zod validados
+- Componentes UI testados
+- Integração com Jest e Testing Library
 
 ### **5. Type Safety:**
 - TypeScript strict mode
@@ -433,6 +436,7 @@ API Request → Zod Schema → Service → Database
 
 ## 📚 Documentação Relacionada
 
+- [Estratégia de Testes](testing-strategy.md) - Configuração e padrões de testes
 - [Melhores Práticas](best-practices.md) - Padrões gerais do projeto
 - [Guia de Erros](lint-build-errors-guide.md) - Erros comuns e soluções
 - [README](README.md) - Visão geral da documentação

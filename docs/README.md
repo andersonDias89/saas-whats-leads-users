@@ -8,22 +8,14 @@ Esta pasta contém toda a documentação técnica do projeto **Cursor SaaS Whats
 docs/
 ├── README.md                    # Este arquivo - Visão geral
 ├── architecture.md              # Arquitetura refatorada do projeto
+├── testing-strategy.md          # Estratégia e configuração de testes
 ├── lint-build-errors-guide.md   # Guia de erros corrigidos
 └── best-practices.md           # Melhores práticas do projeto
 ```
 
 ## 📖 Documentos Disponíveis
 
-### 1. **lint-build-errors-guide.md**
-- **Propósito:** Registrar erros de lint e build corrigidos
-- **Conteúdo:** 
-  - Lista detalhada de erros encontrados
-  - Soluções aplicadas
-  - Como prevenir recorrência
-  - Configurações recomendadas
-- **Útil para:** Desenvolvedores novos e revisão de código
-
-### 2. **architecture.md**
+### 1. **architecture.md**
 - **Propósito:** Documentar a arquitetura refatorada do projeto
 - **Conteúdo:**
   - Estrutura de pastas por domínio
@@ -32,6 +24,16 @@ docs/
   - Checklist de implementação
   - Benefícios da arquitetura
 - **Útil para:** Desenvolvedores novos e implementação de features
+
+### 2. **testing-strategy.md**
+- **Propósito:** Documentar a estratégia de testes implementada
+- **Conteúdo:**
+  - Configuração do Jest e Testing Library
+  - Estrutura de testes por tipo
+  - Padrões de teste e mocks
+  - Cobertura atual e próximos passos
+  - Troubleshooting comum
+- **Útil para:** Desenvolvedores novos e manutenção de testes
 
 ### 3. **best-practices.md**
 - **Propósito:** Estabelecer padrões e melhores práticas
@@ -42,13 +44,23 @@ docs/
   - Fluxo de trabalho
 - **Útil para:** Manter consistência no projeto
 
+### 4. **lint-build-errors-guide.md**
+- **Propósito:** Registrar erros de lint e build corrigidos
+- **Conteúdo:** 
+  - Lista detalhada de erros encontrados
+  - Soluções aplicadas
+  - Como prevenir recorrência
+  - Configurações recomendadas
+- **Útil para:** Desenvolvedores novos e revisão de código
+
 ## 🎯 Como Usar Esta Documentação
 
 ### **Para Desenvolvedores Novos:**
 1. Leia `architecture.md` primeiro (entenda a estrutura)
-2. Leia `best-practices.md` (padrões gerais)
-3. Consulte `lint-build-errors-guide.md` quando encontrar erros
-4. Use os checklists antes de commitar
+2. Leia `testing-strategy.md` (entenda como testar)
+3. Leia `best-practices.md` (padrões gerais)
+4. Consulte `lint-build-errors-guide.md` quando encontrar erros
+5. Use os checklists antes de commitar
 
 ### **Para Revisão de Código:**
 1. Use o checklist de qualidade em `best-practices.md`

@@ -34,7 +34,12 @@ Esta pasta contém as regras do Cursor que ajudam a manter a qualidade e consist
 - **Aplicação:** Sempre ativa em todo o projeto
 - **Conteúdo:** Checklist antes de commitar, erros comuns, comandos úteis
 
-### 7. **feature-implementation.mdc** (Manual)
+### 7. **testing-patterns.mdc** (Sempre Aplicada)
+- **Propósito:** Padrões de teste e configuração Jest
+- **Aplicação:** Sempre ativa em todo o projeto
+- **Conteúdo:** Estrutura de testes, padrões de nomenclatura, mocks, troubleshooting
+
+### 8. **feature-implementation.mdc** (Manual)
 - **Propósito:** Diretrizes para implementação de novas features
 - **Aplicação:** Manual - aplicar quando implementar novas features
 - **Conteúdo:** Checklist obrigatório, implementação por camadas, fluxo de desenvolvimento
@@ -52,6 +57,7 @@ Esta pasta contém as regras do Cursor que ajudam a manter a qualidade e consist
 ## 📚 Referências
 
 - [docs/architecture.md](../docs/architecture.md) - Arquitetura refatorada do projeto
+- [docs/testing-strategy.md](../docs/testing-strategy.md) - Estratégia de testes implementada
 - [docs/best-practices.md](../docs/best-practices.md) - Melhores práticas detalhadas
 - [docs/lint-build-errors-guide.md](../docs/lint-build-errors-guide.md) - Erros corrigidos
 
