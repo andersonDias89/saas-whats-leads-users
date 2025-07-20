@@ -13,6 +13,7 @@ import { toast } from 'sonner'
 import Link from 'next/link'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { Pagination } from '@/components/ui/pagination'
+import { formatDate } from '@/lib/utils/date'
 
 interface Message {
   id: string
@@ -100,7 +101,6 @@ export default function ConversationsPage() {
   }
 
   const openDeleteDialog = (conversationId: string, leadName: string) => {
-    console.log('Abrindo modal para deletar conversa:', conversationId, leadName)
     setDeleteDialog({
       open: true,
       conversationId,
@@ -109,7 +109,6 @@ export default function ConversationsPage() {
   }
 
   const closeDeleteDialog = () => {
-    console.log('Fechando modal de delete conversa')
     setDeleteDialog({
       open: false,
       conversationId: null,
@@ -126,24 +125,7 @@ export default function ConversationsPage() {
     )
   }
 
-  const formatDate = (date: string | Date) => {
-    try {
-      const dateObj = new Date(date)
-      if (isNaN(dateObj.getTime())) {
-        return 'Data inválida'
-      }
-      return dateObj.toLocaleDateString('pt-BR', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-      })
-    } catch (error) {
-      console.error('Erro ao formatar data:', date, error)
-      return 'Data inválida'
-    }
-  }
+
 
   if (isLoading) {
     return (

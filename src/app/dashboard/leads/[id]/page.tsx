@@ -23,6 +23,7 @@ import {
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
+import { formatDate } from '@/lib/utils/date'
 
 interface Lead {
   id: string
@@ -140,23 +141,7 @@ export default function LeadDetailPage() {
     )
   }
 
-  const formatDate = (date: string | Date) => {
-    try {
-      const dateObj = new Date(date)
-      if (isNaN(dateObj.getTime())) {
-        return 'Data inválida'
-      }
-      return dateObj.toLocaleDateString('pt-BR', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-      })
-    } catch {
-      return 'Data inválida'
-    }
-  }
+
 
   if (isLoading) {
     return (
