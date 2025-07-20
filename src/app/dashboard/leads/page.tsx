@@ -7,9 +7,10 @@ import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Plus, Search, Filter, Users, Phone, Mail, Calendar } from 'lucide-react'
+import { Plus, Search, Filter, Users, Phone, Mail, Calendar, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
 import Link from 'next/link'
+import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 
 interface Lead {
   id: string
@@ -36,6 +37,11 @@ export default function LeadsPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
+  const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; leadId: string | null; leadName: string }>({
+    open: false,
+    leadId: null,
+    leadName: ''
+  })
 
   useEffect(() => {
     loadLeads()
@@ -80,6 +86,45 @@ export default function LeadsPage() {
       console.error('Erro ao atualizar status:', error)
       toast.error('Erro ao atualizar status')
     }
+  }
+
+  const deleteLead = async () => {
+    if (!deleteDialog.leadId) return
+
+    try {
+      const response = await fetch(`/api/leads/${deleteDialog.leadId}`, {
+        method: 'DELETE',
+      })
+
+      if (response.ok) {
+        setLeads(leads.filter(lead => lead.id !== deleteDialog.leadId))
+        toast.success('Lead deletado com sucesso')
+      } else {
+        const error = await response.json()
+        toast.error(error.message || 'Erro ao deletar lead')
+      }
+    } catch (error) {
+      console.error('Erro ao deletar lead:', error)
+      toast.error('Erro ao deletar lead')
+    }
+  }
+
+  const openDeleteDialog = (leadId: string, leadName: string) => {
+    console.log('Abrindo modal para deletar:', leadId, leadName)
+    setDeleteDialog({
+      open: true,
+      leadId,
+      leadName
+    })
+  }
+
+  const closeDeleteDialog = () => {
+    console.log('Fechando modal de delete')
+    setDeleteDialog({
+      open: false,
+      leadId: null,
+      leadName: ''
+    })
   }
 
   const getStatusBadge = (status: string) => {
@@ -200,9 +245,9 @@ export default function LeadsPage() {
           ) : (
             <div className="space-y-4">
               {filteredLeads.map((lead) => (
-                <Link key={lead.id} href={`/dashboard/leads/${lead.id}`}>
-                  <div className="border border-border rounded-lg p-4 hover:bg-accent transition-colors cursor-pointer">
-                    <div className="flex items-center justify-between">
+                <div key={lead.id} className="border border-border rounded-lg p-4 hover:bg-accent transition-colors">
+                  <div className="flex items-center justify-between">
+                    <Link href={`/dashboard/leads/${lead.id}`} className="flex-1">
                       <div className="flex items-center space-x-4">
                         <Avatar>
                           <AvatarImage src="" />
@@ -230,40 +275,59 @@ export default function LeadsPage() {
                           </div>
                         </div>
                       </div>
-                      <div className="flex items-center space-x-3">
-                        {getStatusBadge(lead.status)}
-                        <Select 
-                          value={lead.status} 
-                          onValueChange={(value: string) => updateLeadStatus(lead.id, value)}
-                        >
-                          <SelectTrigger 
-                            className="w-40"
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {statusOptions.map((status) => (
-                              <SelectItem key={status.value} value={status.value}>
-                                {status.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
+                    </Link>
+                    <div className="flex items-center space-x-3 ml-4">
+                      {getStatusBadge(lead.status)}
+                      <Select 
+                        value={lead.status} 
+                        onValueChange={(value: string) => updateLeadStatus(lead.id, value)}
+                      >
+                        <SelectTrigger className="w-40">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {statusOptions.map((status) => (
+                            <SelectItem key={status.value} value={status.value}>
+                              {status.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => openDeleteDialog(lead.id, lead.name || 'Lead sem nome')}
+                        className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
                     </div>
-                    {lead.notes && (
-                      <div className="mt-3 text-sm text-muted-foreground bg-muted p-2 rounded">
-                        {lead.notes}
-                      </div>
-                    )}
                   </div>
-                </Link>
+                  {lead.notes && (
+                    <div className="mt-3 text-sm text-muted-foreground bg-muted p-2 rounded">
+                      {lead.notes}
+                    </div>
+                  )}
+                </div>
               ))}
             </div>
           )}
         </CardContent>
       </Card>
+
+      {/* Modal de Confirmação de Delete */}
+      <ConfirmDialog
+        open={deleteDialog.open}
+        onOpenChange={(open) => {
+          if (!open) closeDeleteDialog()
+        }}
+        title="Deletar Lead"
+        description={`Tem certeza que deseja deletar o lead "${deleteDialog.leadName}"? Esta ação também removerá todas as conversas vinculadas e não pode ser desfeita.`}
+        confirmText="Deletar"
+        cancelText="Cancelar"
+        onConfirm={deleteLead}
+        variant="destructive"
+      />
     </div>
   )
 } 

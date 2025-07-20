@@ -18,9 +18,11 @@ import {
   Send,
   Download,
   Bot,
-  User as UserIcon
+  User as UserIcon,
+  Trash2
 } from 'lucide-react'
 import { toast } from 'sonner'
+import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 
 interface Message {
   id: string
@@ -60,6 +62,7 @@ export default function ConversationDetailPage() {
   const router = useRouter()
   const [conversation, setConversation] = useState<Conversation | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [deleteDialog, setDeleteDialog] = useState(false)
 
   useEffect(() => {
     if (params.id) {
@@ -106,6 +109,27 @@ export default function ConversationDetailPage() {
     } catch (error) {
       console.error('Erro ao atualizar status:', error)
       toast.error('Erro ao atualizar status')
+    }
+  }
+
+  const deleteConversation = async () => {
+    if (!conversation) return
+
+    try {
+      const response = await fetch(`/api/conversations/${conversation.id}`, {
+        method: 'DELETE',
+      })
+
+      if (response.ok) {
+        toast.success('Conversa deletada com sucesso')
+        router.push('/dashboard/conversations')
+      } else {
+        const error = await response.json()
+        toast.error(error.message || 'Erro ao deletar conversa')
+      }
+    } catch (error) {
+      console.error('Erro ao deletar conversa:', error)
+      toast.error('Erro ao deletar conversa')
     }
   }
 
@@ -220,6 +244,15 @@ export default function ConversationDetailPage() {
               ))}
             </SelectContent>
           </Select>
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => setDeleteDialog(true)}
+            className="text-destructive hover:text-destructive hover:bg-destructive/10"
+          >
+            <Trash2 className="mr-2 h-4 w-4" />
+            Deletar
+          </Button>
         </div>
       </div>
 
@@ -381,6 +414,18 @@ export default function ConversationDetailPage() {
           </Card>
         </div>
       </div>
+
+      {/* Modal de Confirmação de Delete */}
+      <ConfirmDialog
+        open={deleteDialog}
+        onOpenChange={setDeleteDialog}
+        title="Deletar Conversa"
+        description={`Tem certeza que deseja deletar a conversa com "${conversation?.leadName || 'Lead sem nome'}"? Esta ação não pode ser desfeita.`}
+        confirmText="Deletar"
+        cancelText="Cancelar"
+        onConfirm={deleteConversation}
+        variant="destructive"
+      />
     </div>
   )
 } 

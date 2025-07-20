@@ -7,9 +7,10 @@ import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { MessageCircle, Search, Filter, Phone, Calendar, MessageSquare } from 'lucide-react'
+import { MessageCircle, Search, Filter, Phone, Calendar, MessageSquare, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
 import Link from 'next/link'
+import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 
 interface Message {
   id: string
@@ -40,6 +41,11 @@ export default function ConversationsPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
+  const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; conversationId: string | null; leadName: string }>({
+    open: false,
+    conversationId: null,
+    leadName: ''
+  })
 
   useEffect(() => {
     loadConversations()
@@ -60,6 +66,45 @@ export default function ConversationsPage() {
     } finally {
       setIsLoading(false)
     }
+  }
+
+  const deleteConversation = async () => {
+    if (!deleteDialog.conversationId) return
+
+    try {
+      const response = await fetch(`/api/conversations/${deleteDialog.conversationId}`, {
+        method: 'DELETE',
+      })
+
+      if (response.ok) {
+        setConversations(conversations.filter(conv => conv.id !== deleteDialog.conversationId))
+        toast.success('Conversa deletada com sucesso')
+      } else {
+        const error = await response.json()
+        toast.error(error.message || 'Erro ao deletar conversa')
+      }
+    } catch (error) {
+      console.error('Erro ao deletar conversa:', error)
+      toast.error('Erro ao deletar conversa')
+    }
+  }
+
+  const openDeleteDialog = (conversationId: string, leadName: string) => {
+    console.log('Abrindo modal para deletar conversa:', conversationId, leadName)
+    setDeleteDialog({
+      open: true,
+      conversationId,
+      leadName
+    })
+  }
+
+  const closeDeleteDialog = () => {
+    console.log('Fechando modal de delete conversa')
+    setDeleteDialog({
+      open: false,
+      conversationId: null,
+      leadName: ''
+    })
   }
 
   const getStatusBadge = (status: string) => {
@@ -185,9 +230,9 @@ export default function ConversationsPage() {
           ) : (
             <div className="space-y-4">
               {filteredConversations.map((conversation) => (
-                <Link key={conversation.id} href={`/dashboard/conversations/${conversation.id}`}>
-                  <div className="border border-border rounded-lg p-4 hover:bg-accent transition-colors">
-                    <div className="flex items-center justify-between">
+                <div key={conversation.id} className="border border-border rounded-lg p-4 hover:bg-accent transition-colors">
+                  <div className="flex items-center justify-between">
+                    <Link href={`/dashboard/conversations/${conversation.id}`} className="flex-1">
                       <div className="flex items-center space-x-4">
                         <Avatar>
                           <AvatarImage src="" />
@@ -218,22 +263,44 @@ export default function ConversationsPage() {
                           )}
                         </div>
                       </div>
-                      <div className="flex items-center space-x-3">
-                        {getStatusBadge(conversation.status || 'active')}
-                        {conversation.unreadCount > 0 && (
-                          <Badge className="bg-primary text-primary-foreground">
-                            {conversation.unreadCount}
-                          </Badge>
-                        )}
-                      </div>
+                    </Link>
+                    <div className="flex items-center space-x-3 ml-4">
+                      {getStatusBadge(conversation.status || 'active')}
+                      {conversation.unreadCount > 0 && (
+                        <Badge className="bg-primary text-primary-foreground">
+                          {conversation.unreadCount}
+                        </Badge>
+                      )}
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => openDeleteDialog(conversation.id, conversation.leadName || 'Lead sem nome')}
+                        className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
                     </div>
                   </div>
-                </Link>
+                </div>
               ))}
             </div>
           )}
         </CardContent>
       </Card>
+
+      {/* Modal de Confirmação de Delete */}
+      <ConfirmDialog
+        open={deleteDialog.open}
+        onOpenChange={(open) => {
+          if (!open) closeDeleteDialog()
+        }}
+        title="Deletar Conversa"
+        description={`Tem certeza que deseja deletar a conversa com "${deleteDialog.leadName}"? Esta ação não pode ser desfeita.`}
+        confirmText="Deletar"
+        cancelText="Cancelar"
+        onConfirm={deleteConversation}
+        variant="destructive"
+      />
     </div>
   )
 } 

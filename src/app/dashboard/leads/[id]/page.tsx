@@ -21,9 +21,11 @@ import {
   MessageCircle,
   Edit,
   Save,
-  X
+  X,
+  Trash2
 } from 'lucide-react'
 import { toast } from 'sonner'
+import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 
 interface Lead {
   id: string
@@ -57,6 +59,7 @@ export default function LeadDetailPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [isEditing, setIsEditing] = useState(false)
   const [editData, setEditData] = useState<Partial<Lead>>({})
+  const [deleteDialog, setDeleteDialog] = useState(false)
 
   useEffect(() => {
     if (params.id) {
@@ -106,6 +109,27 @@ export default function LeadDetailPage() {
     } catch (error) {
       console.error('Erro ao atualizar lead:', error)
       toast.error('Erro ao atualizar lead')
+    }
+  }
+
+  const deleteLead = async () => {
+    if (!lead) return
+
+    try {
+      const response = await fetch(`/api/leads/${lead.id}`, {
+        method: 'DELETE',
+      })
+
+      if (response.ok) {
+        toast.success('Lead deletado com sucesso')
+        router.push('/dashboard/leads')
+      } else {
+        const error = await response.json()
+        toast.error(error.message || 'Erro ao deletar lead')
+      }
+    } catch (error) {
+      console.error('Erro ao deletar lead:', error)
+      toast.error('Erro ao deletar lead')
     }
   }
 
@@ -212,10 +236,21 @@ export default function LeadDetailPage() {
               </Button>
             </>
           ) : (
-            <Button onClick={() => setIsEditing(true)} size="sm">
-              <Edit className="mr-2 h-4 w-4" />
-              Editar
-            </Button>
+            <>
+              <Button onClick={() => setIsEditing(true)} size="sm">
+                <Edit className="mr-2 h-4 w-4" />
+                Editar
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => setDeleteDialog(true)}
+                className="text-destructive hover:text-destructive hover:bg-destructive/10"
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                Deletar
+              </Button>
+            </>
           )}
         </div>
       </div>
@@ -373,6 +408,18 @@ export default function LeadDetailPage() {
           </Card>
         </div>
       </div>
+
+      {/* Modal de Confirmação de Delete */}
+      <ConfirmDialog
+        open={deleteDialog}
+        onOpenChange={setDeleteDialog}
+        title="Deletar Lead"
+        description={`Tem certeza que deseja deletar o lead "${lead?.name || 'Lead sem nome'}"? Esta ação também removerá todas as conversas vinculadas e não pode ser desfeita.`}
+        confirmText="Deletar"
+        cancelText="Cancelar"
+        onConfirm={deleteLead}
+        variant="destructive"
+      />
     </div>
   )
 } 

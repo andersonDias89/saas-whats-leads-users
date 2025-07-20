@@ -5,9 +5,10 @@ import { prisma } from '@/lib/prisma'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const session = await getServerSession(authOptions)
     
     if (!session?.user?.id) {
@@ -19,7 +20,7 @@ export async function GET(
 
     const lead = await prisma.lead.findFirst({
       where: {
-        id: params.id,
+        id: id,
         userId: session.user.id
       },
       include: {
@@ -69,9 +70,10 @@ export async function GET(
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const session = await getServerSession(authOptions)
     
     if (!session?.user?.id) {
@@ -86,7 +88,7 @@ export async function PATCH(
     // Verificar se o lead pertence ao usuário
     const existingLead = await prisma.lead.findFirst({
       where: {
-        id: params.id,
+        id: id,
         userId: session.user.id
       }
     })
@@ -101,7 +103,7 @@ export async function PATCH(
     // Atualizar lead
     const updatedLead = await prisma.lead.update({
       where: {
-        id: params.id
+        id: id
       },
       data: {
         name: body.name,
@@ -140,6 +142,84 @@ export async function PATCH(
 
   } catch (error) {
     console.error('Erro ao atualizar lead:', error)
+    return NextResponse.json(
+      { message: 'Erro interno do servidor' },
+      { status: 500 }
+    )
+  }
+} 
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params
+    const session = await getServerSession(authOptions)
+    
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { message: 'Não autorizado' },
+        { status: 401 }
+      )
+    }
+
+    // Verificar se o lead pertence ao usuário
+    const existingLead = await prisma.lead.findFirst({
+      where: {
+        id: id,
+        userId: session.user.id
+      },
+      include: {
+        conversation: {
+          include: {
+            messages: true
+          }
+        }
+      }
+    })
+
+    if (!existingLead) {
+      return NextResponse.json(
+        { message: 'Lead não encontrado' },
+        { status: 404 }
+      )
+    }
+
+    // Exclusão em cascata usando transação
+    await prisma.$transaction(async (tx) => {
+      // Se o lead tem uma conversa vinculada, deletar mensagens primeiro
+      if (existingLead.conversation) {
+        // Deletar mensagens da conversa
+        await tx.message.deleteMany({
+          where: {
+            conversationId: existingLead.conversation.id
+          }
+        })
+        
+        // Deletar a conversa
+        await tx.conversation.delete({
+          where: {
+            id: existingLead.conversation.id
+          }
+        })
+      }
+      
+      // Deletar o lead
+      await tx.lead.delete({
+        where: {
+          id: id
+        }
+      })
+    })
+
+    return NextResponse.json(
+      { message: 'Lead e conversas vinculadas deletados com sucesso' },
+      { status: 200 }
+    )
+
+  } catch (error) {
+    console.error('Erro ao deletar lead:', error)
     return NextResponse.json(
       { message: 'Erro interno do servidor' },
       { status: 500 }
