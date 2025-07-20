@@ -300,13 +300,13 @@ export default function ConversationDetailPage() {
         </div>
 
         {/* Sidebar */}
-        <div className="space-y-6">
+        <div className="space-y-4">
           {/* Informações da Conversa */}
           <Card className="bg-card border-card-border">
-            <CardHeader>
+            <CardHeader className="pb-2">
               <CardTitle className="text-foreground">Informações da Conversa</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-3 pt-0">
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">Status</span>
                 {getStatusBadge(conversation.status)}
@@ -335,13 +335,13 @@ export default function ConversationDetailPage() {
           {/* Lead Relacionado */}
           {conversation.lead && (
             <Card className="bg-card border-card-border">
-              <CardHeader>
+              <CardHeader className="pb-2">
                 <CardTitle className="text-foreground flex items-center">
                   <User className="mr-2 h-5 w-5" />
                   Lead Relacionado
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-3 pt-0">
                 <div className="flex items-center space-x-3">
                   <Avatar>
                     <AvatarImage src="" />
@@ -349,28 +349,30 @@ export default function ConversationDetailPage() {
                       {conversation.lead.name?.charAt(0) || '?'}
                     </AvatarFallback>
                   </Avatar>
-                  <div>
+                  <div className="flex-1">
                     <h3 className="font-medium text-foreground">{conversation.lead.name}</h3>
                     <p className="text-sm text-muted-foreground capitalize">
                       {conversation.lead.status}
                     </p>
                   </div>
                 </div>
-                <Link href={`/dashboard/leads/${conversation.lead.id}`}>
-                  <Button variant="outline" size="sm" className="w-full">
-                    Ver Lead
-                  </Button>
-                </Link>
+                <div className="pt-1">
+                  <Link href={`/dashboard/leads/${conversation.lead.id}`}>
+                    <Button variant="outline" size="sm" className="w-full">
+                      Ver Lead
+                    </Button>
+                  </Link>
+                </div>
               </CardContent>
             </Card>
           )}
 
           {/* Ações */}
           <Card className="bg-card border-card-border">
-            <CardHeader>
+            <CardHeader className="pb-2">
               <CardTitle className="text-foreground">Ações</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-2">
+            <CardContent className="space-y-3 pt-0">
               <Button variant="outline" size="sm" className="w-full">
                 <Download className="mr-2 h-4 w-4" />
                 Exportar Conversa
