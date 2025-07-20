@@ -5,9 +5,10 @@ import { prisma } from '@/lib/prisma'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const session = await getServerSession(authOptions)
     
     if (!session?.user?.id) {
@@ -19,7 +20,7 @@ export async function GET(
 
     const conversation = await prisma.conversation.findFirst({
       where: {
-        id: params.id,
+        id: id,
         userId: session.user.id
       },
       include: {
@@ -83,9 +84,10 @@ export async function GET(
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const session = await getServerSession(authOptions)
     
     if (!session?.user?.id) {
@@ -97,10 +99,18 @@ export async function PATCH(
 
     const body = await request.json()
 
+    // Validar se apenas status foi enviado
+    if (Object.keys(body).length !== 1 || !body.status) {
+      return NextResponse.json(
+        { message: 'Apenas o campo status pode ser alterado' },
+        { status: 400 }
+      )
+    }
+
     // Verificar se a conversa pertence ao usuário
     const existingConversation = await prisma.conversation.findFirst({
       where: {
-        id: params.id,
+        id: id,
         userId: session.user.id
       }
     })
@@ -112,10 +122,10 @@ export async function PATCH(
       )
     }
 
-    // Atualizar conversa
+    // Atualizar apenas o status da conversa
     const updatedConversation = await prisma.conversation.update({
       where: {
-        id: params.id
+        id: id
       },
       data: {
         status: body.status
@@ -165,6 +175,67 @@ export async function PATCH(
 
   } catch (error) {
     console.error('Erro ao atualizar conversa:', error)
+    return NextResponse.json(
+      { message: 'Erro interno do servidor' },
+      { status: 500 }
+    )
+  }
+}
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params
+    const session = await getServerSession(authOptions)
+    
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { message: 'Não autorizado' },
+        { status: 401 }
+      )
+    }
+
+    // Verificar se a conversa pertence ao usuário
+    const existingConversation = await prisma.conversation.findFirst({
+      where: {
+        id: id,
+        userId: session.user.id
+      }
+    })
+
+    if (!existingConversation) {
+      return NextResponse.json(
+        { message: 'Conversa não encontrada' },
+        { status: 404 }
+      )
+    }
+
+    // Exclusão em cascata usando transação
+    await prisma.$transaction(async (tx) => {
+      // Deletar mensagens primeiro
+      await tx.message.deleteMany({
+        where: {
+          conversationId: id
+        }
+      })
+      
+      // Deletar a conversa
+      await tx.conversation.delete({
+        where: {
+          id: id
+        }
+      })
+    })
+
+    return NextResponse.json(
+      { message: 'Conversa deletada com sucesso' },
+      { status: 200 }
+    )
+
+  } catch (error) {
+    console.error('Erro ao deletar conversa:', error)
     return NextResponse.json(
       { message: 'Erro interno do servidor' },
       { status: 500 }

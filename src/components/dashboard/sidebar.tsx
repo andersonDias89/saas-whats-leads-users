@@ -23,6 +23,7 @@ import { useEffect, useState } from 'react'
 
 interface SidebarStats {
   totalLeads: number
+  totalConversations: number
   activeConversations: number
   unreadMessages: number
 }
@@ -31,7 +32,7 @@ const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { name: 'Conversas', href: '/dashboard/conversations', icon: MessageCircle },
   { name: 'Leads', href: '/dashboard/leads', icon: Users },
-  { name: 'Settings', href: '/dashboard/settings', icon: Settings },
+  { name: 'Configurações', href: '/dashboard/settings', icon: Settings },
 ]
 
 export function Sidebar() {
@@ -39,6 +40,7 @@ export function Sidebar() {
   const { data: session } = useSession()
   const [stats, setStats] = useState<SidebarStats>({
     totalLeads: 0,
+    totalConversations: 0,
     activeConversations: 0,
     unreadMessages: 0,
   })
@@ -64,9 +66,9 @@ export function Sidebar() {
   }
 
   return (
-    <div className="flex h-full w-64 flex-col bg-background-secondary border-r border-border">
+    <div className="w-64 h-full flex flex-col bg-background-secondary border-r border-border">
       {/* Logo */}
-      <div className="flex items-center px-6 py-4 border-b border-border">
+      <div className="flex-shrink-0 flex items-center px-6 py-4 border-b border-border">
         <div className="flex items-center space-x-2">
           <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
             <MessageCircle className="h-5 w-5 text-primary-foreground" />
@@ -98,9 +100,9 @@ export function Sidebar() {
                     {stats.totalLeads}
                   </Badge>
                 )}
-                {item.name === 'Conversas' && stats.activeConversations > 0 && (
+                {item.name === 'Conversas' && stats.totalConversations > 0 && (
                   <Badge variant="secondary" className="ml-auto text-xs">
-                    {stats.activeConversations}
+                    {stats.totalConversations}
                   </Badge>
                 )}
                 {item.name === 'Message' && stats.unreadMessages > 0 && (
@@ -115,7 +117,7 @@ export function Sidebar() {
       </nav>
 
       {/* User Profile */}
-      <div className="border-t border-border p-4">
+      <div className="flex-shrink-0 border-t border-border p-4">
         <div className="flex items-center space-x-3 mb-3">
           <Avatar className="h-8 w-8">
             <AvatarImage src={session?.user?.image || ''} />
@@ -133,25 +135,13 @@ export function Sidebar() {
           </div>
         </div>
         
-        {/* Quick Stats */}
-        <div className="space-y-2 mb-3">
-          <div className="flex items-center justify-between text-xs">
-            <span className="text-foreground-muted">Leads</span>
-            <span className="text-foreground font-medium">{stats.totalLeads}</span>
-          </div>
-          <div className="flex items-center justify-between text-xs">
-            <span className="text-foreground-muted">Conversas</span>
-            <span className="text-foreground font-medium">{stats.activeConversations}</span>
-          </div>
-        </div>
-
         <Button
           variant="ghost"
           className="w-full justify-start h-9 px-3 text-sm text-foreground-secondary hover:bg-accent hover:text-accent-foreground"
           onClick={handleSignOut}
         >
           <LogOut className="mr-3 h-4 w-4" />
-          Log Out
+          Sair
         </Button>
       </div>
     </div>

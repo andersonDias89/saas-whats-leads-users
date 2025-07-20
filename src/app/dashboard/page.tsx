@@ -35,7 +35,7 @@ export default async function DashboardPage() {
           <nav className="text-sm text-foreground-muted mb-2">
             Pages / Dashboard
           </nav>
-          <h1 className="text-3xl font-bold text-foreground">Main Dashboard</h1>
+          <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
         </div>
       </div>
 
@@ -141,6 +141,7 @@ export default async function DashboardPage() {
           </CardHeader>
           <CardContent>
             <ConversationsChart 
+              monthlyData={data.charts.conversations.monthlyData}
               totalConversations={data.kpis.totalConversations.value}
               activeConversations={data.conversations.active}
               conversationsChange={data.kpis.totalConversations.change}
@@ -167,6 +168,7 @@ export default async function DashboardPage() {
           </CardHeader>
           <CardContent>
             <MessagesChart 
+              monthlyData={data.charts.messages.monthlyData}
               totalMessages={data.kpis.totalMessages.value}
               messagesChange={data.kpis.totalMessages.change}
             />

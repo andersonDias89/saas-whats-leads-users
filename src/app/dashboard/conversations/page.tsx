@@ -1,15 +1,18 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import * as React from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { MessageCircle, Search, Filter, Phone, Calendar, MessageSquare } from 'lucide-react'
+import { MessageCircle, Search, Filter, Phone, Calendar, MessageSquare, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
 import Link from 'next/link'
+import { ConfirmDialog } from '@/components/ui/confirm-dialog'
+import { Pagination } from '@/components/ui/pagination'
 
 interface Message {
   id: string
@@ -40,10 +43,23 @@ export default function ConversationsPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
+  const [currentPage, setCurrentPage] = useState(1)
+  const [itemsPerPage, setItemsPerPage] = useState(10)
+  const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; conversationId: string | null; leadName: string }>({
+    open: false,
+    conversationId: null,
+    leadName: ''
+  })
 
+  // Todos os hooks devem vir ANTES de qualquer lógica condicional
   useEffect(() => {
     loadConversations()
   }, [])
+
+  // Resetar página quando filtros mudarem
+  React.useEffect(() => {
+    setCurrentPage(1)
+  }, [searchTerm, statusFilter, itemsPerPage])
 
   const loadConversations = async () => {
     try {
@@ -60,6 +76,45 @@ export default function ConversationsPage() {
     } finally {
       setIsLoading(false)
     }
+  }
+
+  const deleteConversation = async () => {
+    if (!deleteDialog.conversationId) return
+
+    try {
+      const response = await fetch(`/api/conversations/${deleteDialog.conversationId}`, {
+        method: 'DELETE',
+      })
+
+      if (response.ok) {
+        setConversations(conversations.filter(conv => conv.id !== deleteDialog.conversationId))
+        toast.success('Conversa deletada com sucesso')
+      } else {
+        const error = await response.json()
+        toast.error(error.message || 'Erro ao deletar conversa')
+      }
+    } catch (error) {
+      console.error('Erro ao deletar conversa:', error)
+      toast.error('Erro ao deletar conversa')
+    }
+  }
+
+  const openDeleteDialog = (conversationId: string, leadName: string) => {
+    console.log('Abrindo modal para deletar conversa:', conversationId, leadName)
+    setDeleteDialog({
+      open: true,
+      conversationId,
+      leadName
+    })
+  }
+
+  const closeDeleteDialog = () => {
+    console.log('Fechando modal de delete conversa')
+    setDeleteDialog({
+      open: false,
+      conversationId: null,
+      leadName: ''
+    })
   }
 
   const getStatusBadge = (status: string) => {
@@ -117,6 +172,12 @@ export default function ConversationsPage() {
     return matchesSearch && matchesStatus
   })
 
+  // Calcular paginação
+  const totalPages = Math.ceil(filteredConversations.length / itemsPerPage)
+  const startIndex = (currentPage - 1) * itemsPerPage
+  const endIndex = startIndex + itemsPerPage
+  const paginatedConversations = filteredConversations.slice(startIndex, endIndex)
+
   return (
     <div className="p-6 space-y-6 bg-background">
       {/* Header */}
@@ -164,13 +225,13 @@ export default function ConversationsPage() {
 
       {/* Conversations List */}
       <Card className="bg-card border-card-border">
-        <CardHeader>
+        <CardHeader className="border-b border-border">
           <CardTitle className="text-foreground">Todas as Conversas ({filteredConversations.length})</CardTitle>
           <CardDescription className="text-muted-foreground">
             Lista de todas as conversas capturadas através do WhatsApp
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-0">
           {filteredConversations.length === 0 ? (
             <div className="text-center py-12 text-muted-foreground">
               <MessageCircle className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
@@ -183,57 +244,96 @@ export default function ConversationsPage() {
               </p>
             </div>
           ) : (
-            <div className="space-y-4">
-              {filteredConversations.map((conversation) => (
-                <Link key={conversation.id} href={`/dashboard/conversations/${conversation.id}`}>
-                  <div className="border border-border rounded-lg p-4 hover:bg-accent transition-colors">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-4">
-                        <Avatar>
-                          <AvatarImage src="" />
-                          <AvatarFallback className="bg-primary text-primary-foreground">
-                            <MessageCircle className="h-4 w-4" />
-                          </AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <h3 className="font-medium text-foreground">{conversation.leadName || 'Lead sem nome'}</h3>
-                          <div className="flex items-center space-x-4 text-sm text-muted-foreground">
-                            <div className="flex items-center">
-                              <Phone className="mr-1 h-3 w-3" />
-                              {conversation.phoneNumber}
-                            </div>
-                            <div className="flex items-center">
-                              <MessageSquare className="mr-1 h-3 w-3" />
-                              {conversation.messages.length} mensagens
-                            </div>
-                            <div className="flex items-center">
-                              <Calendar className="mr-1 h-3 w-3" />
-                              {formatDate(conversation.lastMessageTime)}
+            <>
+              {/* Área de dados - expande conforme paginação */}
+              <div className="px-6 py-4">
+                <div className="space-y-4">
+                  {paginatedConversations.map((conversation) => (
+                    <div key={conversation.id} className="border border-border rounded-lg p-4 hover:bg-accent transition-colors">
+                      <div className="flex items-center justify-between">
+                        <Link href={`/dashboard/conversations/${conversation.id}`} className="flex-1">
+                          <div className="flex items-center space-x-4">
+                            <Avatar>
+                              <AvatarImage src="" />
+                              <AvatarFallback className="bg-primary text-primary-foreground">
+                                <MessageCircle className="h-4 w-4" />
+                              </AvatarFallback>
+                            </Avatar>
+                            <div>
+                              <h3 className="font-medium text-foreground">{conversation.leadName || 'Lead sem nome'}</h3>
+                              <div className="flex items-center space-x-4 text-sm text-muted-foreground">
+                                <div className="flex items-center">
+                                  <Phone className="mr-1 h-3 w-3" />
+                                  {conversation.phoneNumber}
+                                </div>
+                                <div className="flex items-center">
+                                  <MessageSquare className="mr-1 h-3 w-3" />
+                                  {conversation.messages.length} mensagens
+                                </div>
+                                <div className="flex items-center">
+                                  <Calendar className="mr-1 h-3 w-3" />
+                                  {formatDate(conversation.lastMessageTime)}
+                                </div>
+                              </div>
+                              {conversation.lastMessage && (
+                                <p className="text-sm text-muted-foreground mt-1 truncate max-w-md">
+                                  {conversation.lastMessage}
+                                </p>
+                              )}
                             </div>
                           </div>
-                          {conversation.lastMessage && (
-                            <p className="text-sm text-muted-foreground mt-1 truncate max-w-md">
-                              {conversation.lastMessage}
-                            </p>
+                        </Link>
+                        <div className="flex items-center space-x-3 ml-4">
+                          {getStatusBadge(conversation.status || 'active')}
+                          {conversation.unreadCount > 0 && (
+                            <Badge className="bg-primary text-primary-foreground">
+                              {conversation.unreadCount}
+                            </Badge>
                           )}
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => openDeleteDialog(conversation.id, conversation.leadName || 'Lead sem nome')}
+                            className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
                         </div>
                       </div>
-                      <div className="flex items-center space-x-3">
-                        {getStatusBadge(conversation.status || 'active')}
-                        {conversation.unreadCount > 0 && (
-                          <Badge className="bg-primary text-primary-foreground">
-                            {conversation.unreadCount}
-                          </Badge>
-                        )}
-                      </div>
                     </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
+                  ))}
+                </div>
+              </div>
+              
+              {/* Paginação */}
+              <div className="border-t border-border bg-card">
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  totalItems={filteredConversations.length}
+                  itemsPerPage={itemsPerPage}
+                  onPageChange={setCurrentPage}
+                  onItemsPerPageChange={setItemsPerPage}
+                />
+              </div>
+            </>
           )}
         </CardContent>
       </Card>
+
+      {/* Modal de Confirmação de Delete */}
+      <ConfirmDialog
+        open={deleteDialog.open}
+        onOpenChange={(open) => {
+          if (!open) closeDeleteDialog()
+        }}
+        title="Deletar Conversa"
+        description={`Tem certeza que deseja deletar a conversa com "${deleteDialog.leadName}"? Esta ação não pode ser desfeita.`}
+        confirmText="Deletar"
+        cancelText="Cancelar"
+        onConfirm={deleteConversation}
+        variant="destructive"
+      />
     </div>
   )
 } 

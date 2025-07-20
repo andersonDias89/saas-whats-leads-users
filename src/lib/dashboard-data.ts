@@ -43,9 +43,36 @@ export async function getDashboardData() {
   const activeConversations = user.conversations.filter(conv => conv.status === 'active').length
   const totalMessages = user.messages.length
 
-  // Calcular mensagens por mês (últimos 6 meses)
+  // Calcular dados reais por mês (últimos 6 meses)
   const sixMonthsAgo = new Date()
   sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6)
+
+  // Buscar dados reais do banco
+  const leadsByMonth = await prisma.lead.groupBy({
+    by: ['createdAt'],
+    where: {
+      userId: user.id,
+      createdAt: {
+        gte: sixMonthsAgo,
+      },
+    },
+    _count: {
+      id: true,
+    },
+  })
+
+  const conversationsByMonth = await prisma.conversation.groupBy({
+    by: ['createdAt'],
+    where: {
+      userId: user.id,
+      createdAt: {
+        gte: sixMonthsAgo,
+      },
+    },
+    _count: {
+      id: true,
+    },
+  })
 
   const messagesByMonth = await prisma.message.groupBy({
     by: ['createdAt'],
@@ -60,20 +87,32 @@ export async function getDashboardData() {
     },
   })
 
-  // Agrupar mensagens por mês
-  const monthlyMessages = Array.from({ length: 6 }, (_, i) => {
+  // Agrupar dados por mês
+  const monthlyData = Array.from({ length: 6 }, (_, i) => {
     const date = new Date()
     date.setMonth(date.getMonth() - i)
     const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
     
-    const monthMessages = messagesByMonth.filter(msg => {
-      const msgDate = new Date(msg.createdAt)
-      return msgDate.getFullYear() === date.getFullYear() && msgDate.getMonth() === date.getMonth()
+    const monthLeads = leadsByMonth.filter(item => {
+      const itemDate = new Date(item.createdAt)
+      return itemDate.getFullYear() === date.getFullYear() && itemDate.getMonth() === date.getMonth()
+    })
+    
+    const monthConversations = conversationsByMonth.filter(item => {
+      const itemDate = new Date(item.createdAt)
+      return itemDate.getFullYear() === date.getFullYear() && itemDate.getMonth() === date.getMonth()
+    })
+    
+    const monthMessages = messagesByMonth.filter(item => {
+      const itemDate = new Date(item.createdAt)
+      return itemDate.getFullYear() === date.getFullYear() && itemDate.getMonth() === date.getMonth()
     })
     
     return {
       month: monthKey,
-      count: monthMessages.reduce((sum, msg) => sum + msg._count.id, 0),
+      leads: monthLeads.reduce((sum, item) => sum + item._count.id, 0),
+      conversations: monthConversations.reduce((sum, item) => sum + item._count.id, 0),
+      messages: monthMessages.reduce((sum, item) => sum + item._count.id, 0),
     }
   }).reverse()
 
@@ -86,20 +125,50 @@ export async function getDashboardData() {
     change: Math.round((leadsByStatus.nao_interessado / Math.max(totalLeads, 1)) * 100),
   }
 
-  // Calcular mudanças em relação ao mês anterior
-  const lastMonth = new Date()
-  lastMonth.setMonth(lastMonth.getMonth() - 1)
+  // Calcular dados do mês atual vs mês anterior
+  const now = new Date()
+  const currentMonth = new Date(now.getFullYear(), now.getMonth(), 1)
+  const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1)
+  const twoMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 2, 1)
   
+  // Leads do mês atual
+  const currentMonthLeads = user.leads.filter(lead => 
+    lead.createdAt >= currentMonth
+  ).length
+  
+  // Leads do mês anterior
   const lastMonthLeads = user.leads.filter(lead => 
-    lead.createdAt >= lastMonth
+    lead.createdAt >= lastMonth && lead.createdAt < currentMonth
   ).length
-
+  
+  // Conversas do mês atual
+  const currentMonthConversations = user.conversations.filter(conv => 
+    conv.createdAt >= currentMonth
+  ).length
+  
+  // Conversas do mês anterior
+  const lastMonthConversations = user.conversations.filter(conv => 
+    conv.createdAt >= lastMonth && conv.createdAt < currentMonth
+  ).length
+  
+  // Mensagens do mês atual
+  const currentMonthMessages = user.messages.filter(msg => 
+    msg.createdAt >= currentMonth
+  ).length
+  
+  // Mensagens do mês anterior
   const lastMonthMessages = user.messages.filter(msg => 
-    msg.createdAt >= lastMonth
+    msg.createdAt >= lastMonth && msg.createdAt < currentMonth
   ).length
-
+  
+  // Valor do mês atual
+  const currentMonthValue = user.leads.filter(lead => 
+    lead.createdAt >= currentMonth
+  ).reduce((sum, lead) => sum + (lead.value || 0), 0)
+  
+  // Valor do mês anterior
   const lastMonthValue = user.leads.filter(lead => 
-    lead.createdAt >= lastMonth
+    lead.createdAt >= lastMonth && lead.createdAt < currentMonth
   ).reduce((sum, lead) => sum + (lead.value || 0), 0)
 
   return {
@@ -107,22 +176,22 @@ export async function getDashboardData() {
     kpis: {
       totalLeads: {
         value: totalLeads,
-        change: lastMonthLeads > 0 ? `+${totalLeads - lastMonthLeads}` : '0',
-        changeType: totalLeads >= lastMonthLeads ? 'increase' : 'decrease',
+        change: lastMonthLeads > 0 ? `+${currentMonthLeads - lastMonthLeads}` : `+${currentMonthLeads}`,
+        changeType: currentMonthLeads >= lastMonthLeads ? 'increase' : 'decrease',
       },
       totalConversations: {
         value: totalConversations,
-        change: totalConversations > 0 ? '+0' : '0',
-        changeType: 'increase' as const,
+        change: lastMonthConversations > 0 ? `+${currentMonthConversations - lastMonthConversations}` : `+${currentMonthConversations}`,
+        changeType: currentMonthConversations >= lastMonthConversations ? 'increase' : 'decrease',
       },
       totalMessages: {
         value: totalMessages,
-        change: lastMonthMessages > 0 ? `+${totalMessages - lastMonthMessages}` : '0',
-        changeType: 'increase' as const,
+        change: lastMonthMessages > 0 ? `+${currentMonthMessages - lastMonthMessages}` : `+${currentMonthMessages}`,
+        changeType: currentMonthMessages >= lastMonthMessages ? 'increase' : 'decrease',
       },
       leadsQualificados: {
         value: leadsByStatus.qualificado,
-        change: leadsByStatus.qualificado > 0 ? '+0' : '0',
+        change: leadsByStatus.qualificado > 0 ? `+${leadsByStatus.qualificado}` : '0',
         changeType: 'increase' as const,
       },
     },
@@ -131,11 +200,23 @@ export async function getDashboardData() {
     charts: {
       revenue: {
         total: totalValue,
-        change: lastMonthValue > 0 ? ((totalValue - lastMonthValue) / lastMonthValue * 100).toFixed(2) : '0',
-        status: totalValue >= lastMonthValue ? 'success' : 'warning',
-        monthlyData: monthlyMessages.map(item => ({
+        change: lastMonthValue > 0 ? ((currentMonthValue - lastMonthValue) / lastMonthValue * 100).toFixed(2) : '0',
+        status: currentMonthValue >= lastMonthValue ? 'success' : 'warning',
+        monthlyData: monthlyData.map(item => ({
           month: item.month,
-          value: item.count,
+          value: item.leads,
+        })),
+      },
+      conversations: {
+        monthlyData: monthlyData.map(item => ({
+          month: item.month,
+          value: item.conversations,
+        })),
+      },
+      messages: {
+        monthlyData: monthlyData.map(item => ({
+          month: item.month,
+          value: item.messages,
         })),
       },
       projectCompletion: projectProgress,
