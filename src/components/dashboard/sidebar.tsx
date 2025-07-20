@@ -23,6 +23,7 @@ import { useEffect, useState } from 'react'
 
 interface SidebarStats {
   totalLeads: number
+  totalConversations: number
   activeConversations: number
   unreadMessages: number
 }
@@ -39,6 +40,7 @@ export function Sidebar() {
   const { data: session } = useSession()
   const [stats, setStats] = useState<SidebarStats>({
     totalLeads: 0,
+    totalConversations: 0,
     activeConversations: 0,
     unreadMessages: 0,
   })
@@ -98,9 +100,9 @@ export function Sidebar() {
                     {stats.totalLeads}
                   </Badge>
                 )}
-                {item.name === 'Conversas' && stats.activeConversations > 0 && (
+                {item.name === 'Conversas' && stats.totalConversations > 0 && (
                   <Badge variant="secondary" className="ml-auto text-xs">
-                    {stats.activeConversations}
+                    {stats.totalConversations}
                   </Badge>
                 )}
                 {item.name === 'Message' && stats.unreadMessages > 0 && (
