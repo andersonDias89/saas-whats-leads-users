@@ -1,0 +1,86 @@
+---
+globs: src/app/api/**/*.ts
+---
+# Padrões de API - Cursor SaaS WhatsApp Leads
+
+## 🌐 Rotas de API
+
+### ✅ Correto:
+```
+/api/conversations/webhook
+/api/leads
+/api/users
+```
+
+### ❌ Evitar:
+```
+/conversations/webhook  # Fora de /api/
+```
+
+## 🔍 Validação com Zod
+
+### ✅ Correto:
+```typescript
+import { z } from 'zod'
+
+const webhookSchema = z.object({
+  From: z.string(),
+  To: z.string(),
+  Body: z.string()
+})
+
+export async function POST(req: NextRequest) {
+  const data = await req.json()
+  const validatedData = webhookSchema.parse(data)
+}
+```
+
+## 🛡️ Tratamento de Erros
+
+### ✅ Correto:
+```typescript
+try {
+  const result = await prisma.lead.create({ data })
+  return NextResponse.json(result)
+} catch (error) {
+  console.error('Erro ao criar lead:', error)
+  return NextResponse.json(
+    { message: 'Erro interno do servidor' },
+    { status: 500 }
+  )
+}
+```
+
+## 📱 Webhook Twilio
+
+### ✅ Estrutura Correta:
+```typescript
+// src/app/api/conversations/webhook/route.ts
+export async function POST(req: NextRequest) {
+  // Parse form data (Twilio envia como form-data)
+  const contentType = req.headers.get('content-type')
+  
+  let data = {}
+  if (contentType?.includes('multipart/form-data')) {
+    const formData = await req.formData()
+    data = Object.fromEntries(formData.entries())
+  } else {
+    const text = await req.text()
+    const urlParams = new URLSearchParams(text)
+    data = Object.fromEntries(urlParams.entries())
+  }
+  
+  // Validar com Zod
+  const validatedData = twilioWebhookSchema.parse(data)
+}
+```
+
+## 🚨 Regras Importantes
+- **Sempre validar dados** com Zod antes de processar
+- **Tratar erros** adequadamente com try/catch
+- **Usar status codes** apropriados nas respostas
+- **Logs informativos** para debugging
+
+## 📚 Referências
+- [docs/best-practices.md](mdc:docs/best-practices.md) - Padrões gerais
+- [src/schemas/index.ts](mdc:src/schemas/index.ts) - Schemas disponíveis

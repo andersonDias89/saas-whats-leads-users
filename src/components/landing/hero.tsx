@@ -83,7 +83,7 @@ export function Hero() {
             </Link>
           </div>
 
-          {/* Dashboard Mockup */}
+          {/* Dashboard Preview */}
           <div className="bg-background-secondary rounded-xl p-6 mb-20">
             <div className="flex space-x-4">
               {/* Sidebar */}

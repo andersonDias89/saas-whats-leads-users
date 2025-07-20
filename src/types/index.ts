@@ -1,58 +1,11 @@
-import { User, Conversation, Message, Lead } from '@prisma/client'
+// Auth types
+export * from './auth'
 
-export type UserWithConfig = User
+// Lead types
+export * from './leads'
 
-export type ConversationWithMessages = Conversation & {
-  messages: Message[]
-  leads: Lead[]
-  user: User
-}
+// Conversation types
+export * from './conversations'
 
-export type ConversationWithUser = Conversation & {
-  user: User
-}
-
-export type MessageWithConversation = Message & {
-  conversation: Conversation
-  user: User
-}
-
-export type LeadWithConversation = Lead & {
-  conversation: Conversation | null
-  user: User
-}
-
-export type LeadStatus = 'novo' | 'qualificado' | 'nao_interessado' | 'fechado'
-
-export type MessageDirection = 'inbound' | 'outbound'
-
-export type ConversationStatus = 'active' | 'closed' | 'archived'
-
-export interface TwilioWebhookPayload {
-  From: string
-  To: string
-  Body: string
-  MessageSid: string
-  AccountSid: string
-  ProfileName?: string
-  WaId?: string
-}
-
-export interface UserSettings {
-  companyName?: string
-  twilioAccountSid?: string
-  twilioAuthToken?: string
-  twilioWhatsappNumber?: string
-  twilioSandboxKeyword?: string
-  openaiApiKey?: string
-  aiPrompt?: string
-}
-
-export interface DashboardStats {
-  totalLeads: number
-  newLeads: number
-  qualifiedLeads: number
-  totalConversations: number
-  activeConversations: number
-  messagesThisMonth: number
-} 
+// Dashboard types
+export * from './dashboard' 

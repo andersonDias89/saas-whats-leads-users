@@ -1,0 +1,24 @@
+---
+alwaysApply: true
+---
+# Estrutura do Projeto - Cursor SaaS WhatsApp Leads
+
+## 📁 Estrutura de Pastas
+O projeto segue a estrutura Next.js App Router com organização por domínio:
+
+- `src/app/api/` - **APIs SEMPRE aqui** - Nunca criar rotas alternativas fora de `/api/`
+- `src/app/dashboard/` - Páginas do dashboard
+- `src/components/` - Componentes reutilizáveis
+- `src/hooks/` - Hooks customizados organizados por domínio
+- `src/lib/` - Utilitários e configurações
+- `src/schemas/` - Schemas Zod organizados por domínio
+- `src/services/` - Services (camada de negócio) organizados por domínio
+- `src/types/` - Tipos TypeScript organizados por domínio
+
+## 🚨 Regras Importantes
+- **Webhooks externos** devem ser configurados para usar `/api/...`
+- **Status sempre em português** (`'novo'`, `'contactado'`, `'convertido'`)
+- **APIs seguem convenção Next.js** - sempre em `/api/`
+
+## 📚 Documentação
+Consulte [docs/architecture.md](mdc:docs/architecture.md) para arquitetura detalhada e [docs/best-practices.md](mdc:docs/best-practices.md) para padrões gerais.

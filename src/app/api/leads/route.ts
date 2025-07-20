@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
-import { prisma } from '@/lib/prisma'
+import { LeadsService } from '@/services/leads'
 
 export async function GET() {
   try {
@@ -14,24 +14,7 @@ export async function GET() {
       )
     }
 
-    const leads = await prisma.lead.findMany({
-      where: {
-        userId: session.user.id
-      },
-      include: {
-        conversation: true,
-        user: {
-          select: {
-            id: true,
-            name: true,
-            email: true
-          }
-        }
-      },
-      orderBy: {
-        createdAt: 'desc'
-      }
-    })
+    const leads = await LeadsService.getLeadsByUserId(session.user.id)
 
     return NextResponse.json(leads)
 
