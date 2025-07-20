@@ -94,8 +94,18 @@ async function main() {
     const name = sampleNames[i]
     const phone = samplePhones[i]
     const email = sampleEmails[i]
-    const leadStatus = leadStatuses[Math.floor(Math.random() * leadStatuses.length)]
+    // Distribuição realista: 40% novos, 60% com status variados
+    const isNewLead = Math.random() < 0.4
+    const leadStatus = isNewLead ? 'novo' : leadStatuses[Math.floor(Math.random() * leadStatuses.length)]
     const conversationStatus = conversationStatuses[Math.floor(Math.random() * conversationStatuses.length)]
+    
+    // Datas realistas: leads novos (últimos 3 dias) vs antigos (últimos 30 dias)
+    const isRecent = Math.random() < 0.4
+    const daysAgo = isRecent 
+      ? Math.random() * 3 // Últimos 3 dias para leads novos
+      : 3 + Math.random() * 27 // 3-30 dias para leads antigos
+    
+    const conversationDate = new Date(Date.now() - daysAgo * 24 * 60 * 60 * 1000)
     
     // Criar conversa
     const conversation = await prisma.conversation.create({
@@ -105,8 +115,8 @@ async function main() {
         contactName: name,
         status: conversationStatus,
         lastMessage: sampleMessages[i],
-        lastMessageAt: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000), // Últimos 7 dias
-        createdAt: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000), // Últimos 30 dias
+        lastMessageAt: new Date(conversationDate.getTime() + Math.random() * 7 * 24 * 60 * 60 * 1000), // Atividade recente
+        createdAt: conversationDate,
         updatedAt: new Date()
       }
     })
@@ -123,7 +133,7 @@ async function main() {
         source: 'whatsapp',
         notes: `Lead gerado automaticamente para teste. Status: ${leadStatus}`,
         value: Math.random() > 0.5 ? Math.floor(Math.random() * 10000) + 1000 : null,
-        createdAt: conversation.createdAt,
+        createdAt: conversationDate,
         updatedAt: new Date()
       }
     })
