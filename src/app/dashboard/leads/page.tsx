@@ -5,7 +5,6 @@ import * as React from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Plus, Search, Filter, Users, Phone, Mail, Calendar, Trash2, Edit3, MessageSquare, Upload } from 'lucide-react'
@@ -16,7 +15,7 @@ import { CreateLeadModal, ImportLeadsModal } from '@/components/leads'
 import { useLeads } from '@/hooks/leads'
 import { LEAD_STATUS_OPTIONS, PAGINATION_DEFAULTS } from '@/lib/utils/constants'
 import { formatDate } from '@/lib/utils/date'
-import { getStatusBadge } from '@/lib/utils/formatting'
+import { getStatusColor, getStatusIndicator, formatPhone } from '@/lib/utils/formatting'
 import { LeadStatus, CreateLeadData, ImportLeadsData } from '@/schemas/leads'
 
 export default function LeadsPage() {
@@ -40,24 +39,22 @@ export default function LeadsPage() {
 
   const handleCreateLead = async (data: CreateLeadData) => {
     await createLead(data)
+    setCreateModalOpen(false)
   }
 
   const handleImportLeads = async (data: ImportLeadsData) => {
     return await importLeads(data)
   }
 
-  const handleDeleteLead = async () => {
-    if (!deleteDialog.leadId) return
-    await deleteLead(deleteDialog.leadId)
-    setDeleteDialog({ open: false, leadId: null, leadName: '' })
+  const handleStatusChange = async (leadId: string, newStatus: LeadStatus) => {
+    await updateLeadStatus(leadId, newStatus)
   }
 
-  const openDeleteDialog = (leadId: string, leadName: string) => {
-    setDeleteDialog({
-      open: true,
-      leadId,
-      leadName
-    })
+  const handleDeleteLead = async () => {
+    if (deleteDialog.leadId) {
+      await deleteLead(deleteDialog.leadId)
+      setDeleteDialog({ open: false, leadId: null, leadName: '' })
+    }
   }
 
   const closeDeleteDialog = () => {
@@ -69,11 +66,9 @@ export default function LeadsPage() {
   }
 
   const getStatusBadgeComponent = (status: string) => {
-    const statusConfig = getStatusBadge(status, LEAD_STATUS_OPTIONS)
+    const statusColor = getStatusIndicator(status)
     return (
-      <Badge className={`${statusConfig.color} text-primary-foreground`}>
-        {statusConfig.label}
-      </Badge>
+      <span className={`w-2 h-2 rounded-full ${statusColor}`}></span>
     )
   }
 
@@ -197,13 +192,14 @@ export default function LeadsPage() {
                           <div className="flex items-center space-x-4">
                             <Avatar>
                               <AvatarImage src="" />
-                              <AvatarFallback className="bg-primary text-primary-foreground">
+                              <AvatarFallback className={`text-white ${getStatusColor(lead.status)}`}>
                                 {lead.name?.charAt(0) || lead.phone.charAt(-2)}
                               </AvatarFallback>
                             </Avatar>
-                            <div>
+                            <div className="flex-1">
                               <div className="flex items-center space-x-2">
-                                <h3 className="font-medium text-foreground">{lead.name || 'Nome não informado'}</h3>
+                                <h3 className="font-semibold text-foreground">{lead.name || 'Sem nome'}</h3>
+                                {getStatusBadgeComponent(lead.status)}
                                 {lead.source === 'whatsapp' ? (
                                   <div className="flex items-center text-xs text-muted-foreground">
                                     <MessageSquare className="h-3 w-3 mr-1" />
@@ -216,10 +212,10 @@ export default function LeadsPage() {
                                   </div>
                                 )}
                               </div>
-                              <div className="flex items-center space-x-4 text-sm text-muted-foreground">
+                              <div className="flex items-center space-x-4 text-sm text-muted-foreground mt-1">
                                 <div className="flex items-center">
                                   <Phone className="mr-1 h-3 w-3" />
-                                  {lead.phone.replace('whatsapp:', '')}
+                                  {formatPhone(lead.phone)}
                                 </div>
                                 {lead.email && (
                                   <div className="flex items-center">
@@ -232,41 +228,37 @@ export default function LeadsPage() {
                                   {formatDate(lead.createdAt)}
                                 </div>
                               </div>
+                              {lead.notes && (
+                                <p className="text-xs text-muted-foreground mt-1">{lead.notes}</p>
+                              )}
                             </div>
                           </div>
                         </Link>
                         <div className="flex items-center space-x-3 ml-4">
-                          {getStatusBadgeComponent(lead.status)}
-                          <Select 
-                            value={lead.status} 
-                            onValueChange={(value: string) => updateLeadStatus(lead.id, value as LeadStatus)}
-                          >
-                            <SelectTrigger className="w-40">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {LEAD_STATUS_OPTIONS.map((status) => (
-                                <SelectItem key={status.value} value={status.value}>
-                                  {status.label}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => openDeleteDialog(lead.id, lead.name || 'Lead sem nome')}
-                            className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
+                          <div className="flex items-center space-x-2">
+                            <Select value={lead.status} onValueChange={(value) => handleStatusChange(lead.id, value as LeadStatus)}>
+                              <SelectTrigger className="w-32">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {LEAD_STATUS_OPTIONS.map((status) => (
+                                  <SelectItem key={status.value} value={status.value}>
+                                    {status.label}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => setDeleteDialog({ open: true, leadId: lead.id, leadName: lead.name || 'este lead' })}
+                              className="text-destructive hover:text-destructive"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
                         </div>
                       </div>
-                      {lead.notes && (
-                        <div className="mt-3 text-sm text-muted-foreground bg-muted p-2 rounded">
-                          {lead.notes}
-                        </div>
-                      )}
                     </div>
                   ))}
                 </div>
