@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Plus, Search, Filter, Users, Phone, Mail, Calendar, Trash2 } from 'lucide-react'
+import { Plus, Search, Filter, Users, Phone, Mail, Calendar, Trash2, User } from 'lucide-react'
 import Link from 'next/link'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { Pagination } from '@/components/ui/pagination'
@@ -69,21 +69,6 @@ export default function LeadsPage() {
     return (
       <Badge className={`${statusConfig.color} text-primary-foreground`}>
         {statusConfig.label}
-      </Badge>
-    )
-  }
-
-  const getSourceBadge = (source: string) => {
-    const sourceConfig = {
-      whatsapp: { label: 'WhatsApp', color: 'bg-green-100 text-green-800' },
-      manual: { label: 'Cadastro Manual', color: 'bg-blue-100 text-blue-800' }
-    }
-    
-    const config = sourceConfig[source as keyof typeof sourceConfig] || sourceConfig.whatsapp
-    
-    return (
-      <Badge className={`${config.color} text-xs`}>
-        {config.label}
       </Badge>
     )
   }
@@ -207,7 +192,20 @@ export default function LeadsPage() {
                               </AvatarFallback>
                             </Avatar>
                             <div>
-                              <h3 className="font-medium text-foreground">{lead.name || 'Nome não informado'}</h3>
+                              <div className="flex items-center space-x-2">
+                                <h3 className="font-medium text-foreground">{lead.name || 'Nome não informado'}</h3>
+                                {lead.source === 'whatsapp' ? (
+                                  <div className="flex items-center text-xs text-green-600">
+                                    <Phone className="h-3 w-3 mr-1" />
+                                    WhatsApp
+                                  </div>
+                                ) : (
+                                  <div className="flex items-center text-xs text-blue-600">
+                                    <User className="h-3 w-3 mr-1" />
+                                    Manual
+                                  </div>
+                                )}
+                              </div>
                               <div className="flex items-center space-x-4 text-sm text-muted-foreground">
                                 <div className="flex items-center">
                                   <Phone className="mr-1 h-3 w-3" />
@@ -228,7 +226,6 @@ export default function LeadsPage() {
                           </div>
                         </Link>
                         <div className="flex items-center space-x-3 ml-4">
-                          {getSourceBadge(lead.source)}
                           {getStatusBadgeComponent(lead.status)}
                           <Select 
                             value={lead.status} 
