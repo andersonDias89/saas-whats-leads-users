@@ -230,6 +230,136 @@ describe('useLeads', () => {
     })
   })
 
+  describe('createLead', () => {
+    test('deve criar lead com sucesso', async () => {
+      const mockLeads = [
+        { id: '1', name: 'João Silva', status: 'novo' }
+      ]
+      
+      const newLead = {
+        id: '2',
+        name: 'Maria Santos',
+        phone: '11999999999',
+        email: 'maria@email.com',
+        status: 'novo',
+        source: 'manual'
+      }
+      
+      ;(global.fetch as jest.Mock)
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => mockLeads
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => newLead
+        })
+
+      const { result } = renderHook(() => useLeads())
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false)
+      })
+
+      const createData = {
+        name: 'Maria Santos',
+        phone: '11999999999',
+        email: 'maria@email.com',
+        status: 'novo' as const,
+        notes: 'Cliente interessado',
+        source: 'manual' as const
+      }
+
+      await act(async () => {
+        await result.current.createLead(createData)
+      })
+
+      expect(global.fetch).toHaveBeenCalledWith('/api/leads', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(createData)
+      })
+
+      expect(toast.success).toHaveBeenCalledWith('Lead criado com sucesso')
+      expect(result.current.leads).toHaveLength(2)
+      expect(result.current.leads[0]).toEqual(newLead)
+    })
+
+    test('deve mostrar erro quando criação falha', async () => {
+      const mockLeads = [
+        { id: '1', name: 'João Silva', status: 'novo' }
+      ]
+      
+      ;(global.fetch as jest.Mock)
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => mockLeads
+        })
+        .mockResolvedValueOnce({
+          ok: false,
+          json: async () => ({ message: 'Já existe um lead com este telefone' })
+        })
+
+      const { result } = renderHook(() => useLeads())
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false)
+      })
+
+      const createData = {
+        name: 'Maria Santos',
+        phone: '11999999999',
+        email: 'maria@email.com',
+        status: 'novo' as const,
+        notes: 'Cliente interessado',
+        source: 'manual' as const
+      }
+
+      await act(async () => {
+        await expect(result.current.createLead(createData)).rejects.toThrow('Já existe um lead com este telefone')
+      })
+
+      expect(toast.error).toHaveBeenCalledWith('Já existe um lead com este telefone')
+    })
+
+    test('deve mostrar erro genérico quando resposta não tem message', async () => {
+      const mockLeads = [
+        { id: '1', name: 'João Silva', status: 'novo' }
+      ]
+      
+      ;(global.fetch as jest.Mock)
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => mockLeads
+        })
+        .mockResolvedValueOnce({
+          ok: false,
+          json: async () => ({})
+        })
+
+      const { result } = renderHook(() => useLeads())
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false)
+      })
+
+      const createData = {
+        name: 'Maria Santos',
+        phone: '11999999999',
+        email: 'maria@email.com',
+        status: 'novo' as const,
+        notes: 'Cliente interessado',
+        source: 'manual' as const
+      }
+
+      await act(async () => {
+        await expect(result.current.createLead(createData)).rejects.toThrow('Erro ao criar lead')
+      })
+
+      expect(toast.error).toHaveBeenCalledWith('Erro ao criar lead')
+    })
+  })
+
   describe('estado inicial', () => {
     test('deve ter estado inicial correto', () => {
       const { result } = renderHook(() => useLeads())
@@ -237,6 +367,7 @@ describe('useLeads', () => {
       expect(result.current.leads).toEqual([])
       expect(result.current.isLoading).toBe(true)
       expect(typeof result.current.loadLeads).toBe('function')
+      expect(typeof result.current.createLead).toBe('function')
       expect(typeof result.current.updateLeadStatus).toBe('function')
       expect(typeof result.current.deleteLead).toBe('function')
     })
