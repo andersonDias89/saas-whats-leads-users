@@ -3,6 +3,7 @@ import { toast } from 'sonner'
 import { LeadWithConversation } from '@/types/leads'
 import { LeadStatus } from '@/schemas/leads'
 import { CreateLeadData } from '@/schemas/leads'
+import { ImportLeadsData, ImportResult } from '@/schemas/leads'
 
 export function useLeads() {
   const [leads, setLeads] = useState<LeadWithConversation[]>([])
@@ -42,9 +43,8 @@ export function useLeads() {
         return newLead
       } else {
         const error = await response.json()
-        const errorMessage = error.message || 'Erro ao criar lead'
-        toast.error(errorMessage)
-        throw new Error(errorMessage)
+        toast.error(error.message || 'Erro ao criar lead')
+        throw new Error(error.message)
       }
     } catch (error) {
       console.error('Erro ao criar lead:', error)
@@ -53,6 +53,36 @@ export function useLeads() {
       }
       toast.error('Erro ao criar lead')
       throw new Error('Erro ao criar lead')
+    }
+  }
+
+  const importLeads = async (data: ImportLeadsData): Promise<ImportResult> => {
+    try {
+      const response = await fetch('/api/leads/import', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      })
+
+      if (response.ok) {
+        const result = await response.json()
+        // Recarregar leads após importação
+        await loadLeads()
+        return result
+      } else {
+        const error = await response.json()
+        toast.error(error.message || 'Erro ao importar leads')
+        throw new Error(error.message)
+      }
+    } catch (error) {
+      console.error('Erro ao importar leads:', error)
+      if (error instanceof Error) {
+        throw error
+      }
+      toast.error('Erro ao importar leads')
+      throw new Error('Erro ao importar leads')
     }
   }
 
@@ -108,6 +138,7 @@ export function useLeads() {
     isLoading,
     loadLeads,
     createLead,
+    importLeads,
     updateLeadStatus,
     deleteLead
   }

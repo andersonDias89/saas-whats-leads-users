@@ -1,0 +1,21 @@
+Nome,Telefone,Email,Status,Observações
+João Silva,11999999999,joao@email.com,novo,Cliente interessado em produto
+Maria Santos,11888888888,maria@email.com,qualificado,Prospecto quente - decisor
+Pedro Oliveira,11777777777,pedro@email.com,novo,Primeiro contato - interessado
+Ana Costa,11666666666,ana@email.com,nao_interessado,Preço alto - não tem budget
+Carlos Lima,11555555555,carlos@email.com,novo,Interessado em demo - agendar
+Lucia Ferreira,11444444444,lucia@email.com,qualificado,Decisor - precisa de proposta
+Roberto Alves,11333333333,roberto@email.com,novo,Cliente potencial - follow up
+Fernanda Silva,11222222222,fernanda@email.com,fechado,Venda realizada - R$ 5.000
+Marcos Santos,11111111111,marcos@email.com,novo,Lead frio - precisa nutrir
+Juliana Costa,11000000000,juliana@email.com,qualificado,Interessado - aguardando resposta
+Ricardo Lima,10999999999,ricardo@email.com,novo,Primeiro contato - enviar material
+Patricia Alves,10888888888,patricia@email.com,nao_interessado,Orçamento alto - não tem interesse
+Thiago Ferreira,10777777777,thiago@email.com,novo,Cliente potencial - agendar reunião
+Camila Silva,10666666666,camila@email.com,qualificado,Decisor - enviar proposta comercial
+Gustavo Santos,10555555555,gustavo@email.com,novo,Interessado em demo - técnico
+Renata Costa,10444444444,renata@email.com,fechado,Venda realizada - R$ 3.500
+Diego Lima,10333333333,diego@email.com,novo,Lead frio - campanha de email
+Vanessa Alves,10222222222,vanessa@email.com,qualificado,Prospecto quente - agendar demo
+Bruno Ferreira,10111111111,bruno@email.com,novo,Primeiro contato - enviar case
+Amanda Silva,10000000000,amanda@email.com,nao_interessado,Preço alto - concorrente mais barato 

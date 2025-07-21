@@ -8,25 +8,25 @@ import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Plus, Search, Filter, Users, Phone, Mail, Calendar, Trash2, Edit3, MessageSquare } from 'lucide-react'
+import { Plus, Search, Filter, Users, Phone, Mail, Calendar, Trash2, Edit3, MessageSquare, Upload } from 'lucide-react'
 import Link from 'next/link'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { Pagination } from '@/components/ui/pagination'
-import { CreateLeadModal } from '@/components/leads'
+import { CreateLeadModal, ImportLeadsModal } from '@/components/leads'
 import { useLeads } from '@/hooks/leads'
 import { LEAD_STATUS_OPTIONS, PAGINATION_DEFAULTS } from '@/lib/utils/constants'
 import { formatDate } from '@/lib/utils/date'
 import { getStatusBadge } from '@/lib/utils/formatting'
-import { LeadStatus } from '@/schemas/leads'
-import { CreateLeadData } from '@/schemas/leads'
+import { LeadStatus, CreateLeadData, ImportLeadsData } from '@/schemas/leads'
 
 export default function LeadsPage() {
-  const { leads, isLoading, createLead, updateLeadStatus, deleteLead } = useLeads()
+  const { leads, isLoading, createLead, importLeads, updateLeadStatus, deleteLead } = useLeads()
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage, setItemsPerPage] = useState(PAGINATION_DEFAULTS.ITEMS_PER_PAGE)
   const [createModalOpen, setCreateModalOpen] = useState(false)
+  const [importModalOpen, setImportModalOpen] = useState(false)
   const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; leadId: string | null; leadName: string }>({
     open: false,
     leadId: null,
@@ -40,6 +40,10 @@ export default function LeadsPage() {
 
   const handleCreateLead = async (data: CreateLeadData) => {
     await createLead(data)
+  }
+
+  const handleImportLeads = async (data: ImportLeadsData) => {
+    return await importLeads(data)
   }
 
   const handleDeleteLead = async () => {
@@ -114,10 +118,16 @@ export default function LeadsPage() {
           <h1 className="text-3xl font-bold text-foreground">Leads</h1>
           <p className="text-muted-foreground">Gerencie todos os seus leads do WhatsApp</p>
         </div>
-        <Button onClick={() => setCreateModalOpen(true)}>
-          <Plus className="mr-2 h-4 w-4" />
-          Novo Lead
-        </Button>
+        <div className="flex items-center space-x-3">
+          <Button variant="outline" onClick={() => setImportModalOpen(true)}>
+            <Upload className="mr-2 h-4 w-4" />
+            Importar
+          </Button>
+          <Button onClick={() => setCreateModalOpen(true)}>
+            <Plus className="mr-2 h-4 w-4" />
+            Novo Lead
+          </Button>
+        </div>
       </div>
 
       {/* Filters */}
@@ -283,6 +293,13 @@ export default function LeadsPage() {
         open={createModalOpen}
         onOpenChange={setCreateModalOpen}
         onSubmit={handleCreateLead}
+      />
+
+      {/* Modal de Importação de Leads */}
+      <ImportLeadsModal
+        open={importModalOpen}
+        onOpenChange={setImportModalOpen}
+        onImport={handleImportLeads}
       />
 
       {/* Modal de Confirmação de Delete */}
