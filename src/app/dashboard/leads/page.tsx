@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Plus, Search, Filter, Users, Phone, Mail, Calendar, Trash2, User } from 'lucide-react'
+import { Plus, Search, Filter, Users, Phone, Mail, Calendar, Trash2, Edit3, MessageSquare } from 'lucide-react'
 import Link from 'next/link'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { Pagination } from '@/components/ui/pagination'
@@ -195,13 +195,13 @@ export default function LeadsPage() {
                               <div className="flex items-center space-x-2">
                                 <h3 className="font-medium text-foreground">{lead.name || 'Nome não informado'}</h3>
                                 {lead.source === 'whatsapp' ? (
-                                  <div className="flex items-center text-xs text-green-600">
-                                    <Phone className="h-3 w-3 mr-1" />
+                                  <div className="flex items-center text-xs text-muted-foreground">
+                                    <MessageSquare className="h-3 w-3 mr-1" />
                                     WhatsApp
                                   </div>
                                 ) : (
-                                  <div className="flex items-center text-xs text-blue-600">
-                                    <User className="h-3 w-3 mr-1" />
+                                  <div className="flex items-center text-xs text-muted-foreground">
+                                    <Edit3 className="h-3 w-3 mr-1" />
                                     Manual
                                   </div>
                                 )}
