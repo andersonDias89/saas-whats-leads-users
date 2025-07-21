@@ -34,10 +34,12 @@ src/
 │   ├── dashboard/              # Páginas do dashboard
 │   └── (auth)/                # Páginas de autenticação
 ├── components/                  # Componentes reutilizáveis
+│   ├── leads/                 # Componentes específicos de leads
+│   │   ├── create-lead-modal.tsx # Modal de criação manual
+│   │   └── index.ts           # Exports
 ├── hooks/                       # Hooks customizados por domínio
 │   ├── leads/                  # Hooks de leads
-│   │   ├── use-leads.ts       # Hook para lista de leads
-│   │   ├── use-lead.ts        # Hook para lead individual
+│   │   ├── use-leads.ts       # Hook para lista e criação de leads
 │   │   └── index.ts           # Exports
 │   └── index.ts               # Exports globais
 ├── lib/                         # Utilitários e configurações
@@ -53,7 +55,7 @@ src/
 │   │   ├── register.ts       # Schema de registro
 │   │   └── index.ts          # Exports
 │   ├── leads/                # Schemas de leads
-│   │   ├── lead.ts           # Schema de lead
+│   │   ├── lead.ts           # Schema de lead e criação
 │   │   ├── status.ts         # Schema de status
 │   │   └── index.ts          # Exports
 │   ├── conversations/        # Schemas de conversas
@@ -96,353 +98,175 @@ src/
 import { z } from 'zod'
 import { leadStatusSchema } from './status'
 
+// Schema para validação geral de leads
 export const leadSchema = z.object({
-  id: z.string(),
-  name: z.string().min(1, 'Nome é obrigatório'),
-  email: z.string().email('Email inválido').optional(),
-  phone: z.string().min(10, 'Telefone inválido'),
+  name: z.string().optional(),
+  phone: z.string().min(10, 'Telefone deve ter pelo menos 10 dígitos'),
+  email: z.string().email().optional(),
   status: leadStatusSchema,
-  notes: z.string().optional(),
-  createdAt: z.date(),
-  updatedAt: z.date()
+  notes: z.string().optional()
 })
 
-export type Lead = z.infer<typeof leadSchema>
+// Schema específico para criação manual de leads
+export const createLeadSchema = z.object({
+  name: z.string().min(1, 'Nome é obrigatório'),
+  phone: z.string().min(10, 'Telefone deve ter pelo menos 10 dígitos'),
+  email: z.string().email('Email inválido').optional().or(z.literal('')),
+  status: leadStatusSchema,
+  notes: z.string().optional().or(z.literal('')),
+  source: z.enum(['whatsapp', 'manual'])
+})
 ```
 
-#### **Exports Centralizados:**
-```typescript
-// src/schemas/leads/index.ts
-export * from './lead'
-export * from './status'
+### **2. Services (Lógica de Negócio)**
 
-// src/schemas/index.ts
-export * from './auth'
-export * from './leads'
-export * from './conversations'
-export * from './settings'
-```
-
-### **2. Tipos TypeScript**
-
-#### **Organização por Domínio:**
-```typescript
-// src/types/leads/lead.ts
-import { LeadStatus } from '@/schemas/leads'
-
-export interface Lead {
-  id: string
-  name: string
-  email?: string
-  phone: string
-  status: LeadStatus
-  notes?: string
-  createdAt: Date
-  updatedAt: Date
-}
-
-export interface LeadWithConversation extends Lead {
-  conversations: Conversation[]
-}
-```
-
-### **3. Services (Camada de Negócio)**
-
-#### **Padrão de Implementação:**
+#### **Padrão de Serviço:**
 ```typescript
 // src/services/leads/leads-service.ts
-import { prisma } from '@/lib/prisma'
-import { Lead, LeadStatus } from '@/schemas/leads'
-import { LeadWithConversation } from '@/types/leads'
-
 export class LeadsService {
-  async getAllLeads(): Promise<Lead[]> {
-    return await prisma.lead.findMany({
-      orderBy: { createdAt: 'desc' }
-    })
-  }
-
-  async getLeadById(id: string): Promise<LeadWithConversation | null> {
-    return await prisma.lead.findUnique({
-      where: { id },
-      include: {
-        conversations: {
-          orderBy: { createdAt: 'desc' }
-        }
-      }
-    })
-  }
-
-  async updateLeadStatus(id: string, status: LeadStatus): Promise<Lead> {
-    return await prisma.lead.update({
-      where: { id },
-      data: { status }
-    })
-  }
-
-  async deleteLead(id: string): Promise<void> {
-    await prisma.lead.delete({
-      where: { id }
-    })
-  }
+  // Buscar leads do usuário
+  static async getLeadsByUserId(userId: string): Promise<LeadWithConversation[]>
+  
+  // Criar lead manualmente
+  static async createLead(userId: string, data: CreateLeadData): Promise<LeadWithConversation>
+  
+  // Atualizar lead
+  static async updateLead(leadId: string, userId: string, data: UpdateLeadData): Promise<LeadWithConversation>
+  
+  // Deletar lead
+  static async deleteLead(leadId: string, userId: string): Promise<void>
 }
 ```
 
-### **4. Custom Hooks**
+### **3. Hooks Customizados**
 
-#### **Padrão de Implementação:**
+#### **Padrão de Hook:**
 ```typescript
 // src/hooks/leads/use-leads.ts
-import { useState, useEffect, useCallback } from 'react'
-import { Lead } from '@/types/leads'
-import { LeadsService } from '@/services/leads'
-
 export function useLeads() {
-  const [leads, setLeads] = useState<Lead[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const [leads, setLeads] = useState<LeadWithConversation[]>([])
+  const [isLoading, setIsLoading] = useState(true)
 
-  const fetchLeads = useCallback(async () => {
-    try {
-      setLoading(true)
-      const service = new LeadsService()
-      const data = await service.getAllLeads()
-      setLeads(data)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erro ao carregar leads')
-    } finally {
-      setLoading(false)
-    }
-  }, [])
-
-  const updateLeadStatus = useCallback(async (id: string, status: string) => {
-    try {
-      const service = new LeadsService()
-      await service.updateLeadStatus(id, status as any)
-      await fetchLeads() // Recarregar dados
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erro ao atualizar status')
-    }
-  }, [fetchLeads])
-
-  useEffect(() => {
-    fetchLeads()
-  }, [fetchLeads])
+  // Carregar leads
+  const loadLeads = useCallback(async () => { /* ... */ }, [])
+  
+  // Criar lead manualmente
+  const createLead = useCallback(async (data: CreateLeadData) => { /* ... */ }, [])
+  
+  // Atualizar status
+  const updateLeadStatus = useCallback(async (leadId: string, status: LeadStatus) => { /* ... */ }, [])
+  
+  // Deletar lead
+  const deleteLead = useCallback(async (leadId: string) => { /* ... */ }, [])
 
   return {
     leads,
-    loading,
-    error,
-    refetch: fetchLeads,
-    updateLeadStatus
+    isLoading,
+    loadLeads,
+    createLead,
+    updateLeadStatus,
+    deleteLead
   }
 }
 ```
 
-### **5. Utilitários Centralizados**
+### **4. APIs REST**
 
-#### **Constantes:**
-```typescript
-// src/lib/utils/constants.ts
-export const LEAD_STATUS_OPTIONS = [
-  { value: 'novo', label: 'Novo', color: 'bg-blue-100 text-blue-800' },
-  { value: 'qualificado', label: 'Qualificado', color: 'bg-green-100 text-green-800' },
-  { value: 'nao_interessado', label: 'Não Interessado', color: 'bg-red-100 text-red-800' },
-  { value: 'fechado', label: 'Fechado', color: 'bg-gray-100 text-gray-800' }
-]
-
-export const PAGINATION_DEFAULTS = {
-  ITEMS_PER_PAGE: 10,
-  MAX_ITEMS_PER_PAGE: 50
-}
-
-export const API_ENDPOINTS = {
-  LEADS: '/api/leads',
-  CONVERSATIONS: '/api/conversations',
-  DASHBOARD: '/api/dashboard'
-}
-```
-
-#### **Formatação:**
-```typescript
-// src/lib/utils/formatting.ts
-import { formatCurrency } from './currency'
-import { formatPhone } from './phone'
-import { getStatusBadge } from './status-badge'
-import { formatRelativeTime } from './relative-time'
-
-export {
-  formatCurrency,
-  formatPhone,
-  getStatusBadge,
-  formatRelativeTime
-}
-```
-
-### **6. APIs (Camada de Apresentação)**
-
-#### **Padrão de Implementação:**
+#### **Padrão de API:**
 ```typescript
 // src/app/api/leads/route.ts
-import { NextRequest, NextResponse } from 'next/server'
-import { LeadsService } from '@/services/leads'
-
 export async function GET() {
-  try {
-    const service = new LeadsService()
-    const leads = await service.getAllLeads()
-    return NextResponse.json(leads)
-  } catch (error) {
-    console.error('Erro ao buscar leads:', error)
-    return NextResponse.json(
-      { message: 'Erro interno do servidor' },
-      { status: 500 }
-    )
-  }
+  // Buscar leads do usuário autenticado
 }
 
-export async function POST(req: NextRequest) {
-  try {
-    const data = await req.json()
-    const service = new LeadsService()
-    const lead = await service.createLead(data)
-    return NextResponse.json(lead, { status: 201 })
-  } catch (error) {
-    console.error('Erro ao criar lead:', error)
-    return NextResponse.json(
-      { message: 'Erro interno do servidor' },
-      { status: 500 }
-    )
-  }
-}
-```
-
-## 🎨 Padrões de Componentes
-
-### **1. Uso de Hooks Customizados:**
-```typescript
-// src/app/dashboard/leads/page.tsx
-import { useLeads } from '@/hooks/leads'
-import { LEAD_STATUS_OPTIONS } from '@/lib/utils/constants'
-import { getStatusBadge } from '@/lib/utils/formatting'
-
-export default function LeadsPage() {
-  const { leads, loading, error, updateLeadStatus } = useLeads()
+export async function POST(request: NextRequest) {
+  // Criar lead manualmente
+  const session = await getServerSession(authOptions)
+  const body = await request.json()
+  const validatedData = createLeadSchema.parse(body)
   
-  // Componente usa dados do hook
-  return (
-    <div>
-      {leads.map(lead => (
-        <div key={lead.id}>
-          {getStatusBadge(lead.status)}
-          <Select onValueChange={(value) => updateLeadStatus(lead.id, value)}>
-            {LEAD_STATUS_OPTIONS.map(status => (
-              <SelectItem key={status.value} value={status.value}>
-                {status.label}
-              </SelectItem>
-            ))}
-          </Select>
-        </div>
-      ))}
-    </div>
-  )
+  const lead = await LeadsService.createLead(session.user.id, validatedData)
+  return NextResponse.json(lead, { status: 201 })
 }
 ```
+
+## 🎨 Componentes UI
+
+### **Modal de Criação Manual:**
+```typescript
+// src/components/leads/create-lead-modal.tsx
+export function CreateLeadModal({ open, onOpenChange, onSubmit }: CreateLeadModalProps) {
+  const { register, handleSubmit, formState: { errors } } = useForm<CreateLeadData>({
+    resolver: zodResolver(createLeadSchema)
+  })
+  
+  // Formulário com validação em tempo real
+  // Ícones intuitivos (User, Phone, Mail, FileText)
+  // Feedback visual de sucesso/erro
+}
+```
+
+## 📊 Modelo de Dados
+
+### **Lead com Origem:**
+```typescript
+model Lead {
+  id             String   @id @default(cuid())
+  userId         String
+  conversationId String?  // Opcional - leads manuais não têm conversa
+  name           String?
+  phone          String
+  email          String?
+  status         String   @default("novo")
+  source         String   @default("whatsapp") // "whatsapp" | "manual"
+  notes          String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  conversation Conversation? @relation(fields: [conversationId], references: [id], onDelete: SetNull)
+}
+```
+
+## 🚀 Funcionalidades Principais
+
+### **1. Criação Manual de Leads**
+- Modal moderno e arrastável
+- Validação completa com Zod
+- Integração com botão "Novo Lead"
+- Badge visual indicando origem
+
+### **2. Origem dos Leads**
+- **WhatsApp**: Leads vindos de conversas
+- **Manual**: Leads cadastrados manualmente
+- Ícones distintos (MessageSquare vs Edit3)
+- Exibição discreta ao lado do nome
+
+### **3. Regras de Negócio**
+- Leads podem ter ou não conversa associada
+- Validação de telefone único por usuário
+- Status em português
+- Campo `value` removido
 
 ## 🔄 Fluxo de Dados
 
-### **1. Leitura de Dados:**
-```
-Component → Hook → Service → Prisma → Database
-```
+### **Criação Manual:**
+1. Usuário clica em "Novo Lead"
+2. Modal abre com formulário
+3. Dados validados com `createLeadSchema`
+4. API `/api/leads` (POST) processa
+5. `LeadsService.createLead()` executa
+6. Lead criado com `source: 'manual'`
+7. Lista atualizada automaticamente
 
-### **2. Escrita de Dados:**
-```
-Component → Hook → Service → Prisma → Database
-```
-
-### **3. Validação:**
-```
-API Request → Zod Schema → Service → Database
-```
-
-## 📋 Checklist de Implementação
-
-### **Para Novas Features:**
-
-#### **1. Schemas e Tipos:**
-- [ ] Criar schema Zod em `src/schemas/[domain]/`
-- [ ] Criar tipos TypeScript em `src/types/[domain]/`
-- [ ] Adicionar exports nos arquivos `index.ts`
-
-#### **2. Services:**
-- [ ] Criar service em `src/services/[domain]/`
-- [ ] Implementar métodos CRUD
-- [ ] Adicionar tratamento de erros
-- [ ] Adicionar exports no `index.ts`
-
-#### **3. Hooks:**
-- [ ] Criar hook em `src/hooks/[domain]/`
-- [ ] Implementar estado e lógica
-- [ ] Adicionar tratamento de erros
-- [ ] Adicionar exports no `index.ts`
-
-#### **4. APIs:**
-- [ ] Criar rota em `src/app/api/[domain]/`
-- [ ] Usar service layer
-- [ ] Implementar validação com Zod
-- [ ] Adicionar tratamento de erros
-
-#### **5. Componentes:**
-- [ ] Usar hooks customizados
-- [ ] Usar constantes centralizadas
-- [ ] Usar utilitários de formatação
-- [ ] Implementar loading states
-
-#### **6. Utilitários:**
-- [ ] Adicionar constantes em `src/lib/utils/constants.ts`
-- [ ] Adicionar funções de formatação em `src/lib/utils/formatting.ts`
-- [ ] Adicionar exports nos arquivos `index.ts`
-
-## 🚀 Benefícios da Arquitetura
-
-### **1. Manutenibilidade:**
-- Código organizado por domínio
-- Responsabilidades bem definidas
-- Fácil localização de código
-
-### **2. Reutilização:**
-- Services reutilizáveis
-- Hooks compartilhados
-- Utilitários centralizados
-
-### **3. Escalabilidade:**
-- Estrutura preparada para crescimento
-- Padrões consistentes
-- Fácil adição de novas features
-
-### **4. Testabilidade:**
-- Services isolados e testáveis
-- Hooks customizados com testes completos
-- Lógica separada da UI
-- Schemas Zod validados
-- Componentes UI testados
-- Integração com Jest e Testing Library
-
-### **5. Type Safety:**
-- TypeScript strict mode
-- Schemas Zod para validação
-- Tipos bem definidos
+### **Exibição:**
+1. Leads carregados via `useLeads()`
+2. Origem exibida com ícone discreto
+3. Telefone formatado (sem prefixo whatsapp:)
+4. Status e ações disponíveis
 
 ## 📚 Documentação Relacionada
 
-- [Estratégia de Testes](testing-strategy.md) - Configuração e padrões de testes
-- [Melhores Práticas](best-practices.md) - Padrões gerais do projeto
-- [Guia de Erros](lint-build-errors-guide.md) - Erros comuns e soluções
-- [README](README.md) - Visão geral da documentação
-
----
-
-**Última atualização:** Janeiro 2024  
-**Versão da Arquitetura:** 2.0  
-**Responsável:** Equipe de Desenvolvimento 
+- [docs/testing-strategy.md](mdc:docs/testing-strategy.md) - Estratégia de testes
+- [docs/best-practices.md](mdc:docs/best-practices.md) - Melhores práticas
+- [docs/lint-build-errors-guide.md](mdc:docs/lint-build-errors-guide.md) - Guia de erros 

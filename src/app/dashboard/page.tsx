@@ -13,13 +13,20 @@ import { formatDate } from '@/lib/utils/date'
 export default async function DashboardPage() {
   const data = await getDashboardData()
 
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL',
-    }).format(value)
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'novo':
+        return 'bg-blue-500'
+      case 'qualificado':
+        return 'bg-green-500'
+      case 'nao_interessado':
+        return 'bg-red-500'
+      case 'fechado':
+        return 'bg-purple-500'
+      default:
+        return 'bg-gray-500'
+    }
   }
-
 
 
   return (
@@ -262,20 +269,6 @@ export default async function DashboardPage() {
           <CardContent>
             <div className="space-y-4">
               {Object.entries(data.leads.byStatus).map(([status, count]) => {
-                const getStatusColor = (status: string) => {
-                  switch (status) {
-                    case 'novo':
-                      return 'bg-blue-500'
-                    case 'qualificado':
-                      return 'bg-green-500'
-                    case 'nao_interessado':
-                      return 'bg-red-500'
-                    case 'fechado':
-                      return 'bg-purple-500'
-                    default:
-                      return 'bg-gray-500'
-                  }
-                }
                 
                 return (
                   <div key={status} className="flex items-center justify-between">
@@ -359,11 +352,6 @@ export default async function DashboardPage() {
                     <Badge className="bg-green-500/20 text-green-400 border-green-500/30 hover:bg-green-500/30 transition-colors">
                       novo
                     </Badge>
-                  )}
-                  {lead.value && (
-                    <span className="text-sm font-medium text-foreground">
-                      {formatCurrency(lead.value)}
-                    </span>
                   )}
                 </div>
               </div>

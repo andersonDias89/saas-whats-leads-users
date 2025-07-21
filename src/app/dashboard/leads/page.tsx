@@ -8,22 +8,25 @@ import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Plus, Search, Filter, Users, Phone, Mail, Calendar, Trash2 } from 'lucide-react'
+import { Plus, Search, Filter, Users, Phone, Mail, Calendar, Trash2, Edit3, MessageSquare } from 'lucide-react'
 import Link from 'next/link'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { Pagination } from '@/components/ui/pagination'
+import { CreateLeadModal } from '@/components/leads'
 import { useLeads } from '@/hooks/leads'
 import { LEAD_STATUS_OPTIONS, PAGINATION_DEFAULTS } from '@/lib/utils/constants'
 import { formatDate } from '@/lib/utils/date'
 import { getStatusBadge } from '@/lib/utils/formatting'
 import { LeadStatus } from '@/schemas/leads'
+import { CreateLeadData } from '@/schemas/leads'
 
 export default function LeadsPage() {
-  const { leads, isLoading, updateLeadStatus, deleteLead } = useLeads()
+  const { leads, isLoading, createLead, updateLeadStatus, deleteLead } = useLeads()
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage, setItemsPerPage] = useState(PAGINATION_DEFAULTS.ITEMS_PER_PAGE)
+  const [createModalOpen, setCreateModalOpen] = useState(false)
   const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; leadId: string | null; leadName: string }>({
     open: false,
     leadId: null,
@@ -34,6 +37,10 @@ export default function LeadsPage() {
   React.useEffect(() => {
     setCurrentPage(1)
   }, [searchTerm, statusFilter, itemsPerPage])
+
+  const handleCreateLead = async (data: CreateLeadData) => {
+    await createLead(data)
+  }
 
   const handleDeleteLead = async () => {
     if (!deleteDialog.leadId) return
@@ -65,8 +72,6 @@ export default function LeadsPage() {
       </Badge>
     )
   }
-
-
 
   if (isLoading) {
     return (
@@ -109,7 +114,7 @@ export default function LeadsPage() {
           <h1 className="text-3xl font-bold text-foreground">Leads</h1>
           <p className="text-muted-foreground">Gerencie todos os seus leads do WhatsApp</p>
         </div>
-        <Button>
+        <Button onClick={() => setCreateModalOpen(true)}>
           <Plus className="mr-2 h-4 w-4" />
           Novo Lead
         </Button>
@@ -187,11 +192,24 @@ export default function LeadsPage() {
                               </AvatarFallback>
                             </Avatar>
                             <div>
-                              <h3 className="font-medium text-foreground">{lead.name || 'Nome não informado'}</h3>
+                              <div className="flex items-center space-x-2">
+                                <h3 className="font-medium text-foreground">{lead.name || 'Nome não informado'}</h3>
+                                {lead.source === 'whatsapp' ? (
+                                  <div className="flex items-center text-xs text-muted-foreground">
+                                    <MessageSquare className="h-3 w-3 mr-1" />
+                                    WhatsApp
+                                  </div>
+                                ) : (
+                                  <div className="flex items-center text-xs text-muted-foreground">
+                                    <Edit3 className="h-3 w-3 mr-1" />
+                                    Manual
+                                  </div>
+                                )}
+                              </div>
                               <div className="flex items-center space-x-4 text-sm text-muted-foreground">
                                 <div className="flex items-center">
                                   <Phone className="mr-1 h-3 w-3" />
-                                  {lead.phone}
+                                  {lead.phone.replace('whatsapp:', '')}
                                 </div>
                                 {lead.email && (
                                   <div className="flex items-center">
@@ -259,6 +277,13 @@ export default function LeadsPage() {
           )}
         </CardContent>
       </Card>
+
+      {/* Modal de Criação de Lead */}
+      <CreateLeadModal
+        open={createModalOpen}
+        onOpenChange={setCreateModalOpen}
+        onSubmit={handleCreateLead}
+      />
 
       {/* Modal de Confirmação de Delete */}
       <ConfirmDialog

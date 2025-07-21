@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/prisma'
 import { LeadWithConversation } from '@/types/leads'
 import { LeadStatus } from '@/schemas/leads'
+import { CreateLeadData } from '@/schemas/leads'
 
 export class LeadsService {
   static async getLeadsByUserId(userId: string): Promise<LeadWithConversation[]> {
@@ -17,6 +18,42 @@ export class LeadsService {
         }
       },
       orderBy: { createdAt: 'desc' }
+    })
+  }
+
+  static async createLead(userId: string, data: CreateLeadData) {
+    // Verificar se já existe um lead com o mesmo telefone para este usuário
+    const existingLead = await prisma.lead.findFirst({
+      where: {
+        userId,
+        phone: data.phone
+      }
+    })
+
+    if (existingLead) {
+      throw new Error('Já existe um lead com este telefone')
+    }
+
+    return prisma.lead.create({
+      data: {
+        userId,
+        name: data.name,
+        phone: data.phone,
+        email: data.email || null,
+        status: data.status,
+        notes: data.notes || null,
+        source: data.source
+      },
+      include: {
+        conversation: true,
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true
+          }
+        }
+      }
     })
   }
 
