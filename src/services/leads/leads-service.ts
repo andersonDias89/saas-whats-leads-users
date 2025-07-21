@@ -2,6 +2,7 @@ import { prisma } from '@/lib/prisma'
 import { LeadWithConversation } from '@/types/leads'
 import { LeadStatus } from '@/schemas/leads'
 import { CreateLeadData } from '@/schemas/leads'
+import { ImportLeadsData, ImportResult } from '@/schemas/leads'
 
 export class LeadsService {
   static async getLeadsByUserId(userId: string): Promise<LeadWithConversation[]> {
@@ -55,6 +56,53 @@ export class LeadsService {
         }
       }
     })
+  }
+
+  static async importLeads(userId: string, data: ImportLeadsData): Promise<ImportResult> {
+    const result: ImportResult = {
+      success: 0,
+      errors: []
+    }
+
+    // Processar cada lead em uma transação
+    for (let i = 0; i < data.length; i++) {
+      const leadData = data[i]
+      
+      try {
+        // Verificar se já existe um lead com o mesmo telefone
+        const existingLead = await prisma.lead.findFirst({
+          where: {
+            userId,
+            phone: leadData.Telefone
+          }
+        })
+
+        if (existingLead) {
+          result.errors.push(`Linha ${i + 2}: Já existe um lead com o telefone ${leadData.Telefone}`)
+          continue
+        }
+
+        // Criar o lead
+        await prisma.lead.create({
+          data: {
+            userId,
+            name: leadData.Nome,
+            phone: leadData.Telefone,
+            email: leadData.Email || null,
+            status: leadData.Status || 'novo',
+            notes: leadData.Observações || null,
+            source: 'manual'
+          }
+        })
+
+        result.success++
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido'
+        result.errors.push(`Linha ${i + 2}: ${errorMessage}`)
+      }
+    }
+
+    return result
   }
 
   static async getLeadById(leadId: string, userId: string) {

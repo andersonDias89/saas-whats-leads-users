@@ -238,13 +238,120 @@ export function CreateEntityModal({ open, onOpenChange, onSubmit }: CreateEntity
 }
 ```
 
+#### **Camada 5: Componentes UI**
+```typescript
+// src/components/[domain]/import-entity-modal.tsx
+'use client'
+
+import { useState, useRef } from 'react'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button'
+import { Progress } from '@/components/ui/progress'
+import { Upload, FileSpreadsheet } from 'lucide-react'
+import { ImportEntityData } from '@/schemas/[domain]'
+
+interface ImportEntityModalProps {
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  onImport: (data: ImportEntityData[]) => Promise<{ success: number; errors: string[] }>
+}
+
+export function ImportEntityModal({ open, onOpenChange, onImport }: ImportEntityModalProps) {
+  const [isImporting, setIsImporting] = useState(false)
+  const [progress, setProgress] = useState(0)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+
+    try {
+      setIsImporting(true)
+      setProgress(0)
+
+      // Processar arquivo
+      const data = await processFile(file)
+      
+      // Importar dados
+      const result = await onImport(data)
+      
+      // Feedback visual
+      if (result.success > 0) {
+        toast.success(`${result.success} itens importados com sucesso!`)
+      }
+
+    } catch (error) {
+      toast.error('Erro ao processar o arquivo')
+    } finally {
+      setIsImporting(false)
+    }
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Importar em Massa</DialogTitle>
+        </DialogHeader>
+        
+        <div className="space-y-4">
+          {/* Template Download */}
+          <div className="flex items-center justify-between p-4 border border-dashed rounded-lg">
+            <div className="flex items-center space-x-3">
+              <FileSpreadsheet className="h-5 w-5 text-muted-foreground" />
+              <div>
+                <p className="text-sm font-medium">Baixar Template</p>
+                <p className="text-xs text-muted-foreground">Use nosso template para garantir o formato correto</p>
+              </div>
+            </div>
+            <Button variant="outline" size="sm" onClick={handleDownloadTemplate}>
+              Baixar
+            </Button>
+          </div>
+
+          {/* File Upload */}
+          <div className="flex items-center justify-center w-full">
+            <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-border rounded-lg cursor-pointer hover:bg-accent transition-colors">
+              <Upload className="w-8 h-8 mb-2 text-muted-foreground" />
+              <p className="mb-2 text-sm text-muted-foreground">
+                <span className="font-semibold">Clique para selecionar</span> ou arraste o arquivo
+              </p>
+              <input
+                ref={fileInputRef}
+                type="file"
+                className="hidden"
+                accept=".xlsx,.csv"
+                onChange={handleFileSelect}
+                disabled={isImporting}
+              />
+            </label>
+          </div>
+
+          {/* Progress */}
+          {isImporting && (
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-sm">
+                <span>Importando...</span>
+                <span>{progress}%</span>
+              </div>
+              <Progress value={progress} className="w-full" />
+            </div>
+          )}
+        </div>
+      </DialogContent>
+    </Dialog>
+  )
+}
+```
+
 ## 🎯 Padrões Específicos por Domínio
 
 ### **Leads**
-- **Schema**: `leadSchema` para validação geral, `createLeadSchema` para criação manual
+- **Schema**: `leadSchema` para validação geral, `createLeadSchema` para criação manual, `importLeadSchema` para importação
 - **Source**: Campo obrigatório com valores `'whatsapp'` | `'manual'`
 - **Conversation**: Opcional (leads manuais não têm conversa)
 - **UI**: Modal de criação com ícones intuitivos (User, Phone, Mail, FileText)
+- **Importação**: Modal de upload com progress bar, template para download, validação linha por linha
 - **Exibição**: Origem discreta ao lado do nome com ícones (MessageSquare vs Edit3)
 
 ### **Conversations**

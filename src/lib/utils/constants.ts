@@ -2,7 +2,7 @@
 export const LEAD_STATUS_OPTIONS = [
   { value: 'novo', label: 'Novo', color: 'bg-blue-500' },
   { value: 'qualificado', label: 'Qualificado', color: 'bg-green-500' },
-  { value: 'nao_interessado', label: 'Não Interessado', color: 'bg-red-500' },
+  { value: 'nao_interessado', label: 'Não Inter.', color: 'bg-red-500' },
   { value: 'fechado', label: 'Fechado', color: 'bg-purple-500' },
 ]
 

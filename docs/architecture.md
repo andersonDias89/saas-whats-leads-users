@@ -36,6 +36,7 @@ src/
 ├── components/                  # Componentes reutilizáveis
 │   ├── leads/                 # Componentes específicos de leads
 │   │   ├── create-lead-modal.tsx # Modal de criação manual
+│   │   ├── import-leads-modal.tsx # Modal de importação em massa
 │   │   └── index.ts           # Exports
 ├── hooks/                       # Hooks customizados por domínio
 │   ├── leads/                  # Hooks de leads
@@ -236,13 +237,21 @@ model Lead {
 - Integração com botão "Novo Lead"
 - Badge visual indicando origem
 
-### **2. Origem dos Leads**
+### **2. Importação em Massa de Leads**
+- Modal de upload com drag & drop
+- Suporte para arquivos CSV e Excel
+- Template para download com 20 leads de exemplo
+- Barra de progresso em tempo real
+- Validação linha por linha com feedback detalhado
+- Processamento em lote com tratamento de erros
+
+### **3. Origem dos Leads**
 - **WhatsApp**: Leads vindos de conversas
 - **Manual**: Leads cadastrados manualmente
 - Ícones distintos (MessageSquare vs Edit3)
 - Exibição discreta ao lado do nome
 
-### **3. Regras de Negócio**
+### **4. Regras de Negócio**
 - Leads podem ter ou não conversa associada
 - Validação de telefone único por usuário
 - Status em português
@@ -258,6 +267,16 @@ model Lead {
 5. `LeadsService.createLead()` executa
 6. Lead criado com `source: 'manual'`
 7. Lista atualizada automaticamente
+
+### **Importação em Massa:**
+1. Usuário clica em "Importar"
+2. Modal abre com área de upload
+3. Arquivo processado e validado com `importLeadsSchema`
+4. API `/api/leads/import` (POST) processa
+5. `LeadsService.importLeads()` executa linha por linha
+6. Leads criados com `source: 'manual'`
+7. Resultado com contadores de sucesso/erro
+8. Lista atualizada automaticamente
 
 ### **Exibição:**
 1. Leads carregados via `useLeads()`
