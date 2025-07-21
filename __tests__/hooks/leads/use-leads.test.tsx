@@ -360,6 +360,144 @@ describe('useLeads', () => {
     })
   })
 
+  describe('importLeads', () => {
+    test('deve importar leads com sucesso', async () => {
+      const mockLeads = [
+        { id: '1', name: 'João Silva', status: 'novo' }
+      ]
+      
+      const importData = [
+        {
+          Nome: 'Maria Santos',
+          Telefone: '11888888888',
+          Email: 'maria@email.com',
+          Status: 'qualificado' as const,
+          Observações: 'Prospecto quente'
+        },
+        {
+          Nome: 'Pedro Oliveira',
+          Telefone: '11777777777',
+          Email: 'pedro@email.com',
+          Status: 'novo' as const,
+          Observações: 'Primeiro contato'
+        }
+      ]
+      
+      const importResult = {
+        success: 2,
+        errors: []
+      }
+      
+      ;(global.fetch as jest.Mock)
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => mockLeads
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => importResult
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => [...mockLeads, ...importData.map((_, i) => ({ id: String(i + 2), name: _.Nome, status: _.Status }))]
+        })
+
+      const { result } = renderHook(() => useLeads())
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false)
+      })
+
+      await act(async () => {
+        const importResult = await result.current.importLeads(importData)
+        expect(importResult.success).toBe(2)
+        expect(importResult.errors).toHaveLength(0)
+      })
+
+      expect(global.fetch).toHaveBeenCalledWith('/api/leads/import', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(importData)
+      })
+    })
+
+    test('deve mostrar erro quando importação falha', async () => {
+      const mockLeads = [
+        { id: '1', name: 'João Silva', status: 'novo' }
+      ]
+      
+      const importData = [
+        {
+          Nome: 'Maria Santos',
+          Telefone: '11888888888',
+          Email: 'maria@email.com',
+          Status: 'qualificado' as const,
+          Observações: 'Prospecto quente'
+        }
+      ]
+      
+      ;(global.fetch as jest.Mock)
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => mockLeads
+        })
+        .mockResolvedValueOnce({
+          ok: false,
+          json: async () => ({ message: 'Erro na validação dos dados' })
+        })
+
+      const { result } = renderHook(() => useLeads())
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false)
+      })
+
+      await act(async () => {
+        await expect(result.current.importLeads(importData)).rejects.toThrow('Erro na validação dos dados')
+      })
+
+      expect(toast.error).toHaveBeenCalledWith('Erro na validação dos dados')
+    })
+
+    test('deve mostrar erro genérico quando resposta não tem message', async () => {
+      const mockLeads = [
+        { id: '1', name: 'João Silva', status: 'novo' }
+      ]
+      
+      const importData = [
+        {
+          Nome: 'Maria Santos',
+          Telefone: '11888888888',
+          Email: 'maria@email.com',
+          Status: 'qualificado' as const,
+          Observações: 'Prospecto quente'
+        }
+      ]
+      
+      ;(global.fetch as jest.Mock)
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => mockLeads
+        })
+        .mockResolvedValueOnce({
+          ok: false,
+          json: async () => ({})
+        })
+
+      const { result } = renderHook(() => useLeads())
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false)
+      })
+
+      await act(async () => {
+        await expect(result.current.importLeads(importData)).rejects.toThrow('Erro ao importar leads')
+      })
+
+      expect(toast.error).toHaveBeenCalledWith('Erro ao importar leads')
+    })
+  })
+
   describe('estado inicial', () => {
     test('deve ter estado inicial correto', () => {
       const { result } = renderHook(() => useLeads())
@@ -368,6 +506,7 @@ describe('useLeads', () => {
       expect(result.current.isLoading).toBe(true)
       expect(typeof result.current.loadLeads).toBe('function')
       expect(typeof result.current.createLead).toBe('function')
+      expect(typeof result.current.importLeads).toBe('function')
       expect(typeof result.current.updateLeadStatus).toBe('function')
       expect(typeof result.current.deleteLead).toBe('function')
     })

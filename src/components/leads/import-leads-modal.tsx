@@ -6,17 +6,18 @@ import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import { Upload, FileSpreadsheet, CheckCircle, AlertCircle } from 'lucide-react'
 import { toast } from 'sonner'
+import { ImportLeadsData, ImportResult } from '@/schemas/leads'
 
 interface ImportLeadsModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  onImport: (data: any[]) => Promise<{ success: number; errors: string[] }>
+  onImport: (data: ImportLeadsData) => Promise<ImportResult>
 }
 
 export function ImportLeadsModal({ open, onOpenChange, onImport }: ImportLeadsModalProps) {
   const [isImporting, setIsImporting] = useState(false)
   const [progress, setProgress] = useState(0)
-  const [importResult, setImportResult] = useState<{ success: number; errors: string[] } | null>(null)
+  const [importResult, setImportResult] = useState<ImportResult | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -71,7 +72,7 @@ export function ImportLeadsModal({ open, onOpenChange, onImport }: ImportLeadsMo
     }
   }
 
-  const processFile = async (file: File): Promise<any[]> => {
+  const processFile = async (file: File): Promise<ImportLeadsData> => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader()
       
@@ -85,16 +86,16 @@ export function ImportLeadsModal({ open, onOpenChange, onImport }: ImportLeadsMo
             .filter(line => line.trim())
             .map(line => {
               const values = line.split(',').map(v => v.trim().replace(/"/g, ''))
-              const row: any = {}
+              const row: Record<string, string> = {}
               
               headers.forEach((header, index) => {
                 row[header] = values[index] || ''
               })
               
-              return row
+              return row as unknown as ImportLeadsData
             })
           
-          resolve(data)
+          resolve(data as unknown as ImportLeadsData)
         } catch (error) {
           reject(error)
         }

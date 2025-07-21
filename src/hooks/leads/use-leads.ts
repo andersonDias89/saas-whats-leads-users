@@ -43,8 +43,9 @@ export function useLeads() {
         return newLead
       } else {
         const error = await response.json()
-        toast.error(error.message || 'Erro ao criar lead')
-        throw new Error(error.message)
+        const errorMessage = error.message || 'Erro ao criar lead'
+        toast.error(errorMessage)
+        throw new Error(errorMessage)
       }
     } catch (error) {
       console.error('Erro ao criar lead:', error)
@@ -73,8 +74,9 @@ export function useLeads() {
         return result
       } else {
         const error = await response.json()
-        toast.error(error.message || 'Erro ao importar leads')
-        throw new Error(error.message)
+        const errorMessage = error.message || 'Erro ao importar leads'
+        toast.error(errorMessage)
+        throw new Error(errorMessage)
       }
     } catch (error) {
       console.error('Erro ao importar leads:', error)
