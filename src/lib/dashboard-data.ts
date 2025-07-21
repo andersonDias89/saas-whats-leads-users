@@ -35,9 +35,6 @@ export async function getDashboardData() {
     fechado: user.leads.filter(lead => lead.status === 'fechado').length,
   }
 
-  // Calcular valor total dos leads
-  const totalValue = user.leads.reduce((sum, lead) => sum + (lead.value || 0), 0)
-
   // Calcular métricas das conversas
   const totalConversations = user.conversations.length
   const activeConversations = user.conversations.filter(conv => conv.status === 'active').length
@@ -160,16 +157,6 @@ export async function getDashboardData() {
   const lastMonthMessages = user.messages.filter(msg => 
     msg.createdAt >= lastMonth && msg.createdAt < currentMonth
   ).length
-  
-  // Valor do mês atual
-  const currentMonthValue = user.leads.filter(lead => 
-    lead.createdAt >= currentMonth
-  ).reduce((sum, lead) => sum + (lead.value || 0), 0)
-  
-  // Valor do mês anterior
-  const lastMonthValue = user.leads.filter(lead => 
-    lead.createdAt >= lastMonth && lead.createdAt < currentMonth
-  ).reduce((sum, lead) => sum + (lead.value || 0), 0)
 
   return {
     // KPIs principais - apenas dados reais
@@ -199,9 +186,9 @@ export async function getDashboardData() {
     // Dados dos gráficos
     charts: {
       revenue: {
-        total: totalValue,
-        change: lastMonthValue > 0 ? ((currentMonthValue - lastMonthValue) / lastMonthValue * 100).toFixed(2) : '0',
-        status: currentMonthValue >= lastMonthValue ? 'success' : 'warning',
+        total: totalLeads,
+        change: lastMonthLeads > 0 ? ((currentMonthLeads - lastMonthLeads) / lastMonthLeads * 100).toFixed(2) : '0',
+        status: currentMonthLeads >= lastMonthLeads ? 'success' : 'warning',
         monthlyData: monthlyData.map(item => ({
           month: item.month,
           value: item.leads,

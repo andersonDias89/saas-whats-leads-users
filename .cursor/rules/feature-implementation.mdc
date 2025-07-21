@@ -98,7 +98,8 @@ export function useEntities() {
       await service.create(data)
       await fetchEntities() // Recarregar dados
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erro ao criar')
+      setError(err instanceof Error ? err.message : 'Erro ao criar entidade')
+      throw err
     }
   }, [fetchEntities])
 
@@ -110,24 +111,35 @@ export function useEntities() {
     entities,
     loading,
     error,
-    refetch: fetchEntities,
+    fetchEntities,
     createEntity
   }
 }
 ```
 
-#### **Camada 4: APIs (Camada de Apresentação)**
+#### **Camada 4: APIs REST**
 ```typescript
 // src/app/api/[domain]/route.ts
 import { NextRequest, NextResponse } from 'next/server'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/lib/auth'
 import { EntityService } from '@/services/[domain]'
 import { createEntitySchema } from '@/schemas/[domain]'
 
 export async function GET() {
   try {
-    const service = new EntityService()
-    const entities = await service.getAll()
+    const session = await getServerSession(authOptions)
+    
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { message: 'Não autorizado' },
+        { status: 401 }
+      )
+    }
+
+    const entities = await EntityService.getAll()
     return NextResponse.json(entities)
+
   } catch (error) {
     console.error('Erro ao buscar entidades:', error)
     return NextResponse.json(
@@ -137,23 +149,24 @@ export async function GET() {
   }
 }
 
-export async function POST(req: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
-    const data = await req.json()
-    const validatedData = createEntitySchema.parse(data)
+    const session = await getServerSession(authOptions)
     
-    const service = new EntityService()
-    const entity = await service.create(validatedData)
-    
-    return NextResponse.json(entity, { status: 201 })
-  } catch (error) {
-    if (error instanceof z.ZodError) {
+    if (!session?.user?.id) {
       return NextResponse.json(
-        { message: 'Dados inválidos', errors: error.errors },
-        { status: 400 }
+        { message: 'Não autorizado' },
+        { status: 401 }
       )
     }
+
+    const body = await request.json()
+    const validatedData = createEntitySchema.parse(body)
     
+    const entity = await EntityService.create(validatedData)
+    return NextResponse.json(entity, { status: 201 })
+
+  } catch (error) {
     console.error('Erro ao criar entidade:', error)
     return NextResponse.json(
       { message: 'Erro interno do servidor' },
@@ -163,133 +176,240 @@ export async function POST(req: NextRequest) {
 }
 ```
 
-#### **Camada 5: Componentes (UI)**
+#### **Camada 5: Componentes UI**
 ```typescript
-// src/app/dashboard/[domain]/page.tsx
-import { useEntities } from '@/hooks/[domain]'
-import { ENTITY_OPTIONS } from '@/lib/utils/constants'
-import { formatEntity } from '@/lib/utils/formatting'
+// src/components/[domain]/create-entity-modal.tsx
+'use client'
 
-export default function EntityPage() {
-  const { entities, loading, error, createEntity } = useEntities()
+import { useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { CreateEntityData, createEntitySchema } from '@/schemas/[domain]'
+
+interface CreateEntityModalProps {
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  onSubmit: (data: CreateEntityData) => Promise<void>
+}
+
+export function CreateEntityModal({ open, onOpenChange, onSubmit }: CreateEntityModalProps) {
+  const [isSubmitting, setIsSubmitting] = useState(false)
   
-  if (loading) return <div>Carregando...</div>
-  if (error) return <div>Erro: {error}</div>
-  
+  const { register, handleSubmit, reset, formState: { errors } } = useForm<CreateEntityData>({
+    resolver: zodResolver(createEntitySchema)
+  })
+
+  const handleFormSubmit = async (data: CreateEntityData) => {
+    try {
+      setIsSubmitting(true)
+      await onSubmit(data)
+      reset()
+      onOpenChange(false)
+    } catch (error) {
+      // Erro já tratado no hook
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
   return (
-    <div>
-      {entities.map(entity => (
-        <div key={entity.id}>
-          {formatEntity(entity)}
-        </div>
-      ))}
-    </div>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Criar Nova Entidade</DialogTitle>
+        </DialogHeader>
+        
+        <form onSubmit={handleSubmit(handleFormSubmit)}>
+          <Input {...register('name')} placeholder="Nome" />
+          {errors.name?.message && (
+            <p className="text-sm text-destructive">{errors.name.message}</p>
+          )}
+          
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? 'Criando...' : 'Criar'}
+          </Button>
+        </form>
+      </DialogContent>
+    </Dialog>
   )
 }
 ```
 
-### **3. Utilitários (Se Necessário):**
+#### **Camada 5: Componentes UI**
 ```typescript
-// src/lib/utils/constants.ts
-export const ENTITY_OPTIONS = [
-  { value: 'option1', label: 'Opção 1' },
-  { value: 'option2', label: 'Opção 2' }
-]
+// src/components/[domain]/import-entity-modal.tsx
+'use client'
 
-// src/lib/utils/formatting.ts
-export const formatEntity = (entity: Entity) => {
-  return `${entity.name} - ${entity.id}`
+import { useState, useRef } from 'react'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button'
+import { Progress } from '@/components/ui/progress'
+import { Upload, FileSpreadsheet } from 'lucide-react'
+import { ImportEntityData } from '@/schemas/[domain]'
+
+interface ImportEntityModalProps {
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  onImport: (data: ImportEntityData[]) => Promise<{ success: number; errors: string[] }>
+}
+
+export function ImportEntityModal({ open, onOpenChange, onImport }: ImportEntityModalProps) {
+  const [isImporting, setIsImporting] = useState(false)
+  const [progress, setProgress] = useState(0)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+
+    try {
+      setIsImporting(true)
+      setProgress(0)
+
+      // Processar arquivo
+      const data = await processFile(file)
+      
+      // Importar dados
+      const result = await onImport(data)
+      
+      // Feedback visual
+      if (result.success > 0) {
+        toast.success(`${result.success} itens importados com sucesso!`)
+      }
+
+    } catch (error) {
+      toast.error('Erro ao processar o arquivo')
+    } finally {
+      setIsImporting(false)
+    }
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Importar em Massa</DialogTitle>
+        </DialogHeader>
+        
+        <div className="space-y-4">
+          {/* Template Download */}
+          <div className="flex items-center justify-between p-4 border border-dashed rounded-lg">
+            <div className="flex items-center space-x-3">
+              <FileSpreadsheet className="h-5 w-5 text-muted-foreground" />
+              <div>
+                <p className="text-sm font-medium">Baixar Template</p>
+                <p className="text-xs text-muted-foreground">Use nosso template para garantir o formato correto</p>
+              </div>
+            </div>
+            <Button variant="outline" size="sm" onClick={handleDownloadTemplate}>
+              Baixar
+            </Button>
+          </div>
+
+          {/* File Upload */}
+          <div className="flex items-center justify-center w-full">
+            <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-border rounded-lg cursor-pointer hover:bg-accent transition-colors">
+              <Upload className="w-8 h-8 mb-2 text-muted-foreground" />
+              <p className="mb-2 text-sm text-muted-foreground">
+                <span className="font-semibold">Clique para selecionar</span> ou arraste o arquivo
+              </p>
+              <input
+                ref={fileInputRef}
+                type="file"
+                className="hidden"
+                accept=".xlsx,.csv"
+                onChange={handleFileSelect}
+                disabled={isImporting}
+              />
+            </label>
+          </div>
+
+          {/* Progress */}
+          {isImporting && (
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-sm">
+                <span>Importando...</span>
+                <span>{progress}%</span>
+              </div>
+              <Progress value={progress} className="w-full" />
+            </div>
+          )}
+        </div>
+      </DialogContent>
+    </Dialog>
+  )
 }
 ```
 
-## 🚨 Regras Críticas de Implementação
+## 🎯 Padrões Específicos por Domínio
 
-### **NUNCA FAZER:**
-- ❌ Implementar lógica de banco diretamente em componentes
-- ❌ Duplicar código existente
-- ❌ Criar APIs fora de `src/app/api/`
-- ❌ Usar `any` sem justificativa
-- ❌ Misturar responsabilidades entre camadas
+### **Leads**
+- **Schema**: `leadSchema` para validação geral, `createLeadSchema` para criação manual, `importLeadSchema` para importação
+- **Source**: Campo obrigatório com valores `'whatsapp'` | `'manual'`
+- **Conversation**: Opcional (leads manuais não têm conversa)
+- **UI**: Modal de criação com ícones intuitivos (User, Phone, Mail, FileText)
+- **Importação**: Modal de upload com progress bar, template para download, validação linha por linha
+- **Exibição**: Origem discreta ao lado do nome com ícones (MessageSquare vs Edit3)
 
-### **SEMPRE FAZER:**
-- ✅ Seguir a ordem de implementação (Schemas → Types → Service → Hooks → APIs → Components)
-- ✅ Usar service layer para todas as operações de banco
-- ✅ Implementar validação com Zod em todas as APIs
-- ✅ Tratar erros adequadamente em todas as camadas
-- ✅ Usar hooks customizados para estado e lógica
-- ✅ Centralizar constantes e utilitários
-- ✅ Testar cada camada antes de prosseguir
+### **Conversations**
+- **Webhook**: Processamento de dados do Twilio
+- **Messages**: Relacionamento 1:N com mensagens
+- **Status**: Active, closed, archived
+
+### **Dashboard**
+- **Dados**: Agregação de leads, conversas e mensagens
+- **Gráficos**: Dados mensais dos últimos 6 meses
+- **KPIs**: Métricas principais com comparação mês anterior
+
+## 🚨 Regras Importantes
+
+### **Validação:**
+- **Sempre usar Zod** para validação de dados
+- **Schemas específicos** para diferentes operações (criação vs atualização)
+- **Mensagens em português** nos erros de validação
+
+### **Autenticação:**
+- **Sempre verificar sessão** nas APIs
+- **Usar getServerSession(authOptions)** para obter usuário
+- **Retornar 401** quando não autenticado
+
+### **Tratamento de Erros:**
+- **Try/catch** em todas as operações assíncronas
+- **Logs informativos** para debugging
+- **Mensagens amigáveis** para o usuário
+- **Status codes** apropriados
+
+### **UI/UX:**
+- **Loading states** para operações assíncronas
+- **Feedback visual** de sucesso/erro
+- **Validação em tempo real** nos formulários
+- **Ícones intuitivos** para melhor UX
+
+### **Performance:**
+- **useCallback** para funções em hooks
+- **Dependências corretas** em useEffect
+- **Lazy loading** para componentes pesados
+- **Otimização de re-renders**
+
+## 📚 Referências
+
+- [docs/architecture.md](mdc:docs/architecture.md) - Arquitetura detalhada
+- [docs/testing-strategy.md](mdc:docs/testing-strategy.md) - Estratégia de testes
+- [docs/best-practices.md](mdc:docs/best-practices.md) - Melhores práticas
+- [docs/lint-build-errors-guide.md](mdc:docs/lint-build-errors-guide.md) - Guia de erros
 
 ## 🔄 Fluxo de Desenvolvimento
 
-### **1. Desenvolvimento Iterativo:**
-1. Implementar schemas e tipos
-2. Implementar service com métodos básicos
-3. Implementar hooks para operações básicas
-4. Implementar APIs básicas
-5. Implementar UI básica
-6. Adicionar funcionalidades avançadas
-7. Refatorar e otimizar
-
-### **2. Testes por Camada:**
-- **Schemas:** Validar com dados de teste
-- **Service:** Testar métodos individualmente
-- **Hooks:** Testar estados e operações
-- **APIs:** Testar endpoints com Postman/Thunder Client
-- **Components:** Testar renderização e interações
-
-### **3. Validação Final:**
-- [ ] `npm run lint` - Sem erros
-- [ ] `npm run build` - Build bem-sucedido
-- [ ] Testes funcionais básicos
-- [ ] Verificar se não quebrou funcionalidades existentes
-
-## 📚 Exemplos de Implementação
-
-### **Feature Simples (CRUD Básico):**
-- Schemas: 1 arquivo
-- Types: 1 arquivo
-- Service: 1 classe com 5 métodos
-- Hooks: 1 hook com operações básicas
-- APIs: 1 arquivo com GET/POST/PUT/DELETE
-- Components: 1 página com lista e formulário
-
-### **Feature Complexa (Com Relacionamentos):**
-- Schemas: 2-3 arquivos
-- Types: 2-3 arquivos
-- Service: 1 classe com métodos específicos
-- Hooks: 2-3 hooks especializados
-- APIs: 2-3 arquivos de API
-- Components: 2-3 páginas/componentes
-
-## 🎯 Benefícios da Abordagem
-
-### **1. Manutenibilidade:**
-- Código organizado por responsabilidade
-- Fácil localização de problemas
-- Mudanças isoladas por camada
-
-### **2. Reutilização:**
-- Services reutilizáveis entre APIs
-- Hooks compartilhados entre componentes
-- Utilitários centralizados
-
-### **3. Testabilidade:**
-- Cada camada testável independentemente
-- Mocks fáceis de implementar
-- Testes unitários e de integração
-
-### **4. Escalabilidade:**
-- Estrutura preparada para crescimento
-- Padrões consistentes
-- Fácil adição de novas funcionalidades
-
-## 📚 Documentação Relacionada
-
-- [Arquitetura](mdc:docs/architecture.md) - Documentação completa da arquitetura
-- [Melhores Práticas](mdc:docs/best-practices.md) - Padrões gerais do projeto
-- [Guia de Erros](mdc:docs/lint-build-errors-guide.md) - Erros comuns e soluções
-description:
-globs:
-alwaysApply: false
----
+1. **Análise**: Entender requisitos e definir estrutura
+2. **Schemas**: Criar validações Zod
+3. **Types**: Definir tipos TypeScript
+4. **Service**: Implementar lógica de negócio
+5. **Hook**: Criar hook customizado
+6. **API**: Implementar endpoints REST
+7. **Component**: Criar componentes UI
+8. **Test**: Escrever testes completos
+9. **Document**: Atualizar documentação
+10. **Review**: Revisar código e qualidade
