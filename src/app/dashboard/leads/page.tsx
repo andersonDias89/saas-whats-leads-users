@@ -12,18 +12,21 @@ import { Plus, Search, Filter, Users, Phone, Mail, Calendar, Trash2 } from 'luci
 import Link from 'next/link'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { Pagination } from '@/components/ui/pagination'
+import { CreateLeadModal } from '@/components/leads'
 import { useLeads } from '@/hooks/leads'
 import { LEAD_STATUS_OPTIONS, PAGINATION_DEFAULTS } from '@/lib/utils/constants'
 import { formatDate } from '@/lib/utils/date'
 import { getStatusBadge } from '@/lib/utils/formatting'
 import { LeadStatus } from '@/schemas/leads'
+import { CreateLeadData } from '@/schemas/leads'
 
 export default function LeadsPage() {
-  const { leads, isLoading, updateLeadStatus, deleteLead } = useLeads()
+  const { leads, isLoading, createLead, updateLeadStatus, deleteLead } = useLeads()
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage, setItemsPerPage] = useState(PAGINATION_DEFAULTS.ITEMS_PER_PAGE)
+  const [createModalOpen, setCreateModalOpen] = useState(false)
   const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; leadId: string | null; leadName: string }>({
     open: false,
     leadId: null,
@@ -34,6 +37,10 @@ export default function LeadsPage() {
   React.useEffect(() => {
     setCurrentPage(1)
   }, [searchTerm, statusFilter, itemsPerPage])
+
+  const handleCreateLead = async (data: CreateLeadData) => {
+    await createLead(data)
+  }
 
   const handleDeleteLead = async () => {
     if (!deleteDialog.leadId) return
@@ -66,7 +73,20 @@ export default function LeadsPage() {
     )
   }
 
-
+  const getSourceBadge = (source: string) => {
+    const sourceConfig = {
+      whatsapp: { label: 'WhatsApp', color: 'bg-green-100 text-green-800' },
+      manual: { label: 'Cadastro Manual', color: 'bg-blue-100 text-blue-800' }
+    }
+    
+    const config = sourceConfig[source as keyof typeof sourceConfig] || sourceConfig.whatsapp
+    
+    return (
+      <Badge className={`${config.color} text-xs`}>
+        {config.label}
+      </Badge>
+    )
+  }
 
   if (isLoading) {
     return (
@@ -109,7 +129,7 @@ export default function LeadsPage() {
           <h1 className="text-3xl font-bold text-foreground">Leads</h1>
           <p className="text-muted-foreground">Gerencie todos os seus leads do WhatsApp</p>
         </div>
-        <Button>
+        <Button onClick={() => setCreateModalOpen(true)}>
           <Plus className="mr-2 h-4 w-4" />
           Novo Lead
         </Button>
@@ -208,6 +228,7 @@ export default function LeadsPage() {
                           </div>
                         </Link>
                         <div className="flex items-center space-x-3 ml-4">
+                          {getSourceBadge(lead.source)}
                           {getStatusBadgeComponent(lead.status)}
                           <Select 
                             value={lead.status} 
@@ -259,6 +280,13 @@ export default function LeadsPage() {
           )}
         </CardContent>
       </Card>
+
+      {/* Modal de Criação de Lead */}
+      <CreateLeadModal
+        open={createModalOpen}
+        onOpenChange={setCreateModalOpen}
+        onSubmit={handleCreateLead}
+      />
 
       {/* Modal de Confirmação de Delete */}
       <ConfirmDialog

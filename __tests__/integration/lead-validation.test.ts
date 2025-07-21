@@ -8,8 +8,7 @@ describe('Lead Validation Integration', () => {
         phone: '11999999999',
         email: 'joao@email.com',
         status: 'novo',
-        notes: 'Cliente interessado em produto premium',
-        value: 1500.00
+        notes: 'Cliente interessado em produto premium'
       }
 
       const result = leadSchema.safeParse(completeLead)
@@ -21,7 +20,6 @@ describe('Lead Validation Integration', () => {
         expect(result.data.email).toBe('joao@email.com')
         expect(result.data.status).toBe('novo')
         expect(result.data.notes).toBe('Cliente interessado em produto premium')
-        expect(result.data.value).toBe(1500.00)
       }
     })
 
@@ -40,7 +38,6 @@ describe('Lead Validation Integration', () => {
         expect(result.data.name).toBeUndefined()
         expect(result.data.email).toBeUndefined()
         expect(result.data.notes).toBeUndefined()
-        expect(result.data.value).toBeUndefined()
       }
     })
 
