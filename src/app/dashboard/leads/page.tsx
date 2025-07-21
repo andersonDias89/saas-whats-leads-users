@@ -237,12 +237,12 @@ export default function LeadsPage() {
                         <div className="flex items-center space-x-3 ml-4">
                           <div className="flex items-center space-x-2">
                             <Select value={lead.status} onValueChange={(value) => handleStatusChange(lead.id, value as LeadStatus)}>
-                              <SelectTrigger className="w-32">
-                                <SelectValue />
+                              <SelectTrigger className="w-40 min-w-0 text-sm">
+                                <SelectValue className="truncate" />
                               </SelectTrigger>
-                              <SelectContent>
+                              <SelectContent className="min-w-0">
                                 {LEAD_STATUS_OPTIONS.map((status) => (
-                                  <SelectItem key={status.value} value={status.value}>
+                                  <SelectItem key={status.value} value={status.value} className="whitespace-nowrap">
                                     {status.label}
                                   </SelectItem>
                                 ))}
