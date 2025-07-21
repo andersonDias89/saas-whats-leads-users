@@ -209,7 +209,7 @@ export default function LeadsPage() {
                               <div className="flex items-center space-x-4 text-sm text-muted-foreground">
                                 <div className="flex items-center">
                                   <Phone className="mr-1 h-3 w-3" />
-                                  {lead.phone}
+                                  {lead.phone.replace('whatsapp:', '')}
                                 </div>
                                 {lead.email && (
                                   <div className="flex items-center">
