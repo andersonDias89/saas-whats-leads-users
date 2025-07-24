@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>&#x1f916; WhatsLeads - Sistema de Automa&ccedil;&atilde;o de Vendas via WhatsApp</title>
+            <style>
+/* From extension vscode.github */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.vscode-dark img[src$=\#gh-light-mode-only],
+.vscode-light img[src$=\#gh-dark-mode-only],
+.vscode-high-contrast:not(.vscode-high-contrast-light) img[src$=\#gh-light-mode-only],
+.vscode-high-contrast-light img[src$=\#gh-dark-mode-only] {
+	display: none;
+}
+
+</style>
+            
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+<style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', system-ui, 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+        </style>
+        <style>
+.task-list-item {
+    list-style-type: none;
+}
+
+.task-list-item-checkbox {
+    margin-left: -20px;
+    vertical-align: middle;
+    pointer-events: none;
+}
+</style>
+<style>
+:root {
+  --color-note: #0969da;
+  --color-tip: #1a7f37;
+  --color-warning: #9a6700;
+  --color-severe: #bc4c00;
+  --color-caution: #d1242f;
+  --color-important: #8250df;
+}
+
+</style>
+<style>
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-note: #2f81f7;
+    --color-tip: #3fb950;
+    --color-warning: #d29922;
+    --color-severe: #db6d28;
+    --color-caution: #f85149;
+    --color-important: #a371f7;
+  }
+}
+
+</style>
+<style>
+.markdown-alert {
+  padding: 0.5rem 1rem;
+  margin-bottom: 16px;
+  color: inherit;
+  border-left: .25em solid #888;
+}
+
+.markdown-alert>:first-child {
+  margin-top: 0
+}
+
+.markdown-alert>:last-child {
+  margin-bottom: 0
+}
+
+.markdown-alert .markdown-alert-title {
+  display: flex;
+  font-weight: 500;
+  align-items: center;
+  line-height: 1
+}
+
+.markdown-alert .markdown-alert-title .octicon {
+  margin-right: 0.5rem;
+  display: inline-block;
+  overflow: visible !important;
+  vertical-align: text-bottom;
+  fill: currentColor;
+}
+
+.markdown-alert.markdown-alert-note {
+  border-left-color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-note .markdown-alert-title {
+  color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-important {
+  border-left-color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-important .markdown-alert-title {
+  color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-warning {
+  border-left-color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-warning .markdown-alert-title {
+  color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-tip {
+  border-left-color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-tip .markdown-alert-title {
+  color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-caution {
+  border-left-color: var(--color-caution);
+}
+
+.markdown-alert.markdown-alert-caution .markdown-alert-title {
+  color: var(--color-caution);
+}
+
+</style>
+        
+        </head>
+        <body class="vscode-body vscode-light">
+            <h1 id="-whatsleads---sistema-de-automação-de-vendas-via-whatsapp">🤖 WhatsLeads - Sistema de Automação de Vendas via WhatsApp</h1>
+<div align="center">
+<p><img src="https://img.shields.io/badge/WhatsLeads-Automa%C3%A7%C3%A3o%20de%20Vendas-blue?style=for-the-badge&amp;logo=whatsapp" alt="WhatsLeads Logo"></p>
+<p><strong>Transforme conversas do WhatsApp em leads qualificados automaticamente</strong></p>
+<p><a href="https://nextjs.org/"><img src="https://img.shields.io/badge/Next.js-15.4.1-black?style=flat-square&amp;logo=next.js" alt="Next.js"></a>
+<a href="https://www.typescriptlang.org/"><img src="https://img.shields.io/badge/TypeScript-5.0-blue?style=flat-square&amp;logo=typescript" alt="TypeScript"></a>
+<a href="https://www.prisma.io/"><img src="https://img.shields.io/badge/Prisma-6.12.0-2D3748?style=flat-square&amp;logo=prisma" alt="Prisma"></a>
+<a href="https://tailwindcss.com/"><img src="https://img.shields.io/badge/Tailwind-3.4.17-38B2AC?style=flat-square&amp;logo=tailwind-css" alt="Tailwind CSS"></a></p>
+</div>
+<hr>
+<h2 id="-índice">📋 Índice</h2>
+<ul>
+<li><a href="#-sobre-o-projeto">🎯 Sobre o Projeto</a></li>
+<li><a href="#-funcionalidades">✨ Funcionalidades</a></li>
+<li><a href="#-demonstra%C3%A7%C3%A3o">🚀 Demonstração</a></li>
+<li><a href="#%EF%B8%8F-tecnologias">🛠️ Tecnologias</a></li>
+<li><a href="#-instala%C3%A7%C3%A3o">📦 Instalação</a></li>
+<li><a href="#%EF%B8%8F-configura%C3%A7%C3%A3o">⚙️ Configuração</a></li>
+<li><a href="#-interface">🎨 Interface</a></li>
+<li><a href="#-estrutura-do-projeto">📊 Estrutura do Projeto</a></li>
+<li><a href="#-contribui%C3%A7%C3%A3o">🤝 Contribuição</a></li>
+<li><a href="#-licen%C3%A7a">📄 Licença</a></li>
+</ul>
+<hr>
+<h2 id="-sobre-o-projeto">🎯 Sobre o Projeto</h2>
+<p>O <strong>WhatsLeads</strong> é uma plataforma SaaS completa para automação de vendas via WhatsApp. O sistema captura automaticamente conversas do WhatsApp, qualifica leads usando inteligência artificial e fornece um dashboard completo para gerenciamento de vendas.</p>
+<h3 id="-principais-benefícios">🎯 Principais Benefícios</h3>
+<ul>
+<li><strong>Automação Completa</strong>: Captura automática de conversas do WhatsApp</li>
+<li><strong>IA Integrada</strong>: Qualificação inteligente de leads usando OpenAI</li>
+<li><strong>Dashboard Intuitivo</strong>: Interface moderna e responsiva</li>
+<li><strong>Integração Twilio</strong>: Conexão direta com WhatsApp Business API</li>
+<li><strong>Gestão de Leads</strong>: Sistema completo de CRM integrado</li>
+</ul>
+<hr>
+<h2 id="-funcionalidades">✨ Funcionalidades</h2>
+<h3 id="-sistema-de-autenticação">🔐 <strong>Sistema de Autenticação</strong></h3>
+<ul>
+<li>Registro e login de usuários</li>
+<li>Autenticação segura com NextAuth.js</li>
+<li>Proteção de rotas e sessões</li>
+</ul>
+<h3 id="-integração-whatsapp">📱 <strong>Integração WhatsApp</strong></h3>
+<ul>
+<li>Conexão com Twilio WhatsApp Business API</li>
+<li>Captura automática de mensagens</li>
+<li>Webhook para recebimento em tempo real</li>
+</ul>
+<h3 id="-inteligência-artificial">🤖 <strong>Inteligência Artificial</strong></h3>
+<ul>
+<li>Qualificação automática de leads</li>
+<li>Análise de intenção de compra</li>
+<li>Respostas automáticas personalizadas</li>
+<li>Integração com OpenAI GPT</li>
+</ul>
+<h3 id="-dashboard-analytics">📊 <strong>Dashboard Analytics</strong></h3>
+<ul>
+<li>Métricas em tempo real</li>
+<li>Gráficos de performance</li>
+<li>Relatórios de conversão</li>
+<li>KPIs de vendas</li>
+</ul>
+<h3 id="-gestão-de-leads">👥 <strong>Gestão de Leads</strong></h3>
+<ul>
+<li>Cadastro manual e automático</li>
+<li>Categorização por status</li>
+<li>Histórico completo de interações</li>
+<li>Importação em lote via CSV</li>
+</ul>
+<h3 id="-sistema-de-conversas">💬 <strong>Sistema de Conversas</strong></h3>
+<ul>
+<li>Visualização de conversas completas</li>
+<li>Histórico de mensagens</li>
+<li>Status de leitura e entrega</li>
+<li>Interface similar ao WhatsApp</li>
+</ul>
+<hr>
+<h2 id="-demonstração">🚀 Demonstração</h2>
+<h3 id="1-criação-de-conta">1. <strong>Criação de Conta</strong></h3>
+<p><img src="file:////videos/criando-conta.gif" alt="Criando Conta"></p>
+<p>O processo de registro é simples e intuitivo. Os usuários podem criar uma conta fornecendo informações básicas como nome, email, senha e nome da empresa.</p>
+<h3 id="2-login-no-sistema">2. <strong>Login no Sistema</strong></h3>
+<p><img src="file:////videos/fazendo-login.gif" alt="Fazendo Login"></p>
+<p>Acesso seguro ao sistema com autenticação robusta e redirecionamento automático para o dashboard.</p>
+<h3 id="3-dashboard-principal">3. <strong>Dashboard Principal</strong></h3>
+<p><img src="file:////videos/dashboard.gif" alt="Dashboard"></p>
+<p>O dashboard oferece uma visão completa do negócio com:</p>
+<ul>
+<li><strong>KPIs em tempo real</strong>: Total de leads, conversas ativas, taxa de conversão</li>
+<li><strong>Gráficos interativos</strong>: Evolução mensal de leads e conversas</li>
+<li><strong>Métricas de performance</strong>: Análise detalhada de vendas</li>
+<li><strong>Notificações</strong>: Alertas de novas conversas e leads</li>
+</ul>
+<h3 id="4-lista-de-leads">4. <strong>Lista de Leads</strong></h3>
+<p><img src="file:////videos/lista-de-leads.gif" alt="Lista de Leads"></p>
+<p>Gerenciamento completo de leads com:</p>
+<ul>
+<li><strong>Filtros avançados</strong>: Por status, data, origem</li>
+<li><strong>Busca inteligente</strong>: Por nome, telefone, email</li>
+<li><strong>Ações em lote</strong>: Atualização de status múltiplo</li>
+<li><strong>Importação CSV</strong>: Carregamento de leads em massa</li>
+</ul>
+<h3 id="5-criação-manual-de-lead">5. <strong>Criação Manual de Lead</strong></h3>
+<p><img src="file:////videos/criando-lead-manual.gif" alt="Criando Lead Manual"></p>
+<p>Cadastro manual de leads com validação de dados e integração automática com o sistema de conversas.</p>
+<h3 id="6-atualização-de-lead">6. <strong>Atualização de Lead</strong></h3>
+<p><img src="file:////videos/atualizando-lead.gif" alt="Atualizando Lead"></p>
+<p>Edição de informações do lead com histórico de alterações e rastreamento de mudanças.</p>
+<h3 id="7-deleção-de-lead">7. <strong>Deleção de Lead</strong></h3>
+<p><img src="file:////videos/deletando-lead.gif" alt="Deletando Lead"></p>
+<p>Remoção segura de leads com confirmação e backup de dados.</p>
+<h3 id="8-visualização-de-conversa">8. <strong>Visualização de Conversa</strong></h3>
+<p><img src="file:////videos/mostrando-conversa.gif" alt="Mostrando Conversa"></p>
+<p>Interface de conversa similar ao WhatsApp com:</p>
+<ul>
+<li><strong>Histórico completo</strong>: Todas as mensagens trocadas</li>
+<li><strong>Status de entrega</strong>: Confirmação de leitura</li>
+<li><strong>Informações do lead</strong>: Dados do contato integrados</li>
+<li><strong>Ações rápidas</strong>: Qualificação e notas</li>
+</ul>
+<h3 id="9-conversa-no-whatsapp">9. <strong>Conversa no WhatsApp</strong></h3>
+<p><img src="file:////videos/conversa-no-whats.gif" alt="Conversa no WhatsApp"></p>
+<p>Demonstração da integração real com WhatsApp Business, mostrando como as mensagens são capturadas e sincronizadas automaticamente.</p>
+<h3 id="10-lead-e-sua-conversa">10. <strong>Lead e Sua Conversa</strong></h3>
+<p><img src="file:////videos/mostrando-lead-e-sua-conversa.gif" alt="Mostrando Lead e Sua Conversa"></p>
+<p>Visão integrada mostrando como um lead está conectado com sua conversa correspondente, permitindo gestão completa do relacionamento.</p>
+<h3 id="11-configurações-do-sistema">11. <strong>Configurações do Sistema</strong></h3>
+<p><img src="file:////videos/config.gif" alt="Configurações"></p>
+<p>Painel de configurações com:</p>
+<ul>
+<li><strong>Integração Twilio</strong>: Configuração de credenciais</li>
+<li><strong>OpenAI API</strong>: Chave para IA</li>
+<li><strong>Dados da empresa</strong>: Personalização da marca</li>
+<li><strong>Webhooks</strong>: Configuração de notificações</li>
+</ul>
+<hr>
+<h2 id="️-tecnologias">🛠️ Tecnologias</h2>
+<h3 id="frontend"><strong>Frontend</strong></h3>
+<ul>
+<li><strong>Next.js 15.4.1</strong> - Framework React com App Router</li>
+<li><strong>TypeScript 5.0</strong> - Tipagem estática</li>
+<li><strong>Tailwind CSS 3.4.17</strong> - Framework CSS utilitário</li>
+<li><strong>Radix UI</strong> - Componentes acessíveis</li>
+<li><strong>Lucide React</strong> - Ícones modernos</li>
+<li><strong>Recharts</strong> - Gráficos interativos</li>
+</ul>
+<h3 id="backend"><strong>Backend</strong></h3>
+<ul>
+<li><strong>Next.js API Routes</strong> - API RESTful</li>
+<li><strong>Prisma 6.12.0</strong> - ORM moderno</li>
+<li><strong>SQLite</strong> - Banco de dados</li>
+<li><strong>NextAuth.js</strong> - Autenticação</li>
+<li><strong>bcryptjs</strong> - Hash de senhas</li>
+</ul>
+<h3 id="integrações"><strong>Integrações</strong></h3>
+<ul>
+<li><strong>Twilio</strong> - WhatsApp Business API</li>
+<li><strong>OpenAI</strong> - Inteligência Artificial</li>
+<li><strong><a href="http://Socket.io">Socket.io</a></strong> - Comunicação em tempo real</li>
+<li><strong>Redis</strong> - Cache e sessões</li>
+</ul>
+<h3 id="ferramentas-de-desenvolvimento"><strong>Ferramentas de Desenvolvimento</strong></h3>
+<ul>
+<li><strong>ESLint</strong> - Linting de código</li>
+<li><strong>Jest</strong> - Testes unitários</li>
+<li><strong>Testing Library</strong> - Testes de componentes</li>
+<li><strong>Turbopack</strong> - Bundler rápido</li>
+</ul>
+<hr>
+<h2 id="-instalação">📦 Instalação</h2>
+<h3 id="pré-requisitos">Pré-requisitos</h3>
+<ul>
+<li>Node.js 18+</li>
+<li>npm ou yarn</li>
+<li>Conta Twilio (para WhatsApp Business)</li>
+<li>Chave API OpenAI (opcional)</li>
+</ul>
+<h3 id="1-clone-o-repositório">1. Clone o repositório</h3>
+<pre><code class="language-bash">git <span class="hljs-built_in">clone</span> https://github.com/seu-usuario/cursor-saas-whats-leads.git
+<span class="hljs-built_in">cd</span> cursor-saas-whats-leads
+</code></pre>
+<h3 id="2-instale-as-dependências">2. Instale as dependências</h3>
+<pre><code class="language-bash">npm install
+<span class="hljs-comment"># ou</span>
+yarn install
+</code></pre>
+<h3 id="3-configure-as-variáveis-de-ambiente">3. Configure as variáveis de ambiente</h3>
+<pre><code class="language-bash"><span class="hljs-built_in">cp</span> .env.example .env.local
+</code></pre>
+<p>Edite o arquivo <code>.env.local</code> com suas configurações:</p>
+<pre><code class="language-env"># Database
+DATABASE_URL=&quot;file:./dev.db&quot;
+
+# NextAuth
+NEXTAUTH_SECRET=&quot;seu-secret-aqui&quot;
+NEXTAUTH_URL=&quot;http://localhost:3000&quot;
+
+# Twilio (opcional)
+TWILIO_ACCOUNT_SID=&quot;seu-account-sid&quot;
+TWILIO_AUTH_TOKEN=&quot;seu-auth-token&quot;
+TWILIO_WHATSAPP_NUMBER=&quot;+1234567890&quot;
+
+# OpenAI (opcional)
+OPENAI_API_KEY=&quot;sua-chave-api&quot;
+</code></pre>
+<h3 id="4-configure-o-banco-de-dados">4. Configure o banco de dados</h3>
+<pre><code class="language-bash">npx prisma generate
+npx prisma db push
+</code></pre>
+<h3 id="5-execute-o-projeto">5. Execute o projeto</h3>
+<pre><code class="language-bash">npm run dev
+<span class="hljs-comment"># ou</span>
+yarn dev
+</code></pre>
+<p>Acesse <a href="http://localhost:3000">http://localhost:3000</a> para ver o projeto funcionando.</p>
+<hr>
+<h2 id="️-configuração">⚙️ Configuração</h2>
+<h3 id="configuração-do-twilio">Configuração do Twilio</h3>
+<ol>
+<li><strong>Crie uma conta no Twilio</strong></li>
+<li><strong>Ative o WhatsApp Business API</strong></li>
+<li><strong>Configure o webhook</strong>:
+<ul>
+<li>URL: <code>https://seu-dominio.com/api/webhooks/twilio</code></li>
+<li>Método: POST</li>
+</ul>
+</li>
+</ol>
+<h3 id="configuração-da-openai">Configuração da OpenAI</h3>
+<ol>
+<li><strong>Obtenha uma chave API</strong> em <a href="https://platform.openai.com">platform.openai.com</a></li>
+<li><strong>Configure no painel</strong> de configurações do sistema</li>
+<li><strong>Personalize o prompt</strong> de qualificação de leads</li>
+</ol>
+<h3 id="configuração-de-produção">Configuração de Produção</h3>
+<pre><code class="language-bash"><span class="hljs-comment"># Build para produção</span>
+npm run build
+
+<span class="hljs-comment"># Iniciar servidor de produção</span>
+npm start
+</code></pre>
+<hr>
+<h2 id="-interface">🎨 Interface</h2>
+<h3 id="design-system">Design System</h3>
+<ul>
+<li><strong>Tema escuro/claro</strong> automático</li>
+<li><strong>Componentes reutilizáveis</strong> com Radix UI</li>
+<li><strong>Responsividade completa</strong> para mobile e desktop</li>
+<li><strong>Acessibilidade</strong> seguindo padrões WCAG</li>
+</ul>
+<h3 id="componentes-principais">Componentes Principais</h3>
+<ul>
+<li><strong>Dashboard Cards</strong> - Métricas e KPIs</li>
+<li><strong>Data Tables</strong> - Listas com paginação</li>
+<li><strong>Forms</strong> - Validação com Zod</li>
+<li><strong>Modals</strong> - Diálogos e confirmações</li>
+<li><strong>Charts</strong> - Gráficos interativos</li>
+</ul>
+<hr>
+<h2 id="-estrutura-do-projeto">📊 Estrutura do Projeto</h2>
+<pre><code>src/
+├── app/                    # App Router (Next.js 13+)
+│   ├── api/               # API Routes
+│   ├── dashboard/         # Páginas do dashboard
+│   ├── login/            # Página de login
+│   └── register/         # Página de registro
+├── components/           # Componentes React
+│   ├── ui/              # Componentes base
+│   ├── auth/            # Componentes de autenticação
+│   ├── dashboard/       # Componentes do dashboard
+│   └── leads/           # Componentes de leads
+├── hooks/               # Custom hooks
+├── lib/                 # Utilitários e configurações
+├── schemas/             # Schemas de validação (Zod)
+├── services/            # Lógica de negócio
+└── types/               # Tipos TypeScript
+
+prisma/
+├── schema.prisma        # Schema do banco de dados
+└── migrations/          # Migrações do banco
+
+public/
+├── videos/             # GIFs demonstrativos
+└── ...                 # Arquivos estáticos
+</code></pre>
+<hr>
+<h2 id="-contribuição">🤝 Contribuição</h2>
+<ol>
+<li><strong>Fork o projeto</strong></li>
+<li><strong>Crie uma branch</strong> para sua feature (<code>git checkout -b feature/AmazingFeature</code>)</li>
+<li><strong>Commit suas mudanças</strong> (<code>git commit -m 'Add some AmazingFeature'</code>)</li>
+<li><strong>Push para a branch</strong> (<code>git push origin feature/AmazingFeature</code>)</li>
+<li><strong>Abra um Pull Request</strong></li>
+</ol>
+<h3 id="padrões-de-código">Padrões de Código</h3>
+<ul>
+<li><strong>TypeScript</strong> para tipagem</li>
+<li><strong>ESLint</strong> para linting</li>
+<li><strong>Prettier</strong> para formatação</li>
+<li><strong>Conventional Commits</strong> para mensagens</li>
+</ul>
+<hr>
+<h2 id="-licença">📄 Licença</h2>
+<p>Este projeto está sob a licença MIT. Veja o arquivo <a href="LICENSE">LICENSE</a> para mais detalhes.</p>
+<hr>
+<h2 id="-suporte">📞 Suporte</h2>
+<ul>
+<li><strong>Email</strong>: <a href="mailto:suporte@whatsleads.com">suporte@whatsleads.com</a></li>
+<li><strong>Documentação</strong>: <a href="https://docs.whatsleads.com">docs.whatsleads.com</a></li>
+<li><strong>Issues</strong>: <a href="https://github.com/seu-usuario/cursor-saas-whats-leads/issues">GitHub Issues</a></li>
+</ul>
+<hr>
+<div align="center">
+<p><strong>Desenvolvido com ❤️ para revolucionar a automação de vendas</strong></p>
+<p><a href="https://github.com/seu-usuario/cursor-saas-whats-leads"><img src="https://img.shields.io/github/stars/seu-usuario/cursor-saas-whats-leads?style=social" alt="GitHub stars"></a>
+<a href="https://github.com/seu-usuario/cursor-saas-whats-leads"><img src="https://img.shields.io/github/forks/seu-usuario/cursor-saas-whats-leads?style=social" alt="GitHub forks"></a></p>
+</div>
+
+            
+            
+        </body>
+        </html>
