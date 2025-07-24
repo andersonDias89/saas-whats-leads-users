@@ -338,9 +338,9 @@ Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para ma
 
 <div align="center">
 
-**Desenvolvido com ❤️ para revolucionar a automação de vendas**
+**Desenvolvido por Anderson Dias**
 
-[![GitHub stars](https://img.shields.io/github/stars/seu-usuario/cursor-saas-whats-leads?style=social)](https://github.com/seu-usuario/cursor-saas-whats-leads)
-[![GitHub forks](https://img.shields.io/github/forks/seu-usuario/cursor-saas-whats-leads?style=social)](https://github.com/seu-usuario/cursor-saas-whats-leads)
+[![GitHub stars](https://img.shields.io/github/stars/andersonDias89/cursor-saas-whats-leads?style=social)](https://github.com/seu-usuario/cursor-saas-whats-leads)
+[![GitHub forks](https://img.shields.io/github/forks/andersonDias89/cursor-saas-whats-leads?style=social)](https://github.com/seu-usuario/cursor-saas-whats-leads)
 
 </div>
