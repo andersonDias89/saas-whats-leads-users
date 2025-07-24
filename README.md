@@ -32,7 +32,7 @@
 
 ## 🎯 Sobre o Projeto
 
-O **WhatsLeads** é uma plataforma SaaS completa para automação de vendas via WhatsApp. O sistema captura automaticamente conversas do WhatsApp, qualifica leads usando inteligência artificial e fornece um dashboard completo para gerenciamento de vendas.
+O **WhatsLeads** é um SaaS completo para automação de vendas via WhatsApp. O sistema captura automaticamente conversas do WhatsApp, qualifica leads usando inteligência artificial e fornece um dashboard completo para gerenciamento de vendas.
 
 ### 🎯 Principais Benefícios
 
