@@ -331,7 +331,7 @@ public/
 
 ## 📄 Licença
 
-Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
+Este projeto é proprietário e confidencial. Todos os direitos reservados a Anderson Dias. Veja o arquivo [LICENSE](LICENSE) para mais detalhes sobre restrições de uso.
 
 
 ---
